@@ -1,0 +1,74 @@
+/* ==========================
+   Google Font
+========================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+/* ==========================
+   Body
+========================== */
+
+body{
+    background:#F8FAFC;
+    color:#1F2937;
+    overflow-x:hidden;
+}
+
+/* ==========================
+   Main Layout
+========================== */
+
+.app-container{
+    display:flex;
+    min-height:100vh;
+}
+
+/* ==========================
+   Main Content
+========================== */
+
+.main-content{
+    flex:1;
+    margin-left:270px;
+    display:flex;
+    flex-direction:column;
+}
+
+/* ==========================
+   Content Area
+========================== */
+
+.content-area{
+    padding:30px;
+    flex:1;
+}
+
+/* ==========================
+   Links
+========================== */
+
+a{
+    text-decoration:none;
+}
+
+/* ==========================
+   Scroll Bar
+========================== */
+
+::-webkit-scrollbar{
+    width:8px;
+}
+
+::-webkit-scrollbar-thumb{
+    background:#CBD5E1;
+    border-radius:20px;
+}
+
+::-webkit-scrollbar-track{
+    background:#F1F5F9;
+}

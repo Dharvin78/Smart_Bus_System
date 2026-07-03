@@ -1,0 +1,149 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Bus Charter - Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                        url("{% static 'assets/login.png' %}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .login-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+            margin: 20px;
+        }
+
+        .login-container h2 {
+            margin-bottom: 1.5rem;
+            color: #333;
+            text-align: center;
+            font-size: 1.8rem;
+        }
+
+        /* Error Message Styling */
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+            text-align: center;
+            border: 1px solid #f5c6cb;
+        }
+
+        .input-group { position: relative; margin-bottom: 1rem; }
+        .input-group i { position: absolute; top: 50%; left: 12px; transform: translateY(-50%); color: #888; }
+        .input-group input { width: 100%; padding: 12px 40px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; outline: none; }
+        
+        .toggle-password { right: 12px; left: auto !important; cursor: pointer; }
+
+        .options-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; font-size: 0.85rem; }
+        .remember-me-container { display: flex; align-items: center; color: #555; cursor: pointer; }
+        .remember-me-container input { margin-right: 8px; }
+
+        .btn-login {
+            width: 100%; padding: 12px; background-color: #007BFF; color: white;
+            border: none; border-radius: 6px; font-size: 1rem; font-weight: 600;
+            cursor: pointer; transition: background 0.3s;
+        }
+        .btn-login:hover { background-color: #0056b3; }
+
+        .divider { display: flex; align-items: center; text-align: center; margin: 1.5rem 0; color: #888; font-size: 0.85rem; }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #ddd; }
+        .divider:not(:empty)::before { margin-right: .5rem; }
+        .divider:not(:empty)::after { margin-left: .5rem; }
+
+        .google-btn {
+            width: 100%; height: 45px; background-color: #fff; border: 1px solid #dadce0;
+            border-radius: 6px; display: flex; align-items: center; justify-content: center;
+            text-decoration: none; color: #3c4043; font-weight: 500; font-size: 0.9rem;
+        }
+        .google-icon { width: 18px; height: 18px; margin-right: 10px; }
+
+        .footer-links { margin-top: 1.5rem; text-align: center; font-size: 0.85rem; }
+        .footer-links a { color: #007BFF; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <h2>Smart Bus Charter</h2>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="error-message">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="input-group">
+                <i class="fa-solid fa-user"></i>
+                <input type="text" name="username" placeholder="Username" required>
+            </div>
+
+            <div class="input-group">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" name="password" id="passwordInput" placeholder="Password" required>
+                <i class="fa-solid fa-eye toggle-password" id="togglePassword"></i>
+            </div>
+            
+            <div class="options-row">
+                <label class="remember-me-container">
+                    <input type="checkbox" name="remember"> Remember me
+                </label>
+                <a href="#" class="forgot-link">Forgot Password?</a>
+            </div>
+            
+            <button type="submit" class="btn-login">Login</button>
+        </form>
+
+        <div class="divider">or sign in with</div>
+
+        <a href="#" class="google-btn">
+            <img class="google-icon" src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google">
+            Continue with Google
+        </a>
+
+        <div class="footer-links">
+            <p>Don't have an account? <a href="/signup/">Sign Up</a></p>
+        </div>
+    </div>
+
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const passwordInput = document.querySelector('#passwordInput');
+
+        togglePassword.addEventListener('click', function () {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+    </script>
+</body>
+</html>

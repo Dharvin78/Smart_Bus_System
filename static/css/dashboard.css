@@ -1,0 +1,72 @@
+/* ==========================
+   PAGE HEADER
+========================== */
+
+.page-header{
+    background:#ffffff;
+    border-radius:20px;
+    padding:35px;
+    margin-bottom:30px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    box-shadow:0 10px 30px rgba(0,0,0,.05);
+}
+
+.page-header h1{
+    font-size:36px;
+    font-weight:700;
+    margin-bottom:10px;
+    color:#1E293B;
+}
+
+.page-header h1 span{
+    color:#2563EB;
+}
+
+.page-header p{
+    color:#64748B;
+    font-size:16px;
+}
+
+/* ==========================
+   QUICK ACTIONS
+========================== */
+
+.quick-actions{
+    display:flex;
+    gap:15px;
+}
+
+.btn-primary{
+
+    background:#2563EB;
+    color:#fff;
+    border:none;
+    padding:14px 22px;
+    border-radius:12px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.btn-primary:hover{
+    background:#1D4ED8;
+}
+
+.btn-secondary{
+
+    background:#fff;
+    border:1px solid #D1D5DB;
+    color:#374151;
+    padding:14px 22px;
+    border-radius:12px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.btn-secondary:hover{
+
+    background:#F8FAFC;
+
+}

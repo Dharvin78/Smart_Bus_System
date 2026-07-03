@@ -1,0 +1,185 @@
+/* ==========================
+   KPI GRID
+========================== */
+
+.kpi-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(4,1fr);
+
+    gap:25px;
+
+    margin-bottom:30px;
+
+}
+
+/* Card */
+
+.kpi-card{
+
+    background:#ffffff;
+
+    border-radius:20px;
+
+    padding:25px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:20px;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.05);
+
+    transition:.3s;
+
+}
+
+.kpi-card:hover{
+
+    transform:translateY(-6px);
+
+}
+
+/* Icon */
+
+.kpi-icon{
+
+    width:70px;
+
+    height:70px;
+
+    border-radius:18px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    color:white;
+
+    font-size:28px;
+
+}
+
+/* Colors */
+
+.revenue{
+
+    background:#2563EB;
+
+}
+
+.booking{
+
+    background:#22C55E;
+
+}
+
+.vehicle{
+
+    background:#F59E0B;
+
+}
+
+.maintenance{
+
+    background:#EF4444;
+
+}
+
+/* Text */
+
+.kpi-content h5{
+
+    color:#64748B;
+
+    font-size:15px;
+
+    margin-bottom:6px;
+
+}
+
+.kpi-content h2{
+
+    font-size:32px;
+
+    margin-bottom:6px;
+
+    color:#1E293B;
+
+}
+
+.kpi-content span{
+
+    color:#94A3B8;
+
+    font-size:14px;
+
+}
+
+.success-text{
+
+    color:#22C55E !important;
+
+}
+
+.danger-text{
+
+    color:#EF4444 !important;
+
+}
+
+/* ==========================
+   CHARTS
+========================== */
+
+.chart-grid{
+
+    display:grid;
+
+    grid-template-columns:2fr 1fr;
+
+    gap:25px;
+
+    margin-bottom:30px;
+
+}
+
+.chart-card{
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:20px;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.05);
+
+}
+
+.card-header{
+
+    margin-bottom:20px;
+
+}
+
+.card-header h4{
+
+    font-size:20px;
+
+    font-weight:600;
+
+    color:#1E293B;
+
+}
+
+canvas{
+
+    width:100% !important;
+
+    height:320px !important;
+
+}

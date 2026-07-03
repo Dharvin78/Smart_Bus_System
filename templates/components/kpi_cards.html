@@ -1,0 +1,87 @@
+<div class="kpi-grid">
+
+    <!-- Revenue -->
+    <div class="kpi-card">
+
+        <div class="kpi-icon revenue">
+            <i class="fa-solid fa-wallet"></i>
+        </div>
+
+        <div class="kpi-content">
+            <h5>Total Revenue</h5>
+            <h2>RM {{ total_revenue|default:"0.00" }}</h2>
+            <span class="success-text">
+                <i class="fa-solid fa-arrow-trend-up"></i>
+                Revenue Generated
+            </span>
+        </div>
+
+    </div>
+
+    <!-- Bookings -->
+
+    <div class="kpi-card">
+
+        <div class="kpi-icon booking">
+            <i class="fa-solid fa-calendar-check"></i>
+        </div>
+
+        <div class="kpi-content">
+            <h5>Total Bookings</h5>
+            <h2>{{ total_bookings|default:"0" }}</h2>
+            <span>
+                Active Bookings
+            </span>
+        </div>
+
+    </div>
+
+    <!-- Vehicles -->
+
+    <div class="kpi-card">
+
+        <div class="kpi-icon vehicle">
+            <i class="fa-solid fa-bus"></i>
+        </div>
+
+        <div class="kpi-content">
+
+            <h5>Vehicles</h5>
+
+            <h2>{{ total_vehicles|default:"0" }}</h2>
+
+            <span>
+                Fleet Available
+            </span>
+
+        </div>
+
+    </div>
+
+    <!-- Maintenance -->
+
+    <div class="kpi-card">
+
+        <div class="kpi-icon maintenance">
+
+            <i class="fa-solid fa-screwdriver-wrench"></i>
+
+        </div>
+
+        <div class="kpi-content">
+
+            <h5>Maintenance</h5>
+
+            <h2>{{ maintenance_due|default:"0" }}</h2>
+
+            <span class="danger-text">
+
+                Pending Services
+
+            </span>
+
+        </div>
+
+    </div>
+
+</div>

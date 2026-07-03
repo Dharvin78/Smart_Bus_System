@@ -1,0 +1,18 @@
+<div class="page-header">
+
+    <div class="page-header-left">
+
+        <h1>
+            👋 Good Afternoon,
+            <span>{{ request.user.first_name|default:request.user.username }}</span>
+        </h1>
+
+        <p>
+            Welcome back! Here's what's happening in your Smart Bus Charter System today.
+        </p>
+
+    </div>
+
+    {% include "components/quick_actions.html" %}
+
+</div>

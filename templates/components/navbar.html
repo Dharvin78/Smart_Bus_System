@@ -1,0 +1,59 @@
+<nav class="navbar-custom">
+
+    <!-- Left Side -->
+    <div class="navbar-left">
+
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <div class="search-box">
+
+            <i class="fa-solid fa-magnifying-glass"></i>
+
+            <input
+                type="text"
+                placeholder="Search bookings, vehicles..."
+            >
+
+        </div>
+
+    </div>
+
+    <!-- Right Side -->
+
+    <div class="navbar-right">
+
+        <button class="notification-btn">
+
+            <i class="fa-regular fa-bell"></i>
+
+            <span class="badge">3</span>
+
+        </button>
+
+        <div class="profile-menu">
+
+            <div class="profile-avatar">
+
+                {{ request.user.username|first|upper }}
+
+            </div>
+
+            <div class="profile-info">
+
+                <strong>{{ request.user.username }}</strong>
+
+                {% if request.user.is_staff %}
+                    <small>Administrator</small>
+                {% else %}
+                    <small>Customer</small>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</nav>
