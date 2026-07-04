@@ -1,0 +1,250 @@
+{% extends "crud/base_list.html" %}
+
+{% block page_title %}
+Booking Management
+{% endblock %}
+
+{% block header_title %}
+<i class="fas fa-calendar-check me-2"></i>
+Booking Management
+{% endblock %}
+
+{% block header_subtitle %}
+Manage customer bookings and reservations.
+{% endblock %}
+
+{% block add_button %}
+
+<a href="{% url 'bookings:booking_create' %}" class="btn btn-primary">
+    <i class="fas fa-plus me-2"></i>
+    Add Booking
+</a>
+
+{% endblock %}
+
+{% block search %}
+
+<form method="GET" class="mb-4">
+
+    <div class="input-group">
+
+        <input
+            type="text"
+            name="search"
+            class="form-control"
+            placeholder="Search booking number, customer, vehicle, driver..."
+            value="{{ search }}">
+
+        <button class="btn btn-outline-primary" type="submit">
+            <i class="fas fa-search"></i>
+        </button>
+
+    </div>
+
+</form>
+
+{% endblock %}
+
+{% block table %}
+
+<table class="table table-hover align-middle">
+
+    <thead>
+
+        <tr>
+
+            <th>Booking No.</th>
+            <th>Customer</th>
+            <th>Vehicle</th>
+            <th>Driver</th>
+            <th>Travel Date</th>
+            <th>Destination</th>
+            <th>Status</th>
+            <th>Payment</th>
+            <th width="170">Actions</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+    {% for booking in bookings %}
+
+        <tr>
+
+            <td>
+                <strong>{{ booking.booking_number }}</strong>
+            </td>
+
+            <td>
+                {{ booking.customer.user.get_full_name|default:booking.customer.user.username }}
+            </td>
+
+            <td>
+                {{ booking.vehicle.registration_number }}
+            </td>
+
+            <td>
+                {{ booking.driver.full_name }}
+            </td>
+
+            <td>
+                {{ booking.travel_date }}
+            </td>
+
+            <td>
+                {{ booking.destination }}
+            </td>
+
+            <td>
+
+                {% if booking.booking_status == "Confirmed" %}
+
+                    <span class="badge bg-success">
+                        {{ booking.booking_status }}
+                    </span>
+
+                {% elif booking.booking_status == "Pending" %}
+
+                    <span class="badge bg-warning text-dark">
+                        {{ booking.booking_status }}
+                    </span>
+
+                {% elif booking.booking_status == "Completed" %}
+
+                    <span class="badge bg-primary">
+                        {{ booking.booking_status }}
+                    </span>
+
+                {% else %}
+
+                    <span class="badge bg-danger">
+                        {{ booking.booking_status }}
+                    </span>
+
+                {% endif %}
+
+            </td>
+
+            <td>
+
+                {% if booking.payment_status == "Paid" %}
+
+                    <span class="badge bg-success">
+                        {{ booking.payment_status }}
+                    </span>
+
+                {% elif booking.payment_status == "Pending" %}
+
+                    <span class="badge bg-warning text-dark">
+                        {{ booking.payment_status }}
+                    </span>
+
+                {% else %}
+
+                    <span class="badge bg-secondary">
+                        {{ booking.payment_status }}
+                    </span>
+
+                {% endif %}
+
+            </td>
+
+            <td>
+
+                <a href="{% url 'bookings:booking_update' booking.pk %}"
+                   class="btn btn-warning btn-sm">
+
+                    <i class="fas fa-edit"></i>
+
+                </a>
+
+                <a href="{% url 'bookings:booking_delete' booking.pk %}"
+                   class="btn btn-danger btn-sm">
+
+                    <i class="fas fa-trash"></i>
+
+                </a>
+
+            </td>
+
+        </tr>
+
+    {% empty %}
+
+        <tr>
+
+            <td colspan="9" class="text-center py-5">
+
+                <h5 class="text-muted">
+                    No bookings found.
+                </h5>
+
+            </td>
+
+        </tr>
+
+    {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% endblock %}
+
+{% block pagination %}
+
+{% if is_paginated %}
+
+<nav>
+
+    <ul class="pagination justify-content-center">
+
+        {% if page_obj.has_previous %}
+
+        <li class="page-item">
+
+            <a class="page-link"
+               href="?search={{ search }}&page={{ page_obj.previous_page_number }}">
+
+                Previous
+
+            </a>
+
+        </li>
+
+        {% endif %}
+
+        <li class="page-item active">
+
+            <span class="page-link">
+
+                {{ page_obj.number }}
+
+            </span>
+
+        </li>
+
+        {% if page_obj.has_next %}
+
+        <li class="page-item">
+
+            <a class="page-link"
+               href="?search={{ search }}&page={{ page_obj.next_page_number }}">
+
+                Next
+
+            </a>
+
+        </li>
+
+        {% endif %}
+
+    </ul>
+
+</nav>
+
+{% endif %}
+
+{% endblock %}

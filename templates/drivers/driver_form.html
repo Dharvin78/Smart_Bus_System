@@ -1,0 +1,198 @@
+{% extends "crud/base_form.html" %}
+
+{% load static %}
+
+{% block page_title %}
+{{ title }}
+{% endblock %}
+
+{% block form_title %}
+<i class="fas fa-id-card me-2"></i>
+{{ title }}
+{% endblock %}
+
+{% block form_content %}
+
+<form method="POST" enctype="multipart/form-data">
+
+    {% csrf_token %}
+
+    <div class="row">
+
+        <div class="col-md-6 mb-3">
+
+            <label class="form-label fw-semibold">
+                Full Name
+            </label>
+
+            {{ form.full_name }}
+
+            {{ form.full_name.errors }}
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label class="form-label fw-semibold">
+                IC / Passport
+            </label>
+
+            {{ form.ic_passport }}
+
+            {{ form.ic_passport.errors }}
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label class="form-label fw-semibold">
+                Phone Number
+            </label>
+
+            {{ form.phone }}
+
+            {{ form.phone.errors }}
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label class="form-label fw-semibold">
+                Email Address
+            </label>
+
+            {{ form.email }}
+
+            {{ form.email.errors }}
+
+        </div>
+
+        <div class="col-12 mb-3">
+
+            <label class="form-label fw-semibold">
+                Address
+            </label>
+
+            {{ form.address }}
+
+            {{ form.address.errors }}
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label class="form-label fw-semibold">
+                Driving License
+            </label>
+
+            {{ form.driving_license }}
+
+            {{ form.driving_license.errors }}
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label class="form-label fw-semibold">
+                License Expiry
+            </label>
+
+            {{ form.license_expiry }}
+
+            {{ form.license_expiry.errors }}
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label class="form-label fw-semibold">
+                Assigned Vehicle
+            </label>
+
+            {{ form.assigned_vehicle }}
+
+            {{ form.assigned_vehicle.errors }}
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label class="form-label fw-semibold">
+                Driver Status
+            </label>
+
+            {{ form.status }}
+
+            {{ form.status.errors }}
+
+        </div>
+
+        <div class="col-12 mb-3">
+
+            <label class="form-label fw-semibold">
+                Driver Photo
+            </label>
+
+            {{ form.photo }}
+
+            {{ form.photo.errors }}
+
+        </div>
+
+        <div class="col-12 text-center mb-4">
+
+            {% if form.instance.photo %}
+
+                <img
+                    id="previewImage"
+                    src="{{ form.instance.photo.url }}"
+                    class="img-thumbnail"
+                    style="max-width:300px;">
+
+            {% else %}
+
+                <img
+                    id="previewImage"
+                    src=""
+                    class="img-thumbnail"
+                    style="max-width:300px;display:none;">
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    <hr>
+
+    <div class="d-flex justify-content-end gap-2">
+
+        <a href="{% url 'drivers:driver_list' %}"
+           class="btn btn-secondary">
+
+            <i class="fas fa-arrow-left me-2"></i>
+
+            Back
+
+        </a>
+
+        <button type="submit"
+                class="btn btn-primary">
+
+            <i class="fas fa-save me-2"></i>
+
+            Save Driver
+
+        </button>
+
+    </div>
+
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
+
+<script src="{% static 'js/driver.js' %}"></script>
+
+{% endblock %}

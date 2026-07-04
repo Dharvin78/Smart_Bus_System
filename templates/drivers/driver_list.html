@@ -1,0 +1,216 @@
+{% extends "crud/base_list.html" %}
+
+{% load static %}
+
+{% block page_title %}
+Driver Management
+{% endblock %}
+
+{% block header_title %}
+<i class="fas fa-id-card me-2"></i>
+Driver Management
+{% endblock %}
+
+{% block header_subtitle %}
+Manage all registered drivers.
+{% endblock %}
+
+{% block add_button %}
+<a href="{% url 'drivers:driver_create' %}" class="btn btn-primary">
+    <i class="fas fa-plus me-2"></i>
+    Add Driver
+</a>
+{% endblock %}
+
+{% block search %}
+<form method="GET" class="mb-4">
+
+    <div class="input-group">
+
+        <input
+            type="text"
+            name="search"
+            class="form-control"
+            placeholder="Search driver name, phone or license..."
+            value="{{ search }}">
+
+        <button class="btn btn-outline-primary" type="submit">
+            <i class="fas fa-search"></i>
+        </button>
+
+    </div>
+
+</form>
+{% endblock %}
+
+{% block table %}
+
+<table class="table table-hover align-middle">
+
+    <thead class="table-primary">
+
+        <tr>
+
+            <th>Photo</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>License</th>
+            <th>Vehicle</th>
+            <th>Status</th>
+            <th width="180">Actions</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+    {% for driver in page_obj %}
+
+        <tr>
+
+            <td>
+
+                {% if driver.photo %}
+                    <img src="{{ driver.photo.url }}"
+                         class="img-thumbnail"
+                         style="width:70px;height:70px;object-fit:cover;">
+                {% else %}
+                    <span class="text-muted">No Photo</span>
+                {% endif %}
+
+            </td>
+
+            <td>{{ driver.full_name }}</td>
+
+            <td>{{ driver.phone }}</td>
+
+            <td>{{ driver.driving_license }}</td>
+
+            <td>
+
+                {% if driver.assigned_vehicle %}
+                    {{ driver.assigned_vehicle }}
+                {% else %}
+                    -
+                {% endif %}
+
+            </td>
+
+            <td>
+
+                {% if driver.status == "Available" %}
+                    <span class="badge bg-success">{{ driver.status }}</span>
+
+                {% elif driver.status == "On Trip" %}
+                    <span class="badge bg-primary">{{ driver.status }}</span>
+
+                {% elif driver.status == "Leave" %}
+                    <span class="badge bg-warning text-dark">{{ driver.status }}</span>
+
+                {% else %}
+                    <span class="badge bg-danger">{{ driver.status }}</span>
+
+                {% endif %}
+
+            </td>
+
+            <td>
+
+                <a href="{% url 'drivers:driver_update' driver.pk %}"
+                   class="btn btn-warning btn-sm">
+
+                    <i class="fas fa-edit"></i>
+
+                </a>
+
+                <a href="{% url 'drivers:driver_delete' driver.pk %}"
+                   class="btn btn-danger btn-sm">
+
+                    <i class="fas fa-trash"></i>
+
+                </a>
+
+            </td>
+
+        </tr>
+
+    {% empty %}
+
+        <tr>
+
+            <td colspan="7" class="text-center py-5">
+
+                <h5 class="text-muted">
+
+                    No drivers found.
+
+                </h5>
+
+            </td>
+
+        </tr>
+
+    {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% endblock %}
+
+{% block pagination %}
+
+{% if page_obj.has_other_pages %}
+
+<nav>
+
+<ul class="pagination justify-content-center">
+
+    {% if page_obj.has_previous %}
+
+    <li class="page-item">
+
+        <a class="page-link"
+           href="?page={{ page_obj.previous_page_number }}&search={{ search }}">
+
+            Previous
+
+        </a>
+
+    </li>
+
+    {% endif %}
+
+    <li class="page-item active">
+
+        <span class="page-link">
+
+            {{ page_obj.number }}
+
+        </span>
+
+    </li>
+
+    {% if page_obj.has_next %}
+
+    <li class="page-item">
+
+        <a class="page-link"
+           href="?page={{ page_obj.next_page_number }}&search={{ search }}">
+
+            Next
+
+        </a>
+
+    </li>
+
+    {% endif %}
+
+</ul>
+
+</nav>
+
+{% endif %}
+
+{% endblock %}

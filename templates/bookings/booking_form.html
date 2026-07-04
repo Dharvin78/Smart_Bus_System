@@ -1,0 +1,93 @@
+{% extends "crud/base_form.html" %}
+
+{% block form_title %}
+{{ title }}
+{% endblock %}
+
+{% block form_content %}
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    <div class="row">
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Customer</label>
+            {{ form.customer }}
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Vehicle</label>
+            {{ form.vehicle }}
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Driver</label>
+            {{ form.driver }}
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Passenger Count</label>
+            {{ form.passenger_count }}
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Pickup Location</label>
+            {{ form.pickup_location }}
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Destination</label>
+            {{ form.destination }}
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Travel Date</label>
+            {{ form.travel_date }}
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Departure Time</label>
+            {{ form.departure_time }}
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Return Date</label>
+            {{ form.return_date }}
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Total Price</label>
+            {{ form.total_price }}
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Booking Status</label>
+            {{ form.booking_status }}
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Payment Status</label>
+            {{ form.payment_status }}
+        </div>
+
+        <div class="col-12 mb-3">
+            <label class="form-label">Remarks</label>
+            {{ form.remarks }}
+        </div>
+
+    </div>
+
+    <button class="btn btn-primary">
+        Save Booking
+    </button>
+
+    <a href="{% url 'bookings:booking_list' %}"
+       class="btn btn-secondary">
+        Cancel
+    </a>
+
+</form>
+
+{% endblock %}

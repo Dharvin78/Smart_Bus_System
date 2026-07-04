@@ -1,0 +1,54 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}
+Delete Booking
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <div class="card shadow">
+
+        <div class="card-body text-center">
+
+            <h3 class="text-danger mb-4">
+
+                Delete Booking
+
+            </h3>
+
+            <p>
+
+                Are you sure you want to delete booking
+
+                <strong>{{ booking.booking_number }}</strong>?
+
+            </p>
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                <button class="btn btn-danger">
+
+                    Yes, Delete
+
+                </button>
+
+                <a href="{% url 'bookings:booking_list' %}"
+                   class="btn btn-secondary">
+
+                    Cancel
+
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
