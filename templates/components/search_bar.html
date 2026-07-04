@@ -1,0 +1,30 @@
+<form method="GET" class="mb-4">
+
+    <div class="input-group">
+
+        <input
+            type="text"
+            class="form-control"
+            name="search"
+            placeholder="{{ placeholder }}"
+            value="{{ search }}">
+
+        <button class="btn btn-primary" type="submit">
+
+            <i class="fas fa-search"></i>
+
+            Search
+
+        </button>
+
+        {% if search %}
+        <a href="{{ clear_url }}" class="btn btn-outline-secondary">
+
+            Clear
+
+        </a>
+        {% endif %}
+
+    </div>
+
+</form>
