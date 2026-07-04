@@ -1,0 +1,66 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}
+Delete Vehicle
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-6">
+
+            <div class="card shadow">
+
+                <div class="card-body text-center">
+
+                    <h3 class="text-danger">
+
+                        Delete Vehicle
+
+                    </h3>
+
+                    <p class="mt-3">
+
+                        Are you sure you want to delete
+
+                        <strong>
+
+                            {{ vehicle.vehicle_name }}
+
+                        </strong>?
+
+                    </p>
+
+                    <form method="POST">
+
+                        {% csrf_token %}
+
+                        <button class="btn btn-danger">
+
+                            Yes, Delete
+
+                        </button>
+
+                        <a href="{% url 'vehicles:vehicle_list' %}"
+                           class="btn btn-secondary">
+
+                            Cancel
+
+                        </a>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
