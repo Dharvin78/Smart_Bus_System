@@ -1,241 +1,180 @@
-{% extends "layouts/base.html" %}
+{% extends "crud/base_form.html" %}
 
 {% load static %}
 
-{% block title %}
+{% block form_title %}
+<i class="fas fa-bus me-2"></i>
 {{ title }}
 {% endblock %}
 
-{% block content %}
+{% block form_content %}
 
-<div class="container-fluid">
+<form method="POST" enctype="multipart/form-data">
 
-    <div class="row justify-content-center">
+    {% csrf_token %}
 
-        <div class="col-lg-10">
+    <div class="row">
 
-            <div class="card shadow-sm border-0">
+        <div class="col-md-6 mb-3">
 
-                <div class="card-header bg-primary text-white">
+            <label class="form-label fw-semibold">
+                Registration Number
+            </label>
 
-                    <h3 class="mb-0">
-                        <i class="fas fa-bus me-2"></i>
-                        {{ title }}
-                    </h3>
+            {{ form.registration_number }}
 
-                </div>
+            {{ form.registration_number.errors }}
 
-                <div class="card-body">
+        </div>
 
-                    <form method="POST" enctype="multipart/form-data">
+        <div class="col-md-6 mb-3">
 
-                        {% csrf_token %}
+            <label class="form-label fw-semibold">
+                Vehicle Name
+            </label>
 
-                        <div class="row">
+            {{ form.vehicle_name }}
 
-                            <!-- Registration -->
-                            <div class="col-md-6 mb-3">
+            {{ form.vehicle_name.errors }}
 
-                                <label class="form-label fw-semibold">
-                                    Registration Number
-                                </label>
+        </div>
 
-                                {{ form.registration_number }}
+        <div class="col-md-6 mb-3">
 
-                                {{ form.registration_number.errors }}
+            <label class="form-label fw-semibold">
+                Bus Type
+            </label>
 
-                            </div>
+            {{ form.bus_type }}
 
-                            <!-- Vehicle Name -->
-                            <div class="col-md-6 mb-3">
+            {{ form.bus_type.errors }}
 
-                                <label class="form-label fw-semibold">
-                                    Vehicle Name
-                                </label>
+        </div>
 
-                                {{ form.vehicle_name }}
+        <div class="col-md-6 mb-3">
 
-                                {{ form.vehicle_name.errors }}
+            <label class="form-label fw-semibold">
+                Seat Capacity
+            </label>
 
-                            </div>
+            {{ form.seat_capacity }}
 
-                            <!-- Bus Type -->
-                            <div class="col-md-6 mb-3">
+            {{ form.seat_capacity.errors }}
 
-                                <label class="form-label fw-semibold">
-                                    Bus Type
-                                </label>
+        </div>
 
-                                {{ form.bus_type }}
+        <div class="col-md-6 mb-3">
 
-                                {{ form.bus_type.errors }}
+            <label class="form-label fw-semibold">
+                Manufacture Year
+            </label>
 
-                            </div>
+            {{ form.manufacture_year }}
 
-                            <!-- Seat Capacity -->
-                            <div class="col-md-6 mb-3">
+            {{ form.manufacture_year.errors }}
 
-                                <label class="form-label fw-semibold">
-                                    Seat Capacity
-                                </label>
+        </div>
 
-                                {{ form.seat_capacity }}
+        <div class="col-md-6 mb-3">
 
-                                {{ form.seat_capacity.errors }}
+            <label class="form-label fw-semibold">
+                Status
+            </label>
 
-                            </div>
+            {{ form.status }}
 
-                            <!-- Manufacture Year -->
-                            <div class="col-md-6 mb-3">
+            {{ form.status.errors }}
 
-                                <label class="form-label fw-semibold">
-                                    Manufacture Year
-                                </label>
+        </div>
 
-                                {{ form.manufacture_year }}
+        <div class="col-md-6 mb-3">
 
-                                {{ form.manufacture_year.errors }}
+            <label class="form-label fw-semibold">
+                Insurance Expiry
+            </label>
 
-                            </div>
+            {{ form.insurance_expiry }}
 
-                            <!-- Status -->
-                            <div class="col-md-6 mb-3">
+            {{ form.insurance_expiry.errors }}
 
-                                <label class="form-label fw-semibold">
-                                    Status
-                                </label>
+        </div>
 
-                                {{ form.status }}
+        <div class="col-md-6 mb-3">
 
-                                {{ form.status.errors }}
+            <label class="form-label fw-semibold">
+                Road Tax Expiry
+            </label>
 
-                            </div>
+            {{ form.road_tax_expiry }}
 
-                            <!-- Insurance -->
-                            <div class="col-md-6 mb-3">
+            {{ form.road_tax_expiry.errors }}
 
-                                <label class="form-label fw-semibold">
-                                    Insurance Expiry
-                                </label>
+        </div>
 
-                                {{ form.insurance_expiry }}
+        <div class="col-12 mb-3">
 
-                                {{ form.insurance_expiry.errors }}
+            <label class="form-label fw-semibold">
+                Vehicle Image
+            </label>
 
-                            </div>
+            {{ form.image }}
 
-                            <!-- Road Tax -->
-                            <div class="col-md-6 mb-3">
+            {{ form.image.errors }}
 
-                                <label class="form-label fw-semibold">
-                                    Road Tax Expiry
-                                </label>
+        </div>
 
-                                {{ form.road_tax_expiry }}
+        <div class="col-12 text-center mb-4">
 
-                                {{ form.road_tax_expiry.errors }}
+            {% if form.instance.image %}
 
-                            </div>
+                <img id="previewImage"
+                     src="{{ form.instance.image.url }}"
+                     class="img-thumbnail"
+                     style="max-width:300px;">
 
-                            <!-- Image Upload -->
-                            <div class="col-12 mb-3">
+            {% else %}
 
-                                <label class="form-label fw-semibold">
-                                    Vehicle Image
-                                </label>
+                <img id="previewImage"
+                     src=""
+                     class="img-thumbnail"
+                     style="max-width:300px; display:none;">
 
-                                {{ form.image }}
-
-                                {{ form.image.errors }}
-
-                            </div>
-
-                            <!-- Image Preview -->
-                            <div class="col-12 text-center mb-4">
-
-                                {% if form.instance.image %}
-                                <img id="previewImage"
-                                    src="{{ form.instance.image.url }}"
-                                    class="img-thumbnail"
-                                    style="max-width:300px;">
-                                {% else %}
-                                <img id="previewImage"
-                                    src=""
-                                    class="img-thumbnail"
-                                    style="max-width:300px; display:none;">
-                                {% endif %}
-                            </div>
-
-                        </div>
-
-                        <hr>
-
-                        <div class="d-flex justify-content-end gap-2">
-
-                            <a href="{% url 'vehicles:vehicle_list' %}"
-                               class="btn btn-secondary">
-
-                                <i class="fas fa-times me-2"></i>
-
-                                Cancel
-
-                            </a>
-
-                            <button type="submit"
-                                    class="btn btn-primary">
-
-                                <i class="fas fa-save me-2"></i>
-
-                                Save Vehicle
-
-                            </button>
-
-                        </div>
-
-                    </form>
-
-                </div>
-
-            </div>
+            {% endif %}
 
         </div>
 
     </div>
 
-</div>
+    <hr>
+
+    <div class="d-flex justify-content-end gap-2">
+
+        <a href="{% url 'vehicles:vehicle_list' %}"
+           class="btn btn-secondary">
+
+            <i class="fas fa-arrow-left me-2"></i>
+
+            Back
+
+        </a>
+
+        <button type="submit"
+                class="btn btn-primary">
+
+            <i class="fas fa-save me-2"></i>
+
+            Save Vehicle
+
+        </button>
+
+    </div>
+
+</form>
 
 {% endblock %}
 
 {% block extra_js %}
 
-<script>
-
-document.addEventListener("DOMContentLoaded", function () {
-
-    const input = document.getElementById("id_image");
-
-    const preview = document.getElementById("previewImage");
-
-    if (input) {
-
-        input.addEventListener("change", function () {
-
-            const file = this.files[0];
-
-            if (file) {
-
-                preview.src = URL.createObjectURL(file);
-
-                preview.style.display = "block";
-
-            }
-
-        });
-
-    }
-
-});
-
-</script>
+<script src="{% static 'js/vehicle.js' %}"></script>
 
 {% endblock %}

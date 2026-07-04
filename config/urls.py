@@ -20,17 +20,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-
-    path('', include('apps.accounts.urls')),
-    path('', include('apps.dashboard.urls')),
-    path('', include('apps.bookings.urls')),
+    path("admin/", admin.site.urls),
 
     path("", include("apps.accounts.urls")),
     path("dashboard/", include("apps.dashboard.urls")),
-    
-    path("vehicles/", include('apps.vehicles.urls')),
+    path("bookings/", include("apps.bookings.urls")),
+    path("vehicles/", include("apps.vehicles.urls")),
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    
