@@ -1,0 +1,207 @@
+{% extends "crud/base_list.html" %}
+
+{% load static %}
+
+{% block page_title %}
+Customer Management
+{% endblock %}
+
+{% block header_title %}
+<i class="fas fa-users me-2"></i>
+Customer Management
+{% endblock %}
+
+{% block header_subtitle %}
+Manage all customer records.
+{% endblock %}
+
+{% block add_button %}
+
+<a href="{% url 'customers:customer_create' %}" class="btn btn-primary">
+    <i class="fas fa-plus me-2"></i>
+    Add Customer
+</a>
+
+{% endblock %}
+
+{% block search %}
+
+<form method="GET" class="mb-4">
+
+    <div class="input-group">
+
+        <input
+            type="text"
+            name="search"
+            class="form-control"
+            placeholder="Search customer..."
+            value="{{ search }}">
+
+        <button class="btn btn-outline-primary" type="submit">
+            <i class="fas fa-search"></i>
+        </button>
+
+    </div>
+
+</form>
+
+{% endblock %}
+
+{% block table %}
+
+<table class="table table-hover align-middle">
+
+    <thead>
+
+        <tr>
+
+            <th>Photo</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>City</th>
+            <th>Gender</th>
+            <th width="170">Actions</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+    {% for customer in customers %}
+
+        <tr>
+
+            <td>
+
+                {% if customer.profile_picture %}
+
+                    <img src="{{ customer.profile_picture.url }}"
+                         width="70"
+                         class="img-thumbnail">
+
+                {% else %}
+
+                    <img src="{% static 'images/no-image.png' %}"
+                         width="70"
+                         class="img-thumbnail">
+
+                {% endif %}
+
+            </td>
+
+            <td>
+
+                {{ customer.first_name }}
+                {{ customer.last_name }}
+
+            </td>
+
+            <td>{{ customer.email }}</td>
+
+            <td>{{ customer.phone }}</td>
+
+            <td>{{ customer.city }}</td>
+
+            <td>{{ customer.gender }}</td>
+
+            <td>
+
+                <a href="{% url 'customers:customer_update' customer.pk %}"
+                   class="btn btn-warning btn-sm">
+
+                    <i class="fas fa-edit"></i>
+
+                </a>
+
+                <a href="{% url 'customers:customer_delete' customer.pk %}"
+                   class="btn btn-danger btn-sm">
+
+                    <i class="fas fa-trash"></i>
+
+                </a>
+
+            </td>
+
+        </tr>
+
+    {% empty %}
+
+        <tr>
+
+            <td colspan="7" class="text-center py-5">
+
+                <h5 class="text-muted">
+
+                    No customers found.
+
+                </h5>
+
+            </td>
+
+        </tr>
+
+    {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% endblock %}
+
+{% block pagination %}
+
+{% if is_paginated %}
+
+<nav>
+
+<ul class="pagination justify-content-center">
+
+{% if page_obj.has_previous %}
+
+<li class="page-item">
+
+<a class="page-link"
+href="?search={{ search }}&page={{ page_obj.previous_page_number }}">
+
+Previous
+
+</a>
+
+</li>
+
+{% endif %}
+
+<li class="page-item active">
+
+<span class="page-link">
+
+{{ page_obj.number }}
+
+</span>
+
+</li>
+
+{% if page_obj.has_next %}
+
+<li class="page-item">
+
+<a class="page-link"
+href="?search={{ search }}&page={{ page_obj.next_page_number }}">
+
+Next
+
+</a>
+
+</li>
+
+{% endif %}
+
+</ul>
+
+</nav>
+
+{% endif %}
+
+{% endblock %}

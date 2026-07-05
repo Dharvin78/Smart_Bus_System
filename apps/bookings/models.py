@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 
-from apps.accounts.models import CustomerProfile
+from apps.customers.models import Customer
 from apps.vehicles.models import Vehicle
 from apps.drivers.models import Driver
 
@@ -28,7 +28,7 @@ class Booking(models.Model):
     )
 
     customer = models.ForeignKey(
-        CustomerProfile,
+        Customer,
         on_delete=models.CASCADE,
         related_name="bookings",
     )

@@ -1,0 +1,84 @@
+{% extends "crud/base_form.html" %}
+
+{% block form_title %}
+{{ title }}
+{% endblock %}
+
+{% block form_content %}
+
+<form method="POST" enctype="multipart/form-data">
+
+{% csrf_token %}
+
+<div class="row">
+
+<div class="col-md-6 mb-3">
+<label class="form-label">First Name</label>
+{{ form.first_name }}
+</div>
+
+<div class="col-md-6 mb-3">
+<label class="form-label">Last Name</label>
+{{ form.last_name }}
+</div>
+
+<div class="col-md-6 mb-3">
+<label class="form-label">Email</label>
+{{ form.email }}
+</div>
+
+<div class="col-md-6 mb-3">
+<label class="form-label">Phone</label>
+{{ form.phone }}
+</div>
+
+<div class="col-12 mb-3">
+<label class="form-label">Address</label>
+{{ form.address }}
+</div>
+
+<div class="col-md-4 mb-3">
+<label class="form-label">City</label>
+{{ form.city }}
+</div>
+
+<div class="col-md-4 mb-3">
+<label class="form-label">State</label>
+{{ form.state }}
+</div>
+
+<div class="col-md-4 mb-3">
+<label class="form-label">Postcode</label>
+{{ form.postcode }}
+</div>
+
+<div class="col-md-6 mb-3">
+<label class="form-label">Gender</label>
+{{ form.gender }}
+</div>
+
+<div class="col-md-6 mb-3">
+<label class="form-label">Profile Picture</label>
+{{ form.profile_picture }}
+</div>
+
+</div>
+
+<button class="btn btn-primary">
+
+<i class="fas fa-save me-2"></i>
+
+Save Customer
+
+</button>
+
+<a href="{% url 'customers:customer_list' %}"
+class="btn btn-secondary">
+
+Cancel
+
+</a>
+
+</form>
+
+{% endblock %}

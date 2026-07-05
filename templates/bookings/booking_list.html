@@ -78,7 +78,7 @@ Manage customer bookings and reservations.
             </td>
 
             <td>
-                {{ booking.customer.user.get_full_name|default:booking.customer.user.username }}
+                {{ booking.customer.first_name }} {{ booking.customer.last_name }}
             </td>
 
             <td>
@@ -178,7 +178,9 @@ Manage customer bookings and reservations.
             <td colspan="9" class="text-center py-5">
 
                 <h5 class="text-muted">
+
                     No bookings found.
+
                 </h5>
 
             </td>

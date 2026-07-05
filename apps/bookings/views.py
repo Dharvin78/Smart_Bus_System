@@ -1,3 +1,5 @@
+from urllib import request
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.paginator import Paginator
@@ -16,7 +18,6 @@ def booking_list(request):
 
     bookings = Booking.objects.select_related(
         "customer",
-        "customer__user",
         "vehicle",
         "driver",
     ).order_by("-travel_date")
@@ -24,7 +25,8 @@ def booking_list(request):
     if search:
         bookings = bookings.filter(
             Q(booking_number__icontains=search) |
-            Q(customer__user__username__icontains=search) |
+            Q(customer__first_name__icontains=search) |
+            Q(customer__last_name__icontains=search) |
             Q(vehicle__registration_number__icontains=search) |
             Q(driver__full_name__icontains=search) |
             Q(destination__icontains=search)
@@ -71,15 +73,18 @@ def booking_create(request):
 
             else:
 
-                form.save()
+                booking = form.save()
+
+                if booking.booking_status == "Confirmed":
+                    booking.vehicle.status = "Booked"
+                    booking.vehicle.save()
 
                 messages.success(
                     request,
                     "Booking created successfully."
-                )
+            )
 
-                return redirect("bookings:booking_list")
-
+            return redirect("bookings:booking_list")
     else:
 
         form = BookingForm()
@@ -123,11 +128,19 @@ def booking_update(request, pk):
 
             else:
 
-                form.save()
+                booking = form.save()
+
+                if booking.booking_status == "Confirmed":
+                    booking.vehicle.status = "Booked"
+
+                elif booking.booking_status in ["Completed", "Cancelled"]:
+                    booking.vehicle.status = "Available"
+
+                booking.vehicle.save()
 
                 messages.success(
-                    request,
-                    "Booking updated successfully."
+                request,
+                "Booking updated successfully."
                 )
 
                 return redirect("bookings:booking_list")
@@ -156,6 +169,9 @@ def booking_delete(request, pk):
     )
 
     if request.method == "POST":
+
+        booking.vehicle.status = "Available"
+        booking.vehicle.save()
 
         booking.delete()
 

@@ -1,10 +1,12 @@
 from django import forms
+
 from .models import Booking
 
 
 class BookingForm(forms.ModelForm):
 
     class Meta:
+
         model = Booking
 
         fields = [
@@ -63,13 +65,11 @@ class BookingForm(forms.ModelForm):
             }),
 
             "passenger_count": forms.NumberInput(attrs={
-                "class": "form-control",
-                "min": "1"
+                "class": "form-control"
             }),
 
             "total_price": forms.NumberInput(attrs={
-                "class": "form-control",
-                "step": "0.01"
+                "class": "form-control"
             }),
 
             "booking_status": forms.Select(attrs={
@@ -82,7 +82,7 @@ class BookingForm(forms.ModelForm):
 
             "remarks": forms.Textarea(attrs={
                 "class": "form-control",
-                "rows": 4
+                "rows": 3
             }),
 
         }
