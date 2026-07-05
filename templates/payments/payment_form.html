@@ -1,0 +1,63 @@
+{% extends "crud/base_form.html" %}
+
+{% block form_title %}
+{{ title }}
+{% endblock %}
+
+{% block form_content %}
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    <div class="row">
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Booking</label>
+            {{ form.booking }}
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Amount (RM)</label>
+            {{ form.amount }}
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Payment Method</label>
+            {{ form.payment_method }}
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Payment Status</label>
+            {{ form.payment_status }}
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Transaction ID</label>
+            {{ form.transaction_id }}
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Payment Date</label>
+            {{ form.payment_date }}
+        </div>
+
+        <div class="col-12 mb-3">
+            <label class="form-label">Remarks</label>
+            {{ form.remarks }}
+        </div>
+
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Save Payment
+    </button>
+
+    <a href="{% url 'payments:payment_list' %}"
+       class="btn btn-secondary">
+        Cancel
+    </a>
+
+</form>
+
+{% endblock %}

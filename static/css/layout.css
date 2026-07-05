@@ -211,32 +211,27 @@
 
 }
 
-.badge{
+/* Notification badge ONLY */
 
-    position:absolute;
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
 
-    top:-5px;
+    background: #EF4444;
+    color: white;
 
-    right:-5px;
+    width: 18px;
+    height: 18px;
 
-    background:#EF4444;
+    border-radius: 50%;
 
-    color:white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-    width:18px;
-
-    height:18px;
-
-    border-radius:50%;
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    font-size:10px;
-
+    font-size: .75rem;
+    font-weight: 600;
 }
 
 /* Profile */

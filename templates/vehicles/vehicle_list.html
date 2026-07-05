@@ -16,20 +16,15 @@ Manage all buses and fleet vehicles.
 {% endblock %}
 
 {% block add_button %}
-
 <a href="{% url 'vehicles:vehicle_create' %}" class="btn btn-primary">
     <i class="fas fa-plus me-2"></i>
     Add Vehicle
 </a>
-
 {% endblock %}
 
 {% block search %}
-
 <form method="GET" class="mb-4">
-
     <div class="input-group">
-
         <input
             type="text"
             name="search"
@@ -40,11 +35,8 @@ Manage all buses and fleet vehicles.
         <button class="btn btn-outline-primary" type="submit">
             <i class="fas fa-search"></i>
         </button>
-
     </div>
-
 </form>
-
 {% endblock %}
 
 {% block table %}
@@ -52,9 +44,7 @@ Manage all buses and fleet vehicles.
 <table class="table table-hover align-middle">
 
     <thead class="table-primary">
-
         <tr>
-
             <th>Image</th>
             <th>Registration</th>
             <th>Vehicle Name</th>
@@ -62,9 +52,7 @@ Manage all buses and fleet vehicles.
             <th>Seats</th>
             <th>Status</th>
             <th class="text-center">Actions</th>
-
         </tr>
-
     </thead>
 
     <tbody>
@@ -74,19 +62,13 @@ Manage all buses and fleet vehicles.
         <tr>
 
             <td>
-
                 {% if vehicle.image %}
-
                     <img src="{{ vehicle.image.url }}"
                          class="img-thumbnail"
                          style="width:80px;height:60px;object-fit:cover;">
-
                 {% else %}
-
                     <span class="text-muted">No Image</span>
-
                 {% endif %}
-
             </td>
 
             <td>{{ vehicle.registration_number }}</td>
@@ -101,19 +83,31 @@ Manage all buses and fleet vehicles.
 
                 {% if vehicle.status == "Available" %}
 
-                    <span class="badge bg-success">
+                    <span style="color:#198754;font-weight:600;">
+                        {{ vehicle.status }}
+                    </span>
+
+                {% elif vehicle.status == "Booked" %}
+
+                    <span style="color:#0d6efd;font-weight:600;">
                         {{ vehicle.status }}
                     </span>
 
                 {% elif vehicle.status == "Maintenance" %}
 
-                    <span class="badge bg-warning text-dark">
+                    <span style="color:#fd7e14;font-weight:600;">
+                        {{ vehicle.status }}
+                    </span>
+
+                {% elif vehicle.status == "Inactive" %}
+
+                    <span style="color:#dc3545;font-weight:600;">
                         {{ vehicle.status }}
                     </span>
 
                 {% else %}
 
-                    <span class="badge bg-danger">
+                    <span style="font-weight:600;">
                         {{ vehicle.status }}
                     </span>
 
@@ -125,16 +119,12 @@ Manage all buses and fleet vehicles.
 
                 <a href="{% url 'vehicles:vehicle_update' vehicle.pk %}"
                    class="btn btn-warning btn-sm">
-
                     <i class="fas fa-edit"></i>
-
                 </a>
 
                 <a href="{% url 'vehicles:vehicle_delete' vehicle.pk %}"
                    class="btn btn-danger btn-sm">
-
                     <i class="fas fa-trash"></i>
-
                 </a>
 
             </td>
@@ -144,17 +134,11 @@ Manage all buses and fleet vehicles.
     {% empty %}
 
         <tr>
-
             <td colspan="7" class="text-center py-5">
-
                 <h5 class="text-muted">
-
                     No vehicles found.
-
                 </h5>
-
             </td>
-
         </tr>
 
     {% endfor %}
@@ -170,51 +154,33 @@ Manage all buses and fleet vehicles.
 {% if page_obj.has_other_pages %}
 
 <nav>
-
     <ul class="pagination justify-content-center">
 
         {% if page_obj.has_previous %}
-
         <li class="page-item">
-
             <a class="page-link"
                href="?page={{ page_obj.previous_page_number }}&search={{ search }}">
-
                 Previous
-
             </a>
-
         </li>
-
         {% endif %}
 
         <li class="page-item active">
-
             <span class="page-link">
-
                 {{ page_obj.number }}
-
             </span>
-
         </li>
 
         {% if page_obj.has_next %}
-
         <li class="page-item">
-
             <a class="page-link"
                href="?page={{ page_obj.next_page_number }}&search={{ search }}">
-
                 Next
-
             </a>
-
         </li>
-
         {% endif %}
 
     </ul>
-
 </nav>
 
 {% endif %}

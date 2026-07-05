@@ -1,0 +1,231 @@
+{% extends "crud/base_list.html" %}
+
+{% block page_title %}
+Payment Management
+{% endblock %}
+
+{% block header_title %}
+<i class="fas fa-credit-card me-2"></i>
+Payment Management
+{% endblock %}
+
+{% block header_subtitle %}
+Manage customer payments and transactions.
+{% endblock %}
+
+{% block add_button %}
+
+<a href="{% url 'payments:payment_create' %}" class="btn btn-primary">
+    <i class="fas fa-plus me-2"></i>
+    Add Payment
+</a>
+
+{% endblock %}
+
+{% block search %}
+
+<form method="GET" class="mb-4">
+
+    <div class="input-group">
+
+        <input
+            type="text"
+            name="search"
+            class="form-control"
+            placeholder="Search booking, customer or transaction ID..."
+            value="{{ search }}">
+
+        <button class="btn btn-outline-primary" type="submit">
+            <i class="fas fa-search"></i>
+        </button>
+
+    </div>
+
+</form>
+
+{% endblock %}
+
+{% block table %}
+
+<table class="table table-hover align-middle">
+
+    <thead class="table-primary">
+
+        <tr>
+
+            <th>Booking</th>
+            <th>Customer</th>
+            <th>Amount (RM)</th>
+            <th>Method</th>
+            <th>Status</th>
+            <th>Payment Date</th>
+            <th width="170">Actions</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+    {% for payment in payments %}
+
+        <tr>
+
+            <td>
+                {{ payment.booking.booking_number }}
+            </td>
+
+            <td>
+                {{ payment.booking.customer.first_name }}
+                {{ payment.booking.customer.last_name }}
+            </td>
+
+            <td>
+                RM {{ payment.amount }}
+            </td>
+
+            <td>
+                {{ payment.payment_method }}
+            </td>
+
+            <td>
+
+                {% if payment.payment_status == "Paid" %}
+
+                    <span class="text-success fw-semibold">
+                        {{ payment.payment_status }}
+                    </span>
+
+                {% elif payment.payment_status == "Pending" %}
+
+                    <span class="text-warning fw-semibold">
+                        {{ payment.payment_status }}
+                    </span>
+
+                {% elif payment.payment_status == "Partially Paid" %}
+
+                    <span class="text-primary fw-semibold">
+                        {{ payment.payment_status }}
+                    </span>
+
+                {% elif payment.payment_status == "Refunded" %}
+
+                    <span class="text-info fw-semibold">
+                        {{ payment.payment_status }}
+                    </span>
+
+                {% elif payment.payment_status == "Cancelled" %}
+
+                    <span class="text-danger fw-semibold">
+                        {{ payment.payment_status }}
+                    </span>
+
+                {% else %}
+
+                    {{ payment.payment_status }}
+
+                {% endif %}
+
+            </td>
+
+            <td>
+                {{ payment.payment_date }}
+            </td>
+
+            <td>
+
+                <a href="{% url 'payments:payment_update' payment.pk %}"
+                   class="btn btn-warning btn-sm">
+
+                    <i class="fas fa-edit"></i>
+
+                </a>
+
+                <a href="{% url 'payments:payment_delete' payment.pk %}"
+                   class="btn btn-danger btn-sm">
+
+                    <i class="fas fa-trash"></i>
+
+                </a>
+
+            </td>
+
+        </tr>
+
+    {% empty %}
+
+        <tr>
+
+            <td colspan="7" class="text-center py-5">
+
+                <h5 class="text-muted">
+                    No payment records found.
+                </h5>
+
+            </td>
+
+        </tr>
+
+    {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% endblock %}
+
+{% block pagination %}
+
+{% if is_paginated %}
+
+<nav>
+
+    <ul class="pagination justify-content-center">
+
+        {% if page_obj.has_previous %}
+
+        <li class="page-item">
+
+            <a class="page-link"
+               href="?search={{ search }}&page={{ page_obj.previous_page_number }}">
+
+                Previous
+
+            </a>
+
+        </li>
+
+        {% endif %}
+
+        <li class="page-item active">
+
+            <span class="page-link">
+
+                {{ page_obj.number }}
+
+            </span>
+
+        </li>
+
+        {% if page_obj.has_next %}
+
+        <li class="page-item">
+
+            <a class="page-link"
+               href="?search={{ search }}&page={{ page_obj.next_page_number }}">
+
+                Next
+
+            </a>
+
+        </li>
+
+        {% endif %}
+
+    </ul>
+
+</nav>
+
+{% endif %}
+
+{% endblock %}

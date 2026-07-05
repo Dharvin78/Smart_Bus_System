@@ -1,0 +1,59 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}
+Delete Record
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-6">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-header bg-danger text-white">
+
+                    <h3 class="mb-0">
+
+                        {% block delete_title %}
+                        Delete Record
+                        {% endblock %}
+
+                    </h3>
+
+                </div>
+
+                <div class="card-body">
+
+                    {% block delete_message %}
+                    {% endblock %}
+
+                    <form method="POST">
+
+                        {% csrf_token %}
+
+                        <button type="submit" class="btn btn-danger">
+                            Yes, Delete
+                        </button>
+
+                        <a href="javascript:history.back()"
+                           class="btn btn-secondary">
+                            Cancel
+                        </a>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
