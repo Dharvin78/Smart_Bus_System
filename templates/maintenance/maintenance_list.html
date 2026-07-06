@@ -96,25 +96,25 @@ Manage vehicle maintenance records.
 
                 {% if maintenance.status == "Scheduled" %}
 
-                    <span class="badge bg-warning text-dark">
+                    <span class="badge text-warning">
                         {{ maintenance.status }}
                     </span>
 
                 {% elif maintenance.status == "In Progress" %}
 
-                    <span class="badge bg-primary">
+                    <span class="badge text-primary">
                         {{ maintenance.status }}
                     </span>
 
                 {% elif maintenance.status == "Completed" %}
 
-                    <span class="badge bg-success">
+                    <span class="badge text-success">
                         {{ maintenance.status }}
                     </span>
 
                 {% else %}
 
-                    <span class="badge bg-danger">
+                    <span class="badge text-danger">
                         {{ maintenance.status }}
                     </span>
 
