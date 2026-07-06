@@ -1,0 +1,68 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}
+AI Trip Cost Prediction
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="card shadow">
+
+        <div class="card-header bg-primary text-white">
+            <h4>AI Trip Cost Prediction</h4>
+        </div>
+
+        <div class="card-body">
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label">Vehicle Type</label>
+                    {{ form.vehicle_type }}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Distance (KM)</label>
+                    {{ form.distance }}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Passengers</label>
+                    {{ form.passengers }}
+                </div>
+
+                <button class="btn btn-primary">
+                    Predict Cost
+                </button>
+
+            </form>
+
+            {% if predicted_cost %}
+
+            <hr>
+
+            <div class="alert alert-success">
+
+                <h4>
+                    Estimated Trip Cost
+                </h4>
+
+                <h2>
+                    RM {{ predicted_cost }}
+                </h2>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -96,8 +96,8 @@
             </a>
         </li>
 
-        <li>
-            <a href="#">
+        <li class="{% if request.resolver_match.url_name == 'prediction' %}active{% endif %}">
+            <a href="{% url 'ai_prediction:prediction' %}" class="nav-link">
                 <i class="fa-solid fa-robot"></i>
                 <span>AI Prediction</span>
             </a>

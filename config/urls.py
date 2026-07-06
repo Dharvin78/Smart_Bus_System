@@ -31,6 +31,7 @@ urlpatterns = [
     path("payments/", include("apps.payments.urls")),
     path("maintenance/", include("apps.maintenance.urls")),
     path("fuel/", include("apps.fuel.urls")),
+    path("ai_prediction/", include("apps.ai_prediction.urls")),
 ]
 
 if settings.DEBUG:
