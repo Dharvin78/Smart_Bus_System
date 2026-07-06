@@ -1,0 +1,192 @@
+{% extends "crud/base_list.html" %}
+
+{% block page_title %}
+Fuel Management
+{% endblock %}
+
+{% block header_title %}
+<i class="fas fa-gas-pump me-2"></i>
+Fuel Management
+{% endblock %}
+
+{% block header_subtitle %}
+Manage vehicle fuel records and expenses.
+{% endblock %}
+
+{% block add_button %}
+
+<a href="{% url 'fuel:fuel_create' %}" class="btn btn-primary">
+    <i class="fas fa-plus me-2"></i>
+    Add Fuel Record
+</a>
+
+{% endblock %}
+
+{% block search %}
+
+<form method="GET" class="mb-4">
+
+    <div class="input-group">
+
+        <input
+            type="text"
+            name="search"
+            class="form-control"
+            placeholder="Search vehicle, station or fuel type..."
+            value="{{ search }}">
+
+        <button class="btn btn-outline-primary" type="submit">
+            <i class="fas fa-search"></i>
+        </button>
+
+    </div>
+
+</form>
+
+{% endblock %}
+
+{% block table %}
+
+<table class="table table-hover align-middle">
+
+    <thead>
+
+        <tr>
+
+            <th>Vehicle</th>
+            <th>Fuel Type</th>
+            <th>Refill Date</th>
+            <th>Litres</th>
+            <th>Price/Litre</th>
+            <th>Total Cost</th>
+            <th>Fuel Station</th>
+            <th>Mileage (km)</th>
+            <th width="170">Actions</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+    {% for fuel in fuels %}
+
+        <tr>
+
+            <td>{{ fuel.vehicle.registration_number }}</td>
+
+            <td>{{ fuel.fuel_type }}</td>
+
+            <td>{{ fuel.refill_date }}</td>
+
+            <td>{{ fuel.litres }}</td>
+
+            <td>RM {{ fuel.price_per_litre }}</td>
+
+            <td>
+                <strong>RM {{ fuel.total_cost }}</strong>
+            </td>
+
+            <td>{{ fuel.fuel_station }}</td>
+
+            <td>{{ fuel.mileage }}</td>
+
+            <td>
+
+                <a href="{% url 'fuel:fuel_update' fuel.pk %}"
+                   class="btn btn-warning btn-sm">
+
+                    <i class="fas fa-edit"></i>
+
+                </a>
+
+                <a href="{% url 'fuel:fuel_delete' fuel.pk %}"
+                   class="btn btn-danger btn-sm">
+
+                    <i class="fas fa-trash"></i>
+
+                </a>
+
+            </td>
+
+        </tr>
+
+    {% empty %}
+
+        <tr>
+
+            <td colspan="9" class="text-center py-5">
+
+                <h5 class="text-muted">
+
+                    No fuel records found.
+
+                </h5>
+
+            </td>
+
+        </tr>
+
+    {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% endblock %}
+
+{% block pagination %}
+
+{% if is_paginated %}
+
+<nav>
+
+    <ul class="pagination justify-content-center">
+
+        {% if page_obj.has_previous %}
+
+        <li class="page-item">
+
+            <a class="page-link"
+               href="?search={{ search }}&page={{ page_obj.previous_page_number }}">
+
+                Previous
+
+            </a>
+
+        </li>
+
+        {% endif %}
+
+        <li class="page-item active">
+
+            <span class="page-link">
+
+                {{ page_obj.number }}
+
+            </span>
+
+        </li>
+
+        {% if page_obj.has_next %}
+
+        <li class="page-item">
+
+            <a class="page-link"
+               href="?search={{ search }}&page={{ page_obj.next_page_number }}">
+
+                Next
+
+            </a>
+
+        </li>
+
+        {% endif %}
+
+    </ul>
+
+</nav>
+
+{% endif %}
+
+{% endblock %}

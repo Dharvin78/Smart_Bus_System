@@ -1,0 +1,43 @@
+{% extends "crud/base_delete.html" %}
+
+{% block delete_title %}
+Delete Fuel Record
+{% endblock %}
+
+{% block delete_message %}
+
+Are you sure you want to delete the following fuel record?
+
+{% endblock %}
+
+{% block delete_details %}
+
+<ul class="list-group mb-3">
+
+    <li class="list-group-item">
+        <strong>Vehicle:</strong>
+        {{ fuel.vehicle.registration_number }}
+    </li>
+
+    <li class="list-group-item">
+        <strong>Fuel Type:</strong>
+        {{ fuel.fuel_type }}
+    </li>
+
+    <li class="list-group-item">
+        <strong>Refill Date:</strong>
+        {{ fuel.refill_date }}
+    </li>
+
+    <li class="list-group-item">
+        <strong>Total Cost:</strong>
+        RM {{ fuel.total_cost }}
+    </li>
+
+</ul>
+
+{% endblock %}
+
+{% block cancel_url %}
+{% url 'fuel:fuel_list' %}
+{% endblock %}

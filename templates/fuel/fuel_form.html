@@ -1,0 +1,67 @@
+{% extends "crud/base_form.html" %}
+
+{% block form_title %}
+{{ title }}
+{% endblock %}
+
+{% block form_content %}
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    <div class="row">
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Vehicle</label>
+            {{ form.vehicle }}
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Fuel Type</label>
+            {{ form.fuel_type }}
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Refill Date</label>
+            {{ form.refill_date }}
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Fuel Litres</label>
+            {{ form.litres }}
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Price Per Litre (RM)</label>
+            {{ form.price_per_litre }}
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Fuel Station</label>
+            {{ form.fuel_station }}
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Mileage (km)</label>
+            {{ form.mileage }}
+        </div>
+
+        <div class="col-12 mb-3">
+            <label class="form-label">Remarks</label>
+            {{ form.remarks }}
+        </div>
+
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Save Fuel Record
+    </button>
+
+    <a href="{% url 'fuel:fuel_list' %}" class="btn btn-secondary">
+        Cancel
+    </a>
+
+</form>
+
+{% endblock %}
