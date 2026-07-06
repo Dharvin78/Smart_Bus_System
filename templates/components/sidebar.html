@@ -24,15 +24,15 @@
 
     <ul class="sidebar-menu">
 
-        <li class="active">
+        <li class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
             <a href="{% url 'dashboard' %}">
                 <i class="fa-solid fa-house"></i>
                 <span>Dashboard</span>
             </a>
         </li>
 
-        <li>
-            <a href="#">
+        <li class="{% if request.resolver_match.url_name == 'booking_list' %}active{% endif %}">
+            <a href="{% url 'bookings:booking_list' %}" class="nav-link">
                 <i class="fa-solid fa-calendar-days"></i>
                 <span>Bookings</span>
             </a>
@@ -46,15 +46,15 @@
 
     <ul class="sidebar-menu">
 
-        <li>
-            <a href="#">
+        <li class="{% if request.resolver_match.url_name == 'vehicle_list' %}active{% endif %}">
+            <a href="{% url 'vehicles:vehicle_list' %}" class="nav-link">
                 <i class="fa-solid fa-bus"></i>
                 <span>Vehicles</span>
             </a>
         </li>
 
-        <li>
-            <a href="#">
+        <li class="{% if request.resolver_match.url_name == 'driver_list' %}active{% endif %}">
+            <a href="{% url 'drivers:driver_list' %}" class="nav-link">
                 <i class="fa-solid fa-id-card"></i>
                 <span>Drivers</span>
             </a>
@@ -67,8 +67,8 @@
             </a>
         </li>
 
-        <li>
-            <a href="#">
+        <li class="{% if request.resolver_match.url_name == 'maintenance_list' %}active{% endif %}">
+            <a href="{% url 'maintenance:maintenance_list' %}" class="nav-link">
                 <i class="fa-solid fa-screwdriver-wrench"></i>
                 <span>Maintenance</span>
             </a>
@@ -82,9 +82,8 @@
 
     <ul class="sidebar-menu">
 
-        <li>
-            <a href="nav-item">
-                <a href="{% url 'payments:payment_list' %}" class="nav-link">   
+        <li class="{% if request.resolver_match.url_name == 'payment_list' %}active{% endif %}">
+            <a href="{% url 'payments:payment_list' %}" class="nav-link">   
                     <i class="fas fa-credit-card"></i>
              <span>Payments</span>
             </a>

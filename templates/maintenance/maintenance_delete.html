@@ -1,0 +1,44 @@
+{% extends "crud/base_delete.html" %}
+
+{% block delete_title %}
+Delete Maintenance Record
+{% endblock %}
+
+{% block delete_message %}
+
+<p class="fs-5">
+
+    Are you sure you want to delete this maintenance record?
+
+</p>
+
+<table class="table table-bordered">
+
+    <tr>
+        <th width="35%">Vehicle</th>
+        <td>{{ maintenance.vehicle.registration_number }}</td>
+    </tr>
+
+    <tr>
+        <th>Maintenance Type</th>
+        <td>{{ maintenance.maintenance_type }}</td>
+    </tr>
+
+    <tr>
+        <th>Workshop</th>
+        <td>{{ maintenance.workshop }}</td>
+    </tr>
+
+    <tr>
+        <th>Service Date</th>
+        <td>{{ maintenance.service_date }}</td>
+    </tr>
+
+    <tr>
+        <th>Cost</th>
+        <td>RM {{ maintenance.cost }}</td>
+    </tr>
+
+</table>
+
+{% endblock %}

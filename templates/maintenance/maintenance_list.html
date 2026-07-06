@@ -1,0 +1,215 @@
+{% extends "crud/base_list.html" %}
+
+{% block page_title %}
+Maintenance Management
+{% endblock %}
+
+{% block header_title %}
+<i class="fas fa-tools me-2"></i>
+Maintenance Management
+{% endblock %}
+
+{% block header_subtitle %}
+Manage vehicle maintenance records.
+{% endblock %}
+
+{% block add_button %}
+
+<a href="{% url 'maintenance:maintenance_create' %}" class="btn btn-primary">
+    <i class="fas fa-plus me-2"></i>
+    Add Maintenance
+</a>
+
+{% endblock %}
+
+{% block search %}
+
+<form method="GET" class="mb-4">
+
+    <div class="input-group">
+
+        <input
+            type="text"
+            name="search"
+            class="form-control"
+            placeholder="Search vehicle, workshop or maintenance type..."
+            value="{{ search }}">
+
+        <button class="btn btn-outline-primary" type="submit">
+            <i class="fas fa-search"></i>
+        </button>
+
+    </div>
+
+</form>
+
+{% endblock %}
+
+{% block table %}
+
+<table class="table table-hover align-middle">
+
+    <thead>
+
+        <tr>
+
+            <th>Vehicle</th>
+            <th>Maintenance Type</th>
+            <th>Workshop</th>
+            <th>Service Date</th>
+            <th>Next Service</th>
+            <th>Cost (RM)</th>
+            <th>Status</th>
+            <th class="text-center">Actions</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+    {% for maintenance in maintenances %}
+
+        <tr>
+
+            <td>{{ maintenance.vehicle.registration_number }}</td>
+
+            <td>{{ maintenance.maintenance_type }}</td>
+
+            <td>{{ maintenance.workshop }}</td>
+
+            <td>{{ maintenance.service_date }}</td>
+
+            <td>
+
+                {% if maintenance.next_service_date %}
+                    {{ maintenance.next_service_date }}
+                {% else %}
+                    -
+                {% endif %}
+
+            </td>
+
+            <td>RM {{ maintenance.cost }}</td>
+
+            <td>
+
+                {% if maintenance.status == "Scheduled" %}
+
+                    <span class="badge bg-warning text-dark">
+                        {{ maintenance.status }}
+                    </span>
+
+                {% elif maintenance.status == "In Progress" %}
+
+                    <span class="badge bg-primary">
+                        {{ maintenance.status }}
+                    </span>
+
+                {% elif maintenance.status == "Completed" %}
+
+                    <span class="badge bg-success">
+                        {{ maintenance.status }}
+                    </span>
+
+                {% else %}
+
+                    <span class="badge bg-danger">
+                        {{ maintenance.status }}
+                    </span>
+
+                {% endif %}
+
+            </td>
+
+            <td class="text-center">
+
+                <a href="{% url 'maintenance:maintenance_update' maintenance.pk %}"
+                   class="btn btn-warning btn-sm">
+                    <i class="fas fa-edit"></i>
+                </a>
+
+                <a href="{% url 'maintenance:maintenance_delete' maintenance.pk %}"
+                   class="btn btn-danger btn-sm">
+                    <i class="fas fa-trash"></i>
+                </a>
+
+            </td>
+
+        </tr>
+
+    {% empty %}
+
+        <tr>
+
+            <td colspan="8" class="text-center py-5">
+
+                <h5 class="text-muted">
+                    No maintenance records found.
+                </h5>
+
+            </td>
+
+        </tr>
+
+    {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% endblock %}
+
+{% block pagination %}
+
+{% if is_paginated %}
+
+<nav>
+
+    <ul class="pagination justify-content-center">
+
+        {% if page_obj.has_previous %}
+
+        <li class="page-item">
+
+            <a class="page-link"
+               href="?search={{ search }}&page={{ page_obj.previous_page_number }}">
+
+                Previous
+
+            </a>
+
+        </li>
+
+        {% endif %}
+
+        <li class="page-item active">
+
+            <span class="page-link">
+                {{ page_obj.number }}
+            </span>
+
+        </li>
+
+        {% if page_obj.has_next %}
+
+        <li class="page-item">
+
+            <a class="page-link"
+               href="?search={{ search }}&page={{ page_obj.next_page_number }}">
+
+                Next
+
+            </a>
+
+        </li>
+
+        {% endif %}
+
+    </ul>
+
+</nav>
+
+{% endif %}
+
+{% endblock %}

@@ -29,6 +29,7 @@ urlpatterns = [
     path("drivers/", include("apps.drivers.urls")),
     path("customers/", include("apps.customers.urls")),
     path("payments/", include("apps.payments.urls")),
+    path("maintenance/", include("apps.maintenance.urls")),
 ]
 
 if settings.DEBUG:
