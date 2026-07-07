@@ -8,46 +8,44 @@
         </button>
 
         <div class="search-box">
-
             <i class="fa-solid fa-magnifying-glass"></i>
 
             <input
                 type="text"
                 placeholder="Search bookings, vehicles..."
             >
-
         </div>
 
     </div>
 
     <!-- Right Side -->
-
     <div class="navbar-right">
+            <!-- Notification -->
+            <div class="notification-icon">
 
-        <button class="notification-btn">
+                <button class="notification-btn">
 
-            <i class="fa-regular fa-bell"></i>
+                    <i class="fa-regular fa-bell"></i>
 
-            <span class="badge">3</span>
+                </button>
 
-        </button>
+            </div>
 
+        <!-- Profile -->
         <div class="profile-menu">
 
             <div class="profile-avatar">
-
                 {{ request.user.username|first|upper }}
-
             </div>
 
             <div class="profile-info">
 
                 <strong>{{ request.user.username }}</strong>
 
-                {% if request.user.is_staff %}
-                    <small>Administrator</small>
+                {% if request.user.is_authenticated and request.user.profile %}
+                    <small>{{ request.user.profile.role }}</small>
                 {% else %}
-                    <small>Customer</small>
+                    <small>User</small>
                 {% endif %}
 
             </div>

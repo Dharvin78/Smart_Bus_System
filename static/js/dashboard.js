@@ -44,4 +44,28 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // ==========================
+    // Notification Dropdown
+    // ==========================
+
+    const bell = document.getElementById("notificationToggle");
+    const menu = document.getElementById("notificationMenu");
+
+    if (bell && menu) {
+
+        bell.addEventListener("click", function (e) {
+            e.stopPropagation();
+            menu.classList.toggle("show");
+        });
+
+        document.addEventListener("click", function () {
+            menu.classList.remove("show");
+        });
+
+        menu.addEventListener("click", function (e) {
+            e.stopPropagation();
+        });
+
+    }
+
 });

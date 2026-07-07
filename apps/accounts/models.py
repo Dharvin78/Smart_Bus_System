@@ -2,12 +2,25 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-class CustomerProfile(models.Model):
-    GENDER_CHOICES = (
+class UserProfile(models.Model):
+
+    OWNER = "Owner"
+    ADMIN = "Admin"
+    DRIVER = "Driver"
+    CUSTOMER = "Customer"
+
+    ROLE_CHOICES = [
+        (OWNER, "Owner"),
+        (ADMIN, "Admin"),
+        (DRIVER, "Driver"),
+        (CUSTOMER, "Customer"),
+    ]
+
+    GENDER_CHOICES = [
         ("Male", "Male"),
         ("Female", "Female"),
         ("Other", "Other"),
-    )
+    ]
 
     user = models.OneToOneField(
         User,
@@ -15,15 +28,35 @@ class CustomerProfile(models.Model):
         related_name="profile"
     )
 
-    phone = models.CharField(max_length=20, blank=True)
+    role = models.CharField(
+        max_length=20,
+        choices=ROLE_CHOICES,
+        default=CUSTOMER
+    )
 
-    address = models.TextField(blank=True)
+    phone = models.CharField(
+        max_length=20,
+        blank=True
+    )
 
-    city = models.CharField(max_length=100, blank=True)
+    address = models.TextField(
+        blank=True
+    )
 
-    state = models.CharField(max_length=100, blank=True)
+    city = models.CharField(
+        max_length=100,
+        blank=True
+    )
 
-    postcode = models.CharField(max_length=20, blank=True)
+    state = models.CharField(
+        max_length=100,
+        blank=True
+    )
+
+    postcode = models.CharField(
+        max_length=20,
+        blank=True
+    )
 
     country = models.CharField(
         max_length=100,
@@ -42,9 +75,13 @@ class CustomerProfile(models.Model):
         null=True
     )
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
 
-    updated_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
 
     def __str__(self):
-        return self.user.username
+        return f"{self.user.username} ({self.role})"

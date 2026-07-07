@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}
+Notifications
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between mb-4">
+
+        <h3>
+            Notifications
+        </h3>
+
+        <a
+            href="{% url 'notifications:read_all' %}"
+            class="btn btn-primary"
+        >
+            Mark All Read
+        </a>
+
+    </div>
+
+{% for item in notifications %}
+
+<div class="notification-card {% if not item.is_read %}unread{% endif %}">
+
+    <div class="notification-content">
+
+        <h5>{{ item.notification.title }}</h5>
+
+        <p>{{ item.notification.message }}</p>
+
+        <small class="text-muted">
+            {{ item.notification.created_at|date:"d M Y, h:i A" }}
+        </small>
+
+    </div>
+
+    <div class="notification-actions">
+
+        {% if not item.is_read %}
+
+            <a href="{% url 'notifications:read' item.pk %}"
+               class="btn btn-success btn-sm">
+
+                Mark Read
+
+            </a>
+
+        {% else %}
+
+            <span class="badge bg-success">
+                Read
+            </span>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% empty %}
+
+<div class="alert alert-info">
+    No notifications available.
+</div>
+
+{% endfor %}
+
+</div>
+
+{% endblock %}

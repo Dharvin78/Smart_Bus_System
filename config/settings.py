@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'apps.dashboard',
-    'apps.accounts',
     'apps.bookings',
     'apps.drivers',
     'apps.payments',
@@ -54,6 +53,10 @@ INSTALLED_APPS = [
     'apps.ai_prediction',
     'apps.customers',
     'core',
+    "apps.notifications",
+    "apps.accounts.apps.AccountsConfig",
+    
+    
 ]
 
 MIDDLEWARE = [
@@ -78,6 +81,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                
+                'apps.notifications.context_processors.notification_context',
             ],
         },
     },
