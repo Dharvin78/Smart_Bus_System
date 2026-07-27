@@ -7,6 +7,7 @@ from django.db.models import Q
 
 from .models import Booking
 from .forms import BookingForm
+from apps.emails.services import send_booking_confirmation
 
 
 def booking_list(request):
@@ -74,6 +75,8 @@ def booking_create(request):
             else:
 
                 booking = form.save()
+
+                send_booking_confirmation(booking)
 
                 if booking.booking_status == "Confirmed":
                     booking.vehicle.status = "Booked"

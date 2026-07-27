@@ -55,8 +55,10 @@ INSTALLED_APPS = [
     'core',
     "apps.notifications",
     "apps.accounts.apps.AccountsConfig",
-    
-    
+    "apps.audit.apps.AuditConfig",
+    "apps.emails",
+    "apps.ai",
+    "apps.settings",
 ]
 
 MIDDLEWARE = [
@@ -161,3 +163,18 @@ MONGO_URI = os.getenv("MONGO_URI")
 DATABASE_NAME = os.getenv("DATABASE_NAME")
 load_dotenv()
 
+# Additional settings for email configuration
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+EMAIL_HOST = "smtp.gmail.com"
+
+EMAIL_PORT = 587
+
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = "rsdharvin@gmail.com"
+
+EMAIL_HOST_PASSWORD = "owez exob duew qunq"
+
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

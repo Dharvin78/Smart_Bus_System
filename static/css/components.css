@@ -90,6 +90,12 @@
 
 }
 
+.driver{
+
+    background:#8B5CF6;
+
+}
+
 /* Text */
 
 .kpi-content h5{
@@ -181,5 +187,25 @@ canvas{
     width:100% !important;
 
     height:320px !important;
+
+}
+
+.chart-card{
+
+    background:#fff;
+
+    padding:25px;
+
+    border-radius:18px;
+
+    box-shadow:0 8px 25px rgba(0,0,0,.05);
+
+    margin-top:30px;
+
+}
+
+.chart-card canvas{
+
+    height:350px !important;
 
 }

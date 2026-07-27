@@ -3,9 +3,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.http import FileResponse
 
 from .models import Payment
 from .forms import PaymentForm
+from apps.emails.services import send_payment_receipt
+from .pdf import generate_payment_receipt
 
 
 def payment_list(request):
@@ -57,6 +60,8 @@ def payment_create(request):
         if form.is_valid():
 
             payment = form.save()
+
+            send_payment_receipt(payment)
 
             # Automatically update booking payment status
             payment.booking.payment_status = payment.payment_status
@@ -154,3 +159,16 @@ def payment_delete(request, pk):
             "payment": payment,
         },
     )
+
+def payment_receipt(request, pk):
+
+    payment = get_object_or_404(Payment, pk=pk)
+
+    pdf = generate_payment_receipt(payment)
+
+    return FileResponse(
+        pdf,
+        as_attachment=True,
+        filename=f"Receipt_{payment.booking.booking_number}.pdf",
+    )
+

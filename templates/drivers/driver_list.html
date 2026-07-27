@@ -76,7 +76,9 @@ Manage all registered drivers.
                          class="img-thumbnail"
                          style="width:70px;height:70px;object-fit:cover;">
                 {% else %}
-                    <span class="text-muted">No Photo</span>
+                    <img src="{% static 'images/no-image.png' %}"
+                         class="img-thumbnail"
+                         style="width:70px;height:70px;object-fit:cover;">
                 {% endif %}
 
             </td>

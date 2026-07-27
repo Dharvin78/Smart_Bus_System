@@ -1,0 +1,235 @@
+{% extends "crud/base_list.html" %}
+
+{% block title %}
+Audit Log
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>Audit Log</h1>
+
+        <p>
+            View all user activities performed in the system.
+        </p>
+
+    </div>
+
+</div>
+
+<div class="card">
+
+    <div class="card-body">
+
+        <form method="get" class="row g-3 mb-4">
+
+            <div class="col-md-4">
+
+                <input
+                    type="text"
+                    name="search"
+                    class="form-control"
+                    placeholder="Search user or description..."
+                    value="{{ request.GET.search }}"
+                >
+
+            </div>
+
+            <div class="col-md-3">
+
+                <select
+                    name="module"
+                    class="form-select"
+                >
+
+                    <option value="">All Modules</option>
+
+                    {% for m in modules %}
+
+                        <option
+                            value="{{ m }}"
+                            {% if request.GET.module == m %}selected{% endif %}
+                        >
+
+                            {{ m }}
+
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <select
+                    name="action"
+                    class="form-select"
+                >
+
+                    <option value="">All Actions</option>
+
+                    {% for value,label in actions %}
+
+                        <option
+                            value="{{ value }}"
+                            {% if request.GET.action == value %}selected{% endif %}
+                        >
+
+                            {{ label }}
+
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <div class="col-md-2">
+
+                <button
+                    class="btn btn-primary w-100"
+                >
+
+                    Search
+
+                </button>
+
+            </div>
+
+        </form>
+
+        <table class="table table-hover">
+
+            <thead>
+
+                <tr>
+
+                    <th>Date</th>
+                    <th>User</th>
+                    <th>Module</th>
+                    <th>Action</th>
+                    <th>Description</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for log in page_obj %}
+
+                <tr>
+
+                    <td>
+
+                        {{ log.created_at|date:"d M Y H:i" }}
+
+                    </td>
+
+                    <td>
+
+                        {{ log.user }}
+
+                    </td>
+
+                    <td>
+
+                        {{ log.module }}
+
+                    </td>
+
+                    <td>
+
+                        {{ log.action }}
+
+                    </td>
+
+                    <td>
+
+                        {{ log.description }}
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="5">
+
+                        No audit logs found.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+        <nav>
+
+            <ul class="pagination">
+
+                {% if page_obj.has_previous %}
+
+                <li class="page-item">
+
+                    <a
+                        class="page-link"
+                        href="?page={{ page_obj.previous_page_number }}"
+                    >
+
+                        Previous
+
+                    </a>
+
+                </li>
+
+                {% endif %}
+
+                <li class="page-item active">
+
+                    <span class="page-link">
+
+                        {{ page_obj.number }}
+
+                    </span>
+
+                </li>
+
+                {% if page_obj.has_next %}
+
+                <li class="page-item">
+
+                    <a
+                        class="page-link"
+                        href="?page={{ page_obj.next_page_number }}"
+                    >
+
+                        Next
+
+                    </a>
+
+                </li>
+
+                {% endif %}
+
+            </ul>
+
+        </nav>
+
+    </div>
+
+</div>
+
+{% endblock %}

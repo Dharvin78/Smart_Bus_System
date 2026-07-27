@@ -1,0 +1,161 @@
+/* ==========================
+   AI Prediction Page
+========================== */
+
+.empty-ai-card{
+
+    height:420px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    text-align:center;
+
+    color:#64748B;
+
+}
+
+.empty-ai-card i{
+
+    font-size:70px;
+
+    color:#2563EB;
+
+    margin-bottom:20px;
+
+}
+
+.empty-ai-card h3{
+
+    color:#1E293B;
+
+    margin-bottom:15px;
+
+    font-size:28px;
+
+}
+
+.empty-ai-card p{
+
+    width:420px;
+
+    line-height:1.7;
+
+    font-size:16px;
+
+}
+
+/* ==========================
+   AI Business Insights
+========================== */
+
+.insight-card{
+
+    display:flex;
+
+    gap:20px;
+
+    align-items:flex-start;
+
+    padding:20px;
+
+    margin-bottom:18px;
+
+    border-radius:15px;
+
+    background:#ffffff;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.05);
+
+}
+
+.insight-icon{
+
+    width:55px;
+
+    height:55px;
+
+    border-radius:50%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:24px;
+
+    color:white;
+
+}
+
+.insight-card.success .insight-icon{
+    background:#16a34a;
+}
+
+.insight-card.warning .insight-icon{
+    background:#f59e0b;
+}
+
+.insight-card.danger .insight-icon{
+    background:#dc2626;
+}
+
+.insight-card.info .insight-icon{
+    background:#2563eb;
+}
+
+.insight-card.primary .insight-icon{
+    background:#7c3aed;
+}
+
+.insight-card h5{
+
+    margin-bottom:8px;
+
+    font-weight:600;
+
+}
+
+.insight-card p{
+
+    color:#64748B;
+
+    margin:0;
+
+    line-height:1.6;
+
+}
+
+.report-item{
+
+    display:flex;
+
+    align-items:flex-start;
+
+    gap:15px;
+
+    padding:18px 0;
+
+    border-bottom:1px solid #E5E7EB;
+
+}
+
+.report-item:last-child{
+
+    border-bottom:none;
+
+}
+
+.report-item i{
+
+    color:#2563EB;
+
+    margin-top:5px;
+
+}

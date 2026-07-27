@@ -7,6 +7,8 @@ from django.db.models import Q
 from .models import Vehicle
 from .forms import VehicleForm
 
+from apps.audit.utils import create_audit_log
+
 
 def vehicle_list(request):
     """
@@ -41,7 +43,15 @@ def vehicle_create(request):
         form = VehicleForm(request.POST, request.FILES)
 
         if form.is_valid():
-            form.save()
+            vehicle = form.save()
+
+            create_audit_log(
+                request=request,
+                module="Vehicle",
+                action="CREATE",
+                description=f"Added vehicle {vehicle.registration_number}"
+            )
+
             messages.success(request, "Vehicle added successfully.")
             return redirect("vehicles:vehicle_list")
 
@@ -66,7 +76,15 @@ def vehicle_update(request, pk):
         )
 
         if form.is_valid():
-            form.save()
+            vehicle = form.save()
+
+            create_audit_log(
+                request=request,
+                module="Vehicle",
+                action="UPDATE",
+                description=f"Updated vehicle {vehicle.registration_number}"
+            )
+
             messages.success(request, "Vehicle updated successfully.")
             return redirect("vehicles:vehicle_list")
 
@@ -84,6 +102,12 @@ def vehicle_delete(request, pk):
     vehicle = get_object_or_404(Vehicle, pk=pk)
 
     if request.method == "POST":
+        create_audit_log(
+            request=request,
+            module="Vehicle",
+            action="DELETE",
+            description=f"Deleted vehicle {vehicle.registration_number}"
+        )
         vehicle.delete()
         messages.success(request, "Vehicle deleted successfully.")
         return redirect("vehicles:vehicle_list")

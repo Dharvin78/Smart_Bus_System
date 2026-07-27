@@ -30,4 +30,10 @@ urlpatterns = [
         name="payment_delete",
     ),
 
+    path(
+        "receipt/<int:pk>/",
+        views.payment_receipt,
+        name="payment_receipt",
+    ),
+
 ]

@@ -134,6 +134,7 @@ Manage customer payments and transactions.
 
             <td>
 
+
                 <a href="{% url 'payments:payment_update' payment.pk %}"
                    class="btn btn-warning btn-sm">
 
@@ -146,6 +147,14 @@ Manage customer payments and transactions.
 
                     <i class="fas fa-trash"></i>
 
+                </a>
+
+                <a href="{% url 'payments:payment_receipt' payment.id %}"
+                   class="btn btn-info btn-sm">
+
+                    <i class="fa-solidfa-file-pdf"></i>
+                    Receipt
+                    
                 </a>
 
             </td>

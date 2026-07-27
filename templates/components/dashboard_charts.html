@@ -3,24 +3,151 @@
     <!-- Revenue Trend -->
     <div class="chart-card">
 
-        <div class="card-header">
-            <h4>Revenue Trend</h4>
+    </table>
+
+</div>
+
+<!-- Fleet Status Card -->
+<div class="dashboard-card mt-4">
+    <div class="card-header">
+        <h4>Fleet Status</h4>
+    </div>
+
+    <div class="fleet-status">
+
+        <div class="fleet-card available">
+            <i class="fa-solid fa-circle-check"></i>
+
+            <h3>{{ available_vehicles }}</h3>
+
+            <p>Available</p>
         </div>
 
-        <canvas id="revenueChart"></canvas>
+        <div class="fleet-card trip">
+            <i class="fa-solid fa-road"></i>
+
+            <h3>{{ on_trip_vehicles }}</h3>
+
+            <p>On Trip</p>
+        </div>
+
+        <div class="fleet-card maintenance">
+            <i class="fa-solid fa-screwdriver-wrench"></i>
+
+            <h3>{{ maintenance_vehicles }}</h3>
+
+            <p>Maintenance</p>
+        </div>
 
     </div>
 
-    <!-- Booking Trend -->
+</div>
 
-    <div class="chart-card">
+<!-- Analytics Card -->
+<div class="dashboard-card mt-4">
+    <div class="card-header">
+        <h4>Analytics</h4>
+    </div>
 
-        <div class="card-header">
-            <h4>Monthly Bookings</h4>
+    <div class="analytics-grid">
+
+        <div class="analytics-card">
+            <h5>Today's Revenue</h5>
+            <h2>RM {{ today_revenue }}</h2>
         </div>
 
-        <canvas id="bookingChart"></canvas>
+        <div class="analytics-card">
+            <h5>This Month</h5>
+            <h2>RM {{ month_revenue }}</h2>
+        </div>
+
+        <div class="analytics-card">
+            <h5>Total Customers</h5>
+            <h2>{{ customer_count }}</h2>
+        </div>
+
+        <div class="analytics-card">
+            <h5>Average Booking</h5>
+            <h2>RM {{ average_booking }}</h2>
+        </div>
 
     </div>
+
+</div>
+                </td>
+
+            </tr>
+
+            {% empty %}
+
+            <tr>
+                <td colspan="4">
+                    No upcoming bookings.
+                </td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+    <!-- Fleet Status -->
+
+    <div class="fleet-status">
+
+    <div class="fleet-card available">
+        <i class="fa-solid fa-circle-check"></i>
+
+        <h3>{{ available_vehicles }}</h3>
+
+        <p>Available</p>
+    </div>
+
+    <div class="fleet-card trip">
+        <i class="fa-solid fa-road"></i>
+
+        <h3>{{ on_trip_vehicles }}</h3>
+
+        <p>On Trip</p>
+    </div>
+
+    <div class="fleet-card maintenance">
+        <i class="fa-solid fa-screwdriver-wrench"></i>
+
+        <h3>{{ maintenance_vehicles }}</h3>
+
+        <p>Maintenance</p>
+    </div>
+
+    <!-- Analytics Cards -->
+
+    <div class="analytics-grid">
+
+    <div class="analytics-card">
+        <h5>Today's Revenue</h5>
+        <h2>RM {{ today_revenue }}</h2>
+    </div>
+
+    <div class="analytics-card">
+        <h5>This Month</h5>
+        <h2>RM {{ month_revenue }}</h2>
+    </div>
+
+    <div class="analytics-card">
+        <h5>Total Customers</h5>
+        <h2>{{ customer_count }}</h2>
+    </div>
+
+    <div class="analytics-card">
+        <h5>Average Booking</h5>
+        <h2>RM {{ average_booking }}</h2>
+    </div>
+
+</div>
+
+</div>
+
+</div>
 
 </div>

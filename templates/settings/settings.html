@@ -1,0 +1,122 @@
+{% extends "layouts/base.html" %}
+
+{% load static %}
+
+{% block title %}System Settings{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/settings.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+        <h1>⚙️ System Settings</h1>
+        <p>Manage company information and system configuration.</p>
+    </div>
+
+</div>
+
+<form method="POST" enctype="multipart/form-data">
+
+    {% csrf_token %}
+
+    <!-- Company Information -->
+
+    <div class="settings-card">
+
+        <h3>Company Information</h3>
+
+        <div class="settings-grid">
+
+            <div>
+                <label>Company Name</label>
+                {{ form.company_name }}
+            </div>
+
+            <div>
+                <label>Company Email</label>
+                {{ form.company_email }}
+            </div>
+
+            <div>
+                <label>Phone Number</label>
+                {{ form.company_phone }}
+            </div>
+
+            <div>
+                <label>Currency</label>
+                {{ form.currency }}
+            </div>
+
+            <div class="full-width">
+                <label>Company Address</label>
+                {{ form.company_address }}
+            </div>
+
+            <div>
+                <label>Company Logo</label>
+                {{ form.company_logo }}
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- System Preferences -->
+
+    <div class="settings-card">
+
+        <h3>System Preferences</h3>
+
+        <div class="settings-grid">
+
+            <div>
+                <label>Timezone</label>
+                {{ form.timezone }}
+            </div>
+
+            <div>
+                <label>Language</label>
+                {{ form.language }}
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- AI Settings -->
+
+    <div class="settings-card">
+
+        <h3>AI Settings</h3>
+
+        <div class="settings-grid">
+
+            <div>
+                <label>Enable AI Prediction</label>
+                {{ form.ai_enabled }}
+            </div>
+
+            <div>
+                <label>Minimum Training Records</label>
+                {{ form.minimum_training_records }}
+            </div>
+
+        </div>
+
+    </div>
+
+    <button type="submit" class="btn-save">
+
+        <i class="fa-solid fa-floppy-disk"></i>
+
+        Save Settings
+
+    </button>
+
+</form>
+
+{% endblock %}

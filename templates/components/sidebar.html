@@ -110,6 +110,15 @@
             </a>
         </li>
 
+        <li class = "nav-item">
+            <a href="{% url 'ai:dashboard' %}">
+
+                <i class="fa-solid fa-brain"></i>
+                
+                <span>AI Dashboard</span>
+            </a>
+        </li>
+
     </ul>
 
     <div class="menu-title">
@@ -118,8 +127,15 @@
 
     <ul class="sidebar-menu">
 
+        <li class="{% if request.resolver_match.app_name == 'audit' %}active{% endif %}">
+            <a href="{% url 'audit:list' %}" class ="nav-link">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>Audit Log</span>
+            </a>
+        </li>
+
         <li>
-            <a href="#">
+            <a href="{% url 'settings:settings' %}">
                 <i class="fa-solid fa-gear"></i>
                 <span>Settings</span>
             </a>

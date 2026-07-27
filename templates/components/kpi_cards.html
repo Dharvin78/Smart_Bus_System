@@ -58,30 +58,26 @@
 
     </div>
 
-    <!-- Maintenance -->
+    <!-- Drivers -->
 
     <div class="kpi-card">
 
-        <div class="kpi-icon maintenance">
-
-            <i class="fa-solid fa-screwdriver-wrench"></i>
-
+        <div class="kpi-icon driver">
+            <i class="fa-solid fa-user-tie"></i>
         </div>
 
         <div class="kpi-content">
 
-            <h5>Maintenance</h5>
+            <h5>Drivers</h5>
 
-            <h2>{{ maintenance_due|default:"0" }}</h2>
+            <h2>{{ total_drivers|default:"0" }}</h2>
 
-            <span class="danger-text">
-
-                Pending Services
-
+            <span>
+                Registered Drivers
             </span>
 
         </div>
-
+        
     </div>
 
 </div>

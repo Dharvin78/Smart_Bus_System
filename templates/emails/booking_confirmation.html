@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<style>
+
+body{
+    font-family:Arial,sans-serif;
+    background:#f4f6f9;
+    padding:40px;
+}
+
+.container{
+    max-width:650px;
+    margin:auto;
+    background:#fff;
+    border-radius:10px;
+    padding:35px;
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+h2{
+    color:#2563EB;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+
+td{
+    padding:10px;
+    border-bottom:1px solid #eee;
+}
+
+.footer{
+    margin-top:30px;
+    color:#777;
+    font-size:14px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Booking Confirmation</h2>
+
+<p>Hello <strong>{{ customer_name }}</strong>,</p>
+
+<p>
+Thank you for choosing Smart Bus Charter System.
+Your booking has been successfully confirmed.
+</p>
+
+<table>
+
+<tr>
+<td><strong>Booking Number</strong></td>
+<td>{{ booking_number }}</td>
+</tr>
+
+<tr>
+<td><strong>Travel Date</strong></td>
+<td>{{ travel_date }}</td>
+</tr>
+
+<tr>
+<td><strong>Departure Time</strong></td>
+<td>{{ departure_time }}</td>
+</tr>
+
+<tr>
+<td><strong>Pickup</strong></td>
+<td>{{ pickup_location }}</td>
+</tr>
+
+<tr>
+<td><strong>Destination</strong></td>
+<td>{{ destination }}</td>
+</tr>
+
+<tr>
+<td><strong>Vehicle</strong></td>
+<td>{{ vehicle }}</td>
+</tr>
+
+<tr>
+<td><strong>Driver</strong></td>
+<td>{{ driver }}</td>
+</tr>
+
+<tr>
+<td><strong>Passengers</strong></td>
+<td>{{ passenger_count }}</td>
+</tr>
+
+<tr>
+<td><strong>Total Price</strong></td>
+<td>RM {{ total_price }}</td>
+</tr>
+
+<tr>
+<td><strong>Status</strong></td>
+<td>{{ booking_status }}</td>
+</tr>
+
+</table>
+
+<div class="footer">
+
+Thank you for choosing Smart Bus Charter System.<br>
+
+We wish you a safe and pleasant journey.
+
+</div>
+
+</div>
+
+</body>
+
+</html>

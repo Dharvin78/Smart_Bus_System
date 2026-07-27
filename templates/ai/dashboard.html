@@ -1,0 +1,205 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}
+AI Prediction Dashboard
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>
+            AI <span>Prediction Dashboard</span>
+        </h1>
+
+        <p>
+            Machine Learning Revenue Forecast
+        </p>
+
+    </div>
+
+</div>
+
+<div class="analytics-grid">
+
+    <div class="analytics-card">
+
+        <h5>Predicted Next Month Revenue</h5>
+
+        {% if prediction %}
+
+        <h2 class="prediction-value">
+            RM {{ prediction }}
+        </h2>
+
+        <p class="prediction-text">
+            Estimated revenue for next month
+        </p>
+
+        {% else %}
+
+        <h2 class="text-danger">
+            Not enough historical data
+        </h2>
+
+        <p>
+            At least 10 paid payment records are required.
+        </p>
+
+        {% endif %}
+
+    </div>
+
+    <div class="chart-card mt-4">
+
+        <div class="card-header">
+            <h4>Revenue Forecast & AI Forecast</h4>
+        </div>
+
+        {% if prediction_available %}
+
+            <canvas 
+            id="forecastChart" height="120"
+            data-labels='{{ labels|safe }}'
+            data-values='{{ values|safe }}'
+            data-forecast = '{{ forecast|safe }}'>
+        </canvas>
+
+        {% else %}
+
+        <div class="empty-ai-card">
+
+            <i class="fa-solid fa-chart-line"></i>
+
+            <h3>Not enough historical data</h3>
+
+            <p>
+                AI prediction will become available after enough
+                completed booking records have been collected.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+    <div class="ai-status-card">
+
+        {% if prediction %}
+
+            <div class="status-success">
+
+                <i class="fa-solid fa-circle-check"></i>
+
+                AI Model Ready
+
+            </div>
+
+        {% else %}
+
+            <div class="status-warning">
+
+                <i class="fa-solid fa-triangle-exclamation"></i>
+
+                Waiting for More Data
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+   
+        <div class="dashboard-card mt-4">
+
+            <div class="d-flex gap-3 mb-4">
+
+                <button class="btn btn-primary">
+
+                    <i class="fa-solid fa-robot"></i>
+
+                    Generate Report
+
+                </button>
+
+                <button class="btn btn-success">
+
+                    <i class="fa-solid fa-file-pdf"></i>
+
+                    Download PDF
+
+                </button>
+
+            </div>
+
+        <div class="card-header">
+            <h4>AI Business Insights</h4>
+        </div>
+
+        {% for item in insights %}
+
+            <div class="insight-card {{ item.type }}">
+
+                <div class="insight-icon">
+                    <i class="fa-solid {{ item.icon }}"></i>
+                </div>
+
+                <div>
+
+                    <h5>{{ item.title }}</h5>
+
+                    <p>{{ item.message }}</p>
+
+                </div>
+
+            </div>
+
+        {% empty %}
+
+            <div class="empty-ai-card">
+
+                <i class="fa-solid fa-brain"></i>
+
+                <h4>No AI Insights Available</h4>
+
+                <p>
+                    More operational data is required before the system can generate meaningful business insights.
+                </p>
+
+            </div>
+
+    {% endfor %}
+
+    <div class="dashboard-card mt-4">
+
+    <div class="card-header">
+
+        <h4>
+            AI Business Report
+        </h4>
+
+    </div>
+
+    {% for line in report %}
+
+        <div class="report-item">
+
+            <i class="fa-solid fa-circle"></i>
+
+            {{ line }}
+
+        </div>
+
+    {% endfor %}
+
+</div>
+
+
+    
+
+</div>
+
+{% endblock %}

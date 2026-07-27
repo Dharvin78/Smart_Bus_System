@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<style>
+
+body{
+    font-family:Arial,sans-serif;
+    background:#F4F6F9;
+    padding:40px;
+}
+
+.container{
+    max-width:700px;
+    margin:auto;
+    background:#fff;
+    padding:35px;
+    border-radius:12px;
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+}
+
+h2{
+    color:#16A34A;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+
+td{
+    padding:12px;
+    border-bottom:1px solid #eee;
+}
+
+.footer{
+    margin-top:30px;
+    color:#666;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Payment Receipt</h2>
+
+<p>Hello <strong>{{ customer_name }}</strong>,</p>
+
+<p>
+Your payment has been successfully received.
+Below is your payment receipt.
+</p>
+
+<table>
+
+<tr>
+<td><strong>Payment ID</strong></td>
+<td>#{{ payment_id }}</td>
+</tr>
+
+<tr>
+<td><strong>Booking Number</strong></td>
+<td>{{ booking_number }}</td>
+</tr>
+
+<tr>
+<td><strong>Transaction ID</strong></td>
+<td>{{ transaction_id|default:"N/A" }}</td>
+</tr>
+
+<tr>
+<td><strong>Payment Date</strong></td>
+<td>{{ payment_date }}</td>
+</tr>
+
+<tr>
+<td><strong>Payment Method</strong></td>
+<td>{{ payment_method }}</td>
+</tr>
+
+<tr>
+<td><strong>Amount Paid</strong></td>
+<td>RM {{ amount }}</td>
+</tr>
+
+<tr>
+<td><strong>Status</strong></td>
+<td>{{ payment_status }}</td>
+</tr>
+
+</table>
+
+<div class="footer">
+
+Thank you for choosing Smart Bus Charter System.
+
+Please keep this email for your records.
+
+</div>
+
+</div>
+
+</body>
+
+</html>
