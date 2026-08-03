@@ -25,6 +25,11 @@ class Maintenance(models.Model):
         ("Cancelled", "Cancelled"),
     ]
 
+    MAINTENANCE_LABEL_CHOICES = [
+        ("Yes", "Yes"),
+        ("No", "No"),
+    ]
+
     vehicle = models.ForeignKey(
         Vehicle,
         on_delete=models.CASCADE,
@@ -60,6 +65,13 @@ class Maintenance(models.Model):
         max_length=20,
         choices=STATUS_CHOICES,
         default="Scheduled",
+    )
+
+    needs_maintenance = models.CharField(
+        max_length=3,
+        choices=MAINTENANCE_LABEL_CHOICES,
+        default="No",
+        help_text="Used for AI model training",
     )
 
     remarks = models.TextField(

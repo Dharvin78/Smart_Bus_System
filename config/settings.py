@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "apps.emails",
     "apps.ai",
     "apps.settings",
+    "apps.analytics",
 ]
 
 MIDDLEWARE = [

@@ -73,3 +73,114 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 });
+
+const forecastLabels = JSON.parse(
+    document.getElementById("forecast-labels").textContent
+);
+
+const forecastData = JSON.parse(
+    document.getElementById("forecast-data").textContent
+);
+
+new Chart(
+    document.getElementById("forecastChart"),
+    {
+
+        type: "line",
+
+        data: {
+
+            labels: forecastLabels,
+
+            datasets: [{
+
+                label: "Revenue Forecast",
+
+                data: forecastData,
+
+                tension: 0.4,
+
+                fill: false,
+
+                pointRadius: 6,
+
+                borderWidth: 3
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            plugins: {
+
+                legend: {
+
+                    display: true
+
+                }
+
+            }
+
+        }
+
+    }
+);
+
+/* Booking Forecast Chart*/
+
+const bookingForecastLabels = JSON.parse(
+    document.getElementById(
+        "booking-forecast-labels"
+    ).textContent
+);
+
+const bookingForecastData = JSON.parse(
+    document.getElementById(
+        "booking-forecast-data"
+    ).textContent
+);
+
+new Chart(
+
+    document.getElementById(
+        "bookingForecastChart"
+    ),
+
+    {
+
+        type: "line",
+
+        data: {
+
+            labels: bookingForecastLabels,
+
+            datasets: [{
+
+                label: "Booking Forecast",
+
+                data: bookingForecastData,
+
+                tension: 0.4,
+
+                fill: false,
+
+                pointRadius: 6,
+
+                borderWidth: 3
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true
+
+        }
+
+    }
+
+);

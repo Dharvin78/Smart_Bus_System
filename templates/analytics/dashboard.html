@@ -1,0 +1,158 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Business Analytics{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/analytics.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+        <h1>Business Analytics</h1>
+        <p>Business performance and operational insights.</p>
+    </div>
+
+</div>
+
+<!-- Row 1 -->
+<div class="analytics-grid">
+
+    <div class="chart-card">
+        <div class="card-header">
+            <h4>Revenue Trend</h4>
+        </div>
+
+        <canvas id="revenueTrendChart"></canvas>
+    </div>
+
+    <div class="chart-card">
+        <div class="card-header">
+            <h4>Monthly Bookings</h4>
+        </div>
+
+        <canvas id="bookingTrendChart"></canvas>
+    </div>
+
+</div>
+
+<!-- Row 2 -->
+<div class="analytics-grid">
+
+    <div class="chart-card">
+        <div class="card-header">
+            <h4>Revenue by Vehicle</h4>
+        </div>
+
+        <canvas id="vehicleRevenueChart"></canvas>
+    </div>
+
+    <div class="chart-card">
+        <div class="card-header">
+            <h4>Revenue by Driver</h4>
+        </div>
+
+        <canvas id="driverRevenueChart"></canvas>
+    </div>
+
+</div>
+
+<!-- Row 3 -->
+<div class="analytics-grid">
+
+    <div class="chart-card">
+        <div class="card-header">
+            <h4>Top Customers</h4>
+        </div>
+
+        <canvas id="customerChart"></canvas>
+    </div>
+
+    <div class="chart-card">
+        <div class="card-header">
+            <h4>Popular Routes</h4>
+        </div>
+
+        <canvas id="routeChart"></canvas>
+    </div>
+
+</div>
+
+<!-- Row 4 -->
+<div class="analytics-grid">
+
+    <div class="chart-card">
+        <div class="card-header">
+            <h4>Payment Methods</h4>
+        </div>
+
+        <canvas id="paymentChart"></canvas>
+    </div>
+
+    <div class="chart-card">
+        <div class="card-header">
+            <h4>Booking Status</h4>
+        </div>
+
+        <canvas id="statusChart"></canvas>
+    </div>
+
+</div>
+
+<!-- AI Insights -->
+<div class="insight-card">
+
+    <h3>
+        <i class="fa-solid fa-brain"></i>
+        AI Business Insights
+    </h3>
+
+    <ul>
+
+    {% for insight in ai_insights %}
+
+        <li>{{ insight }}</li>
+
+    {% empty %}
+
+        <li>No business insights available.</li>
+
+    {% endfor %}
+
+    </ul>
+
+</div>
+
+{{ labels|json_script:"chart-labels" }}
+{{ revenue|json_script:"chart-data" }}
+
+{{ booking_labels|json_script:"booking-labels" }}
+{{ booking_totals|json_script:"booking-data" }}
+
+{{ vehicle_labels|json_script:"vehicle-labels" }}
+{{ vehicle_totals|json_script:"vehicle-data" }}
+
+{{ driver_labels|json_script:"driver-labels" }}
+{{ driver_totals|json_script:"driver-data" }}
+
+{{ customer_labels|json_script:"customer-labels" }}
+{{ customer_totals|json_script:"customer-data" }}
+
+{{ route_labels|json_script:"route-labels" }}
+{{ route_totals|json_script:"route-data" }}
+
+{{ payment_labels|json_script:"payment-labels" }}
+{{ payment_totals|json_script:"payment-data" }}
+
+{{ status_labels|json_script:"status-labels" }}
+{{ status_totals|json_script:"status-data" }}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'js/analytics.js' %}"></script>
+{% endblock %}

@@ -159,3 +159,52 @@
     margin-top:5px;
 
 }
+
+.prediction-card{
+
+    background:#ffffff;
+    border-radius:20px;
+    padding:30px;
+    margin-bottom:30px;
+    box-shadow:0 10px 25px rgba(0,0,0,.05);
+
+}
+
+.prediction-card h1{
+
+    font-size:48px;
+    color:#2563EB;
+    margin:20px 0;
+
+}
+
+.prediction-metrics{
+
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:20px;
+
+}
+
+.metric{
+
+    background:#F8FAFC;
+    padding:20px;
+    border-radius:15px;
+    text-align:center;
+
+}
+
+.metric h5{
+
+    color:#64748B;
+    margin-bottom:10px;
+
+}
+
+.metric p{
+
+    font-size:24px;
+    font-weight:bold;
+
+}

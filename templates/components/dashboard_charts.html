@@ -3,77 +3,51 @@
     <!-- Revenue Trend -->
     <div class="chart-card">
 
-    </table>
+        <!-- Add chart here later -->
+
+    </div>
 
 </div>
 
-<!-- Fleet Status Card -->
+
+<!-- Upcoming Bookings Card -->
 <div class="dashboard-card mt-4">
+
     <div class="card-header">
-        <h4>Fleet Status</h4>
+        <h4>Upcoming Bookings</h4>
     </div>
 
-    <div class="fleet-status">
+    <table class="table">
 
-        <div class="fleet-card available">
-            <i class="fa-solid fa-circle-check"></i>
+        <thead>
+            <tr>
+                <th>Booking No</th>
+                <th>Destination</th>
+                <th>Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
 
-            <h3>{{ available_vehicles }}</h3>
+        <tbody>
 
-            <p>Available</p>
-        </div>
+            {% for booking in upcoming_bookings %}
 
-        <div class="fleet-card trip">
-            <i class="fa-solid fa-road"></i>
+            <tr>
 
-            <h3>{{ on_trip_vehicles }}</h3>
+                <td>
+                    {{ booking.booking_number }}
+                </td>
 
-            <p>On Trip</p>
-        </div>
+                <td>
+                    {{ booking.destination }}
+                </td>
 
-        <div class="fleet-card maintenance">
-            <i class="fa-solid fa-screwdriver-wrench"></i>
+                <td>
+                    {{ booking.travel_date }}
+                </td>
 
-            <h3>{{ maintenance_vehicles }}</h3>
-
-            <p>Maintenance</p>
-        </div>
-
-    </div>
-
-</div>
-
-<!-- Analytics Card -->
-<div class="dashboard-card mt-4">
-    <div class="card-header">
-        <h4>Analytics</h4>
-    </div>
-
-    <div class="analytics-grid">
-
-        <div class="analytics-card">
-            <h5>Today's Revenue</h5>
-            <h2>RM {{ today_revenue }}</h2>
-        </div>
-
-        <div class="analytics-card">
-            <h5>This Month</h5>
-            <h2>RM {{ month_revenue }}</h2>
-        </div>
-
-        <div class="analytics-card">
-            <h5>Total Customers</h5>
-            <h2>{{ customer_count }}</h2>
-        </div>
-
-        <div class="analytics-card">
-            <h5>Average Booking</h5>
-            <h2>RM {{ average_booking }}</h2>
-        </div>
-
-    </div>
-
-</div>
+                <td>
+                    {{ booking.status }}
                 </td>
 
             </tr>
@@ -92,62 +66,110 @@
 
     </table>
 
-    <!-- Fleet Status -->
+</div>
+
+
+
+<!-- Fleet Status Card -->
+<div class="dashboard-card mt-4">
+
+    <div class="card-header">
+        <h4>Fleet Status</h4>
+    </div>
 
     <div class="fleet-status">
 
-    <div class="fleet-card available">
-        <i class="fa-solid fa-circle-check"></i>
+        <div class="fleet-card available">
 
-        <h3>{{ available_vehicles }}</h3>
+            <i class="fa-solid fa-circle-check"></i>
 
-        <p>Available</p>
+            <h3>{{ available_vehicles }}</h3>
+
+            <p>Available</p>
+
+        </div>
+
+
+        <div class="fleet-card trip">
+
+            <i class="fa-solid fa-road"></i>
+
+            <h3>{{ on_trip_vehicles }}</h3>
+
+            <p>On Trip</p>
+
+        </div>
+
+
+        <div class="fleet-card maintenance">
+
+            <i class="fa-solid fa-screwdriver-wrench"></i>
+
+            <h3>{{ maintenance_vehicles }}</h3>
+
+            <p>Maintenance</p>
+
+        </div>
+
     </div>
 
-    <div class="fleet-card trip">
-        <i class="fa-solid fa-road"></i>
+</div>
 
-        <h3>{{ on_trip_vehicles }}</h3>
 
-        <p>On Trip</p>
+
+<!-- Analytics Card -->
+<div class="dashboard-card mt-4">
+
+    <div class="card-header">
+        <h4>Analytics</h4>
     </div>
 
-    <div class="fleet-card maintenance">
-        <i class="fa-solid fa-screwdriver-wrench"></i>
-
-        <h3>{{ maintenance_vehicles }}</h3>
-
-        <p>Maintenance</p>
-    </div>
-
-    <!-- Analytics Cards -->
 
     <div class="analytics-grid">
 
-    <div class="analytics-card">
-        <h5>Today's Revenue</h5>
-        <h2>RM {{ today_revenue }}</h2>
+        <div class="analytics-card">
+
+            <h5>Today's Revenue</h5>
+
+            <h2>
+                RM {{ today_revenue }}
+            </h2>
+
+        </div>
+
+
+        <div class="analytics-card">
+
+            <h5>This Month</h5>
+
+            <h2>
+                RM {{ month_revenue }}
+            </h2>
+
+        </div>
+
+
+        <div class="analytics-card">
+
+            <h5>Total Customers</h5>
+
+            <h2>
+                {{ customer_count }}
+            </h2>
+
+        </div>
+
+
+        <div class="analytics-card">
+
+            <h5>Average Booking</h5>
+
+            <h2>
+                RM {{ average_booking }}
+            </h2>
+
+        </div>
+
     </div>
-
-    <div class="analytics-card">
-        <h5>This Month</h5>
-        <h2>RM {{ month_revenue }}</h2>
-    </div>
-
-    <div class="analytics-card">
-        <h5>Total Customers</h5>
-        <h2>{{ customer_count }}</h2>
-    </div>
-
-    <div class="analytics-card">
-        <h5>Average Booking</h5>
-        <h2>RM {{ average_booking }}</h2>
-    </div>
-
-</div>
-
-</div>
-
-</div>
 
 </div>

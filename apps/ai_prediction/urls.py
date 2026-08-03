@@ -12,4 +12,14 @@ urlpatterns = [
         name="prediction",
     ),
 
+    path(
+
+    "retrain/",
+
+    views.retrain_model,
+
+    name="retrain_model",
+
+    )
+
 ]

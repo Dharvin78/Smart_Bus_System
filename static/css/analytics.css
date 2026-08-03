@@ -1,0 +1,101 @@
+.page-header{
+
+    margin-bottom:30px;
+
+}
+
+.chart-card{
+
+    background:#fff;
+
+    border-radius:20px;
+
+    padding:25px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.05);
+
+}
+
+.card-header{
+
+    margin-bottom:20px;
+
+}
+
+.analytics-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:25px;
+
+    margin-bottom:25px;
+
+}
+
+.chart-card{
+
+    background:#fff;
+
+    border-radius:20px;
+
+    padding:25px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.05);
+
+}
+
+.chart-card canvas{
+
+    height:320px !important;
+
+}
+
+.insight-card{
+
+    margin-top:20px;
+
+    background:#ffffff;
+
+    border-left:6px solid #2563EB;
+
+    padding:30px;
+
+    border-radius:20px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.05);
+
+}
+
+.insight-card h3{
+
+    margin-bottom:20px;
+
+    color:#2563EB;
+
+}
+
+.insight-card ul{
+
+    margin:0;
+
+    padding-left:20px;
+
+}
+
+.insight-card li{
+
+    margin-bottom:12px;
+
+}
+
+@media(max-width:992px){
+
+    .analytics-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
