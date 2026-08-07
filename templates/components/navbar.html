@@ -1,3 +1,5 @@
+{% load static %}
+
 <nav class="navbar-custom">
 
     <!-- Left Side -->
@@ -23,34 +25,91 @@
             <!-- Notification -->
             <div class="notification-icon">
 
-                <button class="notification-btn">
+                <button 
+                    class="notification-btn"
+                    id = "notificationBtn">
 
                     <i class="fa-regular fa-bell"></i>
 
+                    <span 
+                        class="notification-count" 
+                        id="notificationCount"
+                         {% if unread_notifications == 0 %}style="display:none;"{% endif %}>
+                        {{ unread_notifications }}
+                    </span>
+
                 </button>
+
+                <div
+                    class="notification-dropdown"
+                    id="notificationDropdown"
+                >
+
+                    <div id="notificationList">
+
+                        {% for item in navbar_notifications %}
+
+                            <a href="{% url 'notifications:read' item.pk %}"
+                            class="notification-item">
+
+                                <strong>{{ item.notification.title }}</strong>
+
+                                <p>{{ item.notification.message }}</p>
+
+                            </a>
+
+                        {% empty %}
+
+                            <div class="notification-empty">
+
+                                No notifications
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                    <a href="{% url 'notifications:list' %}">
+                        View All Notifications
+                    </a>
+
+                </div>
 
             </div>
 
         <!-- Profile -->
-        <div class="profile-menu">
+        <a href="{% url 'accounts:profile' %}" class="profile-link">
 
-            <div class="profile-avatar">
-                {{ request.user.username|first|upper }}
-            </div>
+            <div class="profile-menu">
 
-            <div class="profile-info">
-
-                <strong>{{ request.user.username }}</strong>
-
-                {% if request.user.is_authenticated and request.user.profile %}
-                    <small>{{ request.user.profile.role }}</small>
+                <!-- Profile Picture -->
+                {% if request.user.profile.profile_picture %}
+                    <img
+                        src="{{ request.user.profile.profile_picture.url }}"
+                        alt="Profile Picture"
+                        class="profile-avatar profile-image"
+                    >
                 {% else %}
-                    <small>User</small>
+                    <div class="profile-avatar">
+                        {{ request.user.username|first|upper }}
+                    </div>
                 {% endif %}
 
+                <!-- Profile Information -->
+                <div class="profile-info">
+
+                    <strong>{{ request.user.username }}</strong>
+
+                    <small>
+                        {{ request.user.profile.role|default:"User" }}
+                    </small>
+
+                </div>
+
             </div>
 
-        </div>
+        </a>
 
     </div>
 

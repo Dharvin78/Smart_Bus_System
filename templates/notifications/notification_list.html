@@ -1,7 +1,12 @@
-{% extends "base.html" %}
+{% extends "layouts/base.html" %}
+{% load static %}
 
 {% block title %}
 Notifications
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/notifications.css' %}">
 {% endblock %}
 
 {% block content %}

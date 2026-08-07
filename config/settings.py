@@ -53,7 +53,7 @@ INSTALLED_APPS = [
     'apps.ai_prediction',
     'apps.customers',
     'core',
-    "apps.notifications",
+    "apps.notifications.apps.NotificationsConfig",
     "apps.accounts.apps.AccountsConfig",
     "apps.audit.apps.AuditConfig",
     "apps.emails",

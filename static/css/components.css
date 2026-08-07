@@ -3,97 +3,62 @@
 ========================== */
 
 .kpi-grid{
-
     display:grid;
-
     grid-template-columns:repeat(4,1fr);
-
     gap:25px;
-
     margin-bottom:30px;
-
 }
 
 /* Card */
 
 .kpi-card{
-
     background:#ffffff;
-
     border-radius:20px;
-
     padding:25px;
-
     display:flex;
-
     align-items:center;
-
     gap:20px;
-
     box-shadow:0 10px 30px rgba(0,0,0,.05);
-
     transition:.3s;
-
 }
 
 .kpi-card:hover{
-
     transform:translateY(-6px);
-
 }
 
 /* Icon */
 
 .kpi-icon{
-
     width:70px;
-
     height:70px;
-
     border-radius:18px;
-
     display:flex;
-
     justify-content:center;
-
     align-items:center;
-
     color:white;
-
     font-size:28px;
-
 }
 
 /* Colors */
 
 .revenue{
-
     background:#2563EB;
-
 }
 
 .booking{
-
     background:#22C55E;
-
 }
 
 .vehicle{
-
     background:#F59E0B;
-
 }
 
 .maintenance{
-
     background:#EF4444;
-
 }
 
 .driver{
-
     background:#8B5CF6;
-
 }
 
 /* Text */
@@ -208,4 +173,17 @@ canvas{
 
     height:350px !important;
 
+}
+
+/* ===========================
+   Notification Navbar
+=========================== */
+
+.notification-btn:hover{
+    background:#f3f4f6;
+}
+
+.notification-btn i{
+    font-size:20px;
+    color:#1f2937;
 }

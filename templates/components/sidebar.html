@@ -111,8 +111,8 @@
             </a>
         </li>
 
-        <li>
-            <a href="{% url 'analytics:dashboard' %}">
+        <li class="{% if request.resolver_match.url_name == 'business_analytics' %}active{% endif %}">
+            <a href="{% url 'analytics:dashboard' %}" class="nav-link">
                 <i class="fa-solid fa-chart-line"></i>
             <span>Business Analytics</span>
             </a>
@@ -139,11 +139,9 @@
             </a>
         </li>
 
-        <li class = "nav-item">
+        <li class = "{% if request.resolver_match.app_name == 'ai' %}active{% endif %}">
             <a href="{% url 'ai:dashboard' %}">
-
                 <i class="fa-solid fa-brain"></i>
-                
                 <span>AI Dashboard</span>
             </a>
         </li>
@@ -156,15 +154,15 @@
 
     <ul class="sidebar-menu">
 
-        <li class="{% if request.resolver_match.url_name == 'notification_list' %}active{% endif %}">
-            <a href="#" class="nav-link">
+        <li class="{% if request.resolver_match.app_name == 'notifications' %}active{% endif %}">
+            <a href="{% url 'notifications:list' %}" class="nav-link">
                 <i class="fa-solid fa-bell"></i>
                 <span>Notifications</span>
             </a>
         </li>
 
-        <li class="{% if request.resolver_match.url_name == 'my_profile' %}active{% endif %}">
-            <a href="#" class="nav-link">
+        <li class="{% if request.resolver_match.app_name == 'accounts' %}active{% endif %}">
+            <a href="{% url 'accounts:profile' %}" class="nav-link">
                 <i class="fa-solid fa-user"></i>
                 <span>My Profile</span>
             </a>
@@ -177,7 +175,7 @@
             </a>
         </li>
 
-        <li>
+        <li class="{% if request.resolver_match.app_name == 'settings' %}active{% endif %}">
             <a href="{% url 'settings:settings' %}">
                 <i class="fa-solid fa-gear"></i>
                 <span>Settings</span>
@@ -194,7 +192,7 @@
 
     <div class="logout-section">
 
-        <a href="{% url 'logout' %}">
+        <a href="{% url 'accounts:logout' %}">
             <i class="fa-solid fa-right-from-bracket"></i>
             Logout
         </a>

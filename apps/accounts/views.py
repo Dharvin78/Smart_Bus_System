@@ -6,9 +6,11 @@ from django.contrib.auth import login
 from django.contrib.auth import logout
 
 from django.contrib.auth.models import User
-
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+
 from .models import UserProfile
+from .forms import ProfileForm
 
 from .forms import SignupForm
 
@@ -52,7 +54,6 @@ def login_view(request):
         "accounts/login.html"
     )
 
-
 def signup_view(request):
 
     if request.method == "POST":
@@ -95,4 +96,51 @@ def logout_view(request):
 
     logout(request)
 
-    return redirect("login")
+    return redirect("accounts:login")
+
+@login_required
+def profile(request):
+
+    return render(
+        request,
+        "accounts/profile.html",
+    )
+
+def edit_profile(request):
+
+    profile = request.user.profile
+
+    if request.method == "POST":
+
+        form = ProfileForm(
+            request.POST,
+            request.FILES,
+            instance=profile,
+            user=request.user
+        )
+
+        if form.is_valid():
+
+            form.save(user=request.user)
+
+            messages.success(
+                request,
+                "Profile updated successfully."
+            )
+
+            return redirect("accounts:profile")
+
+    else:
+
+        form = ProfileForm(
+            instance=profile,
+            user=request.user
+        )
+
+    return render(
+        request,
+        "accounts/edit_profile.html",
+        {
+            "form": form
+        }
+    )

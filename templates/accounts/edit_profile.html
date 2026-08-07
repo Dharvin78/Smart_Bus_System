@@ -1,0 +1,465 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}
+Edit Profile
+{% endblock %}
+
+{% block extra_css %}
+
+<style>
+
+.profile-edit-card {
+    border: none;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+.profile-edit-header {
+    background: #2563eb;
+    color: white;
+    padding: 18px 30px;
+}
+
+.profile-edit-header h3 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.profile-edit-body {
+    padding: 35px;
+}
+
+/* Profile picture */
+
+.profile-picture-section {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.profile-picture-preview {
+    width: 170px;
+    height: 170px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 5px solid #e5e7eb;
+    display: block;
+    margin: 0 auto 15px;
+}
+
+.profile-avatar-large {
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    background: #2563eb;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 55px;
+    font-weight: 600;
+    margin: 0 auto 15px;
+}
+
+.profile-picture-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 12px;
+}
+
+/* Form */
+
+.profile-form label {
+    display: block;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 8px;
+}
+
+.profile-form .form-control,
+.profile-form .form-select {
+    width: 100%;
+    min-height: 48px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 15px;
+    color: #1f2937;
+    background: #fff;
+}
+
+.profile-form textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.profile-form .form-control:focus,
+.profile-form .form-select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* File input */
+
+.profile-picture-input {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.profile-picture-input input {
+    width: 100%;
+}
+
+/* Buttons */
+
+.profile-actions {
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.profile-actions .btn {
+    padding: 10px 20px;
+    border-radius: 9px;
+    font-weight: 500;
+}
+
+/* Error */
+
+.profile-errors {
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-bottom: 25px;
+}
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="card shadow-sm profile-edit-card">
+
+    <!-- Header -->
+
+    <div class="profile-edit-header">
+
+        <h3>
+            <i class="fa-solid fa-user-pen me-2"></i>
+            Edit Profile
+        </h3>
+
+    </div>
+
+
+    <!-- Body -->
+
+    <div class="profile-edit-body">
+
+        {% if form.errors %}
+
+            <div class="profile-errors">
+
+                <strong>
+                    Please correct the following errors:
+                </strong>
+
+                {{ form.non_field_errors }}
+
+                {% for field in form %}
+
+                    {% for error in field.errors %}
+
+                        <div>
+                            <strong>{{ field.label }}:</strong>
+                            {{ error }}
+                        </div>
+
+                    {% endfor %}
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+
+        <form method="POST"
+              enctype="multipart/form-data"
+              class="profile-form">
+
+            {% csrf_token %}
+
+
+            <!-- ======================= -->
+            <!-- PROFILE PICTURE -->
+            <!-- ======================= -->
+
+            <div class="profile-picture-section">
+
+                {% if request.user.profile.profile_picture %}
+
+                    <img
+                        id="profilePreview"
+                        src="{{ request.user.profile.profile_picture.url }}"
+                        class="profile-picture-preview"
+                        alt="Profile Picture"
+                    >
+
+                {% else %}
+
+                    <div
+                        id="profileAvatar"
+                        class="profile-avatar-large"
+                    >
+                        {{ request.user.username|first|upper }}
+                    </div>
+
+                    <img
+                        id="profilePreview"
+                        class="profile-picture-preview"
+                        style="display:none;"
+                        alt="Profile Picture Preview"
+                    >
+
+                {% endif %}
+
+
+                <div class="profile-picture-title">
+                    Profile Picture
+                </div>
+
+
+                <div class="profile-picture-input">
+
+                    {{ form.profile_picture }}
+
+                </div>
+
+            </div>
+
+
+            <!-- ======================= -->
+            <!-- PERSONAL INFORMATION -->
+            <!-- ======================= -->
+
+            <div class="row g-4">
+
+
+                <!-- First Name -->
+
+                <div class="col-md-6">
+
+                    <label for="{{ form.first_name.id_for_label }}">
+                        First Name
+                    </label>
+
+                    {{ form.first_name }}
+
+                </div>
+
+
+                <!-- Last Name -->
+
+                <div class="col-md-6">
+
+                    <label for="{{ form.last_name.id_for_label }}">
+                        Last Name
+                    </label>
+
+                    {{ form.last_name }}
+
+                </div>
+
+
+                <!-- Email -->
+
+                <div class="col-md-6">
+
+                    <label for="{{ form.email.id_for_label }}">
+                        Email Address
+                    </label>
+
+                    {{ form.email }}
+
+                </div>
+
+
+                <!-- Phone -->
+
+                <div class="col-md-6">
+
+                    <label for="{{ form.phone.id_for_label }}">
+                        Phone Number
+                    </label>
+
+                    {{ form.phone }}
+
+                </div>
+
+
+                <!-- Gender -->
+
+                <div class="col-md-6">
+
+                    <label for="{{ form.gender.id_for_label }}">
+                        Gender
+                    </label>
+
+                    {{ form.gender }}
+
+                </div>
+
+
+                <!-- Address -->
+
+                <div class="col-12">
+
+                    <label for="{{ form.address.id_for_label }}">
+                        Address
+                    </label>
+
+                    {{ form.address }}
+
+                </div>
+
+
+                <!-- City -->
+
+                <div class="col-md-4">
+
+                    <label for="{{ form.city.id_for_label }}">
+                        City
+                    </label>
+
+                    {{ form.city }}
+
+                </div>
+
+
+                <!-- State -->
+
+                <div class="col-md-4">
+
+                    <label for="{{ form.state.id_for_label }}">
+                        State
+                    </label>
+
+                    {{ form.state }}
+
+                </div>
+
+
+                <!-- Postcode -->
+
+                <div class="col-md-4">
+
+                    <label for="{{ form.postcode.id_for_label }}">
+                        Postcode
+                    </label>
+
+                    {{ form.postcode }}
+
+                </div>
+
+            </div>
+
+
+            <!-- ======================= -->
+            <!-- BUTTONS -->
+            <!-- ======================= -->
+
+            <div class="profile-actions">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+
+                    <i class="fa-solid fa-floppy-disk me-2"></i>
+
+                    Save Changes
+
+                </button>
+
+
+                <a
+                    href="{% url 'accounts:profile' %}"
+                    class="btn btn-secondary"
+                >
+
+                    <i class="fa-solid fa-xmark me-2"></i>
+
+                    Cancel
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- ======================= -->
+<!-- IMAGE PREVIEW -->
+<!-- ======================= -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const input = document.getElementById("profilePictureInput");
+    const preview = document.getElementById("profilePreview");
+    const avatar = document.getElementById("profileAvatar");
+
+    if (!input) {
+        return;
+    }
+
+    input.addEventListener("change", function () {
+
+        const file = this.files[0];
+
+        if (!file) {
+            return;
+        }
+
+        if (!file.type.startsWith("image/")) {
+            alert("Please select an image file.");
+            this.value = "";
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+
+            preview.src = event.target.result;
+
+            preview.style.display = "block";
+
+            if (avatar) {
+                avatar.style.display = "none";
+            }
+
+        };
+
+        reader.readAsDataURL(file);
+
+    });
+
+});
+
+</script>
+
+{% endblock %}

@@ -192,46 +192,66 @@
 /* Notification */
 
 .notification-btn{
-
     position:relative;
-
-    width:45px;
-
-    height:45px;
-
+    width:42px;
+    height:42px;
     border:none;
-
-    border-radius:12px;
-
-    background:#F8FAFC;
-
+    border-radius:50%;
+    background:#fff;
+    display:flex;
+    justify-content:center;
+    align-items:center;
     cursor:pointer;
-
-    font-size:18px;
-
+    z-index:2000;
 }
 
-/* Notification badge ONLY */
+.notification-icon{
+    position:relative;
+    z-index:2000;
+}
 
-.notification-badge {
-    position: absolute;
-    top: -5px;
-    right: -5px;
+.notification-count{
+    position:absolute;
+    top:-4px;
+    right:-4px;
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    background:#ef4444;
+    color:#fff;
+    font-size:11px;
+    font-weight:600;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
 
-    background: #EF4444;
-    color: white;
+.notification-dropdown{
+    position:absolute;
+    top:50px;
+    right:0;
+    width:320px;
+    background:#fff;
+    border-radius:12px;
+    box-shadow:0 10px 30px rgba(0,0,0,.15);
+    display:none;
+    z-index:9999;
+}
 
-    width: 18px;
-    height: 18px;
+.notification-dropdown.show{
+    display:block;
+}
 
-    border-radius: 50%;
+.notification-item{
+    display:block;
+    padding:15px;
+    color:#333;
+    text-decoration:none;
+    border-bottom:1px solid #eee;
+}
 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    font-size: .75rem;
-    font-weight: 600;
+.notification-item:hover{
+    background:#f8fafc;
 }
 
 /* Profile */
