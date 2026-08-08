@@ -11,7 +11,7 @@ from django.contrib import messages
 
 from .models import UserProfile
 from .forms import ProfileForm
-
+from .forms import (SignupForm,ProfileForm,CustomPasswordChangeForm)
 from .forms import SignupForm
 
 
@@ -68,9 +68,7 @@ def signup_view(request):
                 password=form.cleaned_data["password"]
             )
 
-            UserProfile.objects.create(
-                user=user
-            )
+            # UserProfile is automatically created by signals.py
 
             login(request, user)
 
@@ -88,7 +86,9 @@ def signup_view(request):
     return render(
         request,
         "accounts/signup.html",
-        {"form": form}
+        {
+            "form": form
+        }
     )
 
 
@@ -140,6 +140,40 @@ def edit_profile(request):
     return render(
         request,
         "accounts/edit_profile.html",
+        {
+            "form": form
+        }
+    )
+
+def change_password(request):
+
+    if request.method == "POST":
+
+        form = CustomPasswordChangeForm(
+            request.user,
+            request.POST
+        )
+
+        if form.is_valid():
+
+            form.save()
+
+            messages.success(
+                request,
+                "Your password has been changed successfully."
+            )
+
+            return redirect("accounts:profile")
+
+    else:
+
+        form = CustomPasswordChangeForm(
+            request.user
+        )
+
+    return render(
+        request,
+        "accounts/change_password.html",
         {
             "form": form
         }

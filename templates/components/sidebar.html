@@ -31,7 +31,7 @@
             </a>
         </li>
 
-        <li class="{% if request.resolver_match.url_name == 'booking_list' %}active{% endif %}">
+        <li class="{% if request.resolver_match.app_name == 'bookings' %}active{% endif %}">
             <a href="{% url 'bookings:booking_list' %}" class="nav-link">
                 <i class="fa-solid fa-calendar-days"></i>
                 <span>Bookings</span>
@@ -46,21 +46,21 @@
 
     <ul class="sidebar-menu">
 
-        <li class="{% if request.resolver_match.url_name == 'vehicle_list' %}active{% endif %}">
+        <li class="{% if request.resolver_match.app_name == 'vehicles' %}active{% endif %}">
             <a href="{% url 'vehicles:vehicle_list' %}" class="nav-link">
                 <i class="fa-solid fa-bus"></i>
                 <span>Vehicles</span>
             </a>
         </li>
 
-        <li class="{% if request.resolver_match.url_name == 'fuel_list' %}active{% endif %}">
+        <li class="{% if request.resolver_match.app_name == 'fuel' %}active{% endif %}">
             <a href="{% url 'fuel:fuel_list' %}" class="nav-link">
                 <i class="fa-solid fa-gas-pump"></i>
                 <span>Fuel</span>
             </a>
         </li>
 
-        <li class="{% if request.resolver_match.url_name == 'maintenance_list' %}active{% endif %}">
+        <li class="{% if request.resolver_match.app_name == 'maintenance' %}active{% endif %}">
             <a href="{% url 'maintenance:maintenance_list' %}" class="nav-link">
                 <i class="fa-solid fa-screwdriver-wrench"></i>
                 <span>Maintenance</span>
@@ -75,7 +75,7 @@
 
     <ul class="sidebar-menu">
 
-        <li class="{% if request.resolver_match.url_name == 'driver_list' %}active{% endif %}">
+        <li class="{% if request.resolver_match.app_name == 'drivers' %}active{% endif %}">
             <a href="{% url 'drivers:driver_list' %}" class="nav-link">
                 <i class="fa-solid fa-id-card"></i>
                 <span>Drivers</span>
@@ -104,14 +104,14 @@
 
     <ul class="sidebar-menu">
 
-        <li class="{% if request.resolver_match.url_name == 'payment_list' %}active{% endif %}">
+        <li class="{% if request.resolver_match.app_name == 'payments' %}active{% endif %}">
             <a href="{% url 'payments:payment_list' %}" class="nav-link">   
                     <i class="fas fa-credit-card"></i>
              <span>Payments</span>
             </a>
         </li>
 
-        <li class="{% if request.resolver_match.url_name == 'business_analytics' %}active{% endif %}">
+        <li class="{% if request.resolver_match.app_name == 'analytics' %}active{% endif %}">
             <a href="{% url 'analytics:dashboard' %}" class="nav-link">
                 <i class="fa-solid fa-chart-line"></i>
             <span>Business Analytics</span>
@@ -169,7 +169,7 @@
         </li>
 
         <li class="{% if request.resolver_match.app_name == 'audit' %}active{% endif %}">
-            <a href="#" class ="nav-link">
+            <a href="{% url 'audit:list' %}" class ="nav-link">
                 <i class="fa-solid fa-clock-rotate-left"></i>
                 <span>Audit Log</span>
             </a>

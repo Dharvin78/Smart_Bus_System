@@ -39,7 +39,7 @@ def audit_list(request):
             "module",
             flat=True
         ).distinct(),
-        "actions": AuditLog.ACTION_CHOICES,
+        "actions": AuditLog.ACTIONS,
     }
 
     return render(
