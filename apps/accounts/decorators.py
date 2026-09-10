@@ -3,6 +3,8 @@ from functools import wraps
 from django.contrib import messages
 from django.shortcuts import redirect
 
+from .models import UserProfile
+
 
 def role_required(allowed_roles):
     """
@@ -23,7 +25,7 @@ def role_required(allowed_roles):
 
             try:
                 role = request.user.profile.role
-            except Exception:
+            except UserProfile.DoesNotExist:
                 messages.error(
                     request,
                     "User profile not found."

@@ -29,4 +29,10 @@ urlpatterns = [
         name="booking_delete",
     ),
 
+    path(
+        "driver-trips/",
+        views.driver_trips,
+        name="driver_trips"
+    ),
+
 ]

@@ -1,0 +1,535 @@
+{% extends "layouts/base.html" %}
+
+{% load static %}
+
+{% block title %}User Management{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/users.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid px-4 py-4">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <div class="d-flex align-items-center gap-3">
+                <div class="page-icon">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+
+                <div>
+                    <h2 class="mb-1 fw-bold">User Management</h2>
+                    <p class="text-muted mb-0">
+                        Manage system users, roles and account access.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <a href="{% url 'accounts:user_create' %}"
+           class="btn btn-primary px-4 py-2">
+            <i class="fa-solid fa-plus me-2"></i>
+            Add User
+        </a>
+
+    </div>
+
+
+    <!-- User Category Cards -->
+    <div class="row g-3 mb-4">
+
+        <!-- ALL -->
+        <div class="col-md-4">
+
+            <a href="?type=all{% if search %}&search={{ search|urlencode }}{% endif %}"
+               class="text-decoration-none">
+
+                <div class="user-category-card
+                    {% if user_type == 'all' %}active{% endif %}">
+
+                    <div class="category-icon all-icon">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+
+                    <div class="category-content">
+
+                        <span class="category-title">
+                            All Users
+                        </span>
+
+                        <strong>
+                            {{ all_count }}
+                        </strong>
+
+                        <small>
+                            All system accounts
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </a>
+
+        </div>
+
+
+        <!-- STAFF -->
+        <div class="col-md-4">
+
+            <a href="?type=staff{% if search %}&search={{ search|urlencode }}{% endif %}"
+               class="text-decoration-none">
+
+                <div class="user-category-card
+                    {% if user_type == 'staff' %}active{% endif %}">
+
+                    <div class="category-icon staff-icon">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+
+                    <div class="category-content">
+
+                        <span class="category-title">
+                            Staff
+                        </span>
+
+                        <strong>
+                            {{ staff_count }}
+                        </strong>
+
+                        <small>
+                            Owners, Admins & Drivers
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </a>
+
+        </div>
+
+
+        <!-- CUSTOMERS -->
+        <div class="col-md-4">
+
+            <a href="?type=customers{% if search %}&search={{ search|urlencode }}{% endif %}"
+               class="text-decoration-none">
+
+                <div class="user-category-card
+                    {% if user_type == 'customers' %}active{% endif %}">
+
+                    <div class="category-icon customer-icon">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+
+                    <div class="category-content">
+
+                        <span class="category-title">
+                            Customers
+                        </span>
+
+                        <strong>
+                            {{ customer_count }}
+                        </strong>
+
+                        <small>
+                            Customer accounts
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- Search -->
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body p-3">
+
+            <form method="get">
+
+                <input type="hidden"
+                       name="type"
+                       value="{{ user_type }}">
+
+                <div class="input-group">
+
+                    <span class="input-group-text bg-white">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+
+                    <input type="text"
+                           name="search"
+                           value="{{ search }}"
+                           class="form-control"
+                           placeholder="Search username, name or email...">
+
+                    <button class="btn btn-primary px-4"
+                            type="submit">
+                        Search
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- User Table -->
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table align-middle mb-0 user-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th class="ps-4">#</th>
+
+                            <th>User</th>
+
+                            <th>Full Name</th>
+
+                            <th>Email</th>
+
+                            <th>Role</th>
+
+                            <th>Status</th>
+
+                            <th class="text-end pe-4">
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for target_user in users %}
+
+                        <tr>
+
+                            <!-- Number -->
+                            <td class="ps-4 text-muted">
+                                {{ page_obj.start_index|add:forloop.counter0 }}
+                            </td>
+
+
+                            <!-- User -->
+                            <td>
+
+                                <div class="d-flex align-items-center gap-3">
+
+                                    {% if target_user.profile.profile_picture %}
+
+                                        <img src="{{ target_user.profile.profile_picture.url }}"
+                                             class="user-avatar"
+                                             alt="Profile">
+
+                                    {% else %}
+
+                                        <div class="user-avatar user-avatar-default">
+                                            {{ target_user.username|first|upper }}
+                                        </div>
+
+                                    {% endif %}
+
+                                    <div>
+
+                                        <div class="fw-semibold">
+                                            {{ target_user.username }}
+                                        </div>
+
+                                        <small class="text-muted">
+                                            User ID #{{ target_user.id }}
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+
+                            <!-- Full Name -->
+                            <td>
+
+                                {% if target_user.get_full_name %}
+
+                                    {{ target_user.get_full_name }}
+
+                                {% else %}
+
+                                    <span class="text-muted">
+                                        —
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- Email -->
+                            <td>
+
+                                {% if target_user.email %}
+
+                                    {{ target_user.email }}
+
+                                {% else %}
+
+                                    <span class="text-muted">
+                                        —
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- Role -->
+                            <td>
+
+                                {% if target_user.profile.role == "Owner" %}
+
+                                    <span class="role-badge owner">
+                                        <i class="fa-solid fa-crown"></i>
+                                        Owner
+                                    </span>
+
+                                {% elif target_user.profile.role == "Admin" %}
+
+                                    <span class="role-badge admin">
+                                        <i class="fa-solid fa-user-shield"></i>
+                                        Admin
+                                    </span>
+
+                                {% elif target_user.profile.role == "Driver" %}
+
+                                    <span class="role-badge driver">
+                                        <i class="fa-solid fa-id-card"></i>
+                                        Driver
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="role-badge customer">
+                                        <i class="fa-solid fa-user"></i>
+                                        Customer
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- Status -->
+                            <td>
+
+                                {% if target_user.is_active %}
+
+                                    <span class="status-badge active">
+                                        <i class="fa-solid fa-circle-check"></i>
+                                        Active
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="status-badge inactive">
+                                        <i class="fa-solid fa-circle-xmark"></i>
+                                        Inactive
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- Actions -->
+                            <td class="text-end pe-4">
+
+                                <div class="d-flex justify-content-end gap-2">
+
+                                    <a href="{% url 'accounts:user_update' target_user.pk %}"
+                                       class="btn btn-sm btn-warning"
+                                       title="Edit User">
+
+                                        <i class="fa-solid fa-pen-to-square"></i>
+
+                                    </a>
+
+
+                                    {% if target_user != request.user %}
+
+                                        <a href="{% url 'accounts:user_delete' target_user.pk %}"
+                                           class="btn btn-sm btn-danger"
+                                           title="Delete User">
+
+                                            <i class="fa-solid fa-trash"></i>
+
+                                        </a>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                        {% empty %}
+
+                        <tr>
+
+                            <td colspan="7"
+                                class="text-center py-5">
+
+                                <div class="empty-state">
+
+                                    <i class="fa-solid fa-users-slash"></i>
+
+                                    <h5 class="mt-3">
+                                        No users found
+                                    </h5>
+
+                                    <p class="text-muted mb-0">
+                                        Try changing your search or filter.
+                                    </p>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+
+        <div class="card-footer bg-white border-0 py-3">
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <small class="text-muted">
+
+                    Showing
+                    {{ page_obj.start_index }}
+                    –
+                    {{ page_obj.end_index }}
+                    of
+                    {{ page_obj.paginator.count }}
+                    users
+
+                </small>
+
+
+                <nav>
+
+                    <ul class="pagination pagination-sm mb-0">
+
+                        {% if page_obj.has_previous %}
+
+                            <li class="page-item">
+
+                                <a class="page-link"
+                                   href="?type={{ user_type }}&search={{ search|urlencode }}&page={{ page_obj.previous_page_number }}">
+
+                                    Previous
+
+                                </a>
+
+                            </li>
+
+                        {% endif %}
+
+
+                        {% for num in page_obj.paginator.page_range %}
+
+                            {% if num == page_obj.number %}
+
+                                <li class="page-item active">
+
+                                    <span class="page-link">
+                                        {{ num }}
+                                    </span>
+
+                                </li>
+
+                            {% elif num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+
+                                <li class="page-item">
+
+                                    <a class="page-link"
+                                       href="?type={{ user_type }}&search={{ search|urlencode }}&page={{ num }}">
+
+                                        {{ num }}
+
+                                    </a>
+
+                                </li>
+
+                            {% endif %}
+
+                        {% endfor %}
+
+
+                        {% if page_obj.has_next %}
+
+                            <li class="page-item">
+
+                                <a class="page-link"
+                                   href="?type={{ user_type }}&search={{ search|urlencode }}&page={{ page_obj.next_page_number }}">
+
+                                    Next
+
+                                </a>
+
+                            </li>
+
+                        {% endif %}
+
+                    </ul>
+
+                </nav>
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

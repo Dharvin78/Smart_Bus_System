@@ -40,6 +40,8 @@
 
     </ul>
 
+    {% if user_role == "Owner" or user_role == "Admin" %}
+
     <div class="menu-title">
         MANAGEMENT
     </div>
@@ -69,6 +71,8 @@
 
     </ul>
 
+
+
     <div class="menu-title">
         ACCESS CONTROL
     </div>
@@ -83,16 +87,9 @@
         </li>
 
         <li class="{% if request.resolver_match.url_name == 'user_list' %}active{% endif %}">
-            <a href="#" class="nav-link">
+            <a href="{% url 'accounts:user_list' %}" class="nav-link">
                 <i class="fa-solid fa-users"></i>
                 <span>Users</span>
-            </a>
-        </li>
-
-        <li class="{% if request.resolver_match.url_name == 'role_list' %}active{% endif %}">
-            <a href="#" class="nav-link">
-                <i class="fa-solid fa-user-shield"></i>
-                <span>Admin</span>
             </a>
         </li>
 
@@ -102,6 +99,8 @@
         BUSINESS
     </div>
 
+    {% endif %}
+
     <ul class="sidebar-menu">
 
         <li class="{% if request.resolver_match.app_name == 'payments' %}active{% endif %}">
@@ -110,6 +109,8 @@
              <span>Payments</span>
             </a>
         </li>
+
+    {% if user_role == "Owner" or user_role == "Admin" %}
 
         <li class="{% if request.resolver_match.app_name == 'analytics' %}active{% endif %}">
             <a href="{% url 'analytics:dashboard' %}" class="nav-link">
@@ -148,6 +149,8 @@
 
     </ul>
 
+    {% endif %}
+
     <div class="menu-title">
         SYSTEM
     </div>
@@ -168,12 +171,16 @@
             </a>
         </li>
 
+        {% if user_role == "Owner" or user_role == "Admin" %}
+
         <li class="{% if request.resolver_match.app_name == 'audit' %}active{% endif %}">
             <a href="{% url 'audit:list' %}" class ="nav-link">
                 <i class="fa-solid fa-clock-rotate-left"></i>
                 <span>Audit Log</span>
             </a>
         </li>
+
+        {% endif %}
 
         <li class="{% if request.resolver_match.app_name == 'settings' %}active{% endif %}">
             <a href="{% url 'settings:settings' %}">

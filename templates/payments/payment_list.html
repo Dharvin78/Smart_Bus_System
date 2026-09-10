@@ -1,7 +1,7 @@
 {% extends "crud/base_list.html" %}
 
 {% block page_title %}
-Payment Management
+Payment
 {% endblock %}
 
 {% block header_title %}
@@ -15,10 +15,14 @@ Manage customer payments and transactions.
 
 {% block add_button %}
 
-<a href="{% url 'payments:payment_create' %}" class="btn btn-primary">
-    <i class="fas fa-plus me-2"></i>
-    Add Payment
-</a>
+{% if role == "Owner" or role == "Admin" %}
+
+    <a href="{% url 'payments:payment_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>
+        Add Payment
+    </a>
+
+{% endif %}
 
 {% endblock %}
 
@@ -31,9 +35,11 @@ Manage customer payments and transactions.
         <input
             type="text"
             name="search"
+            value="{{ search }}"
             class="form-control"
-            placeholder="Search booking, customer or transaction ID..."
-            value="{{ search }}">
+            placeholder="{% if role == 'Customer' %}Search booking or transaction ID...
+            {% else %}Search booking, customer or transaction ID...
+            {% endif %}">
 
         <button class="btn btn-outline-primary" type="submit">
             <i class="fas fa-search"></i>
@@ -92,37 +98,57 @@ Manage customer payments and transactions.
 
                 {% if payment.payment_status == "Paid" %}
 
-                    <span class="text-success fw-semibold">
-                        {{ payment.payment_status }}
-                    </span>
+                    <a href="{% url 'payments:payment_receipt' payment.pk %}"
+                    class="btn btn-info btn-sm">
 
-                {% elif payment.payment_status == "Pending" %}
+                        <i class="fa-solid fa-receipt"></i>
+                        Receipt
 
-                    <span class="text-warning fw-semibold">
-                        {{ payment.payment_status }}
-                    </span>
+                    </a>
 
-                {% elif payment.payment_status == "Partially Paid" %}
+                {% elif payment.payment_status == "Pending" or payment.payment_status == "Partially Paid" %}
 
-                    <span class="text-primary fw-semibold">
-                        {{ payment.payment_status }}
-                    </span>
+                    {% if role == "Customer" %}
+
+                        <a href="{% url 'payments:payment_create' %}?booking={{ payment.booking.pk }}"
+                        class="btn btn-success btn-sm">
+
+                            <i class="fa-solid fa-credit-card"></i>
+                            Pay
+
+                        </a>
+
+                    {% elif role == "Owner" or role == "Admin" %}
+
+                        <a href="{% url 'payments:payment_update' payment.pk %}"
+                        class="btn btn-warning btn-sm">
+
+                            <i class="fa-solid fa-pen"></i>
+                            Edit
+
+                        </a>
+
+                        <a href="{% url 'payments:payment_delete' payment.pk %}"
+                        class="btn btn-danger btn-sm">
+
+                            <i class="fa-solid fa-trash"></i>
+                            Delete
+
+                        </a>
+
+                    {% endif %}
 
                 {% elif payment.payment_status == "Refunded" %}
 
-                    <span class="text-info fw-semibold">
-                        {{ payment.payment_status }}
+                    <span class="badge bg-secondary">
+                        Refunded
                     </span>
 
                 {% elif payment.payment_status == "Cancelled" %}
 
-                    <span class="text-danger fw-semibold">
-                        {{ payment.payment_status }}
+                    <span class="badge bg-danger">
+                        Cancelled
                     </span>
-
-                {% else %}
-
-                    {{ payment.payment_status }}
 
                 {% endif %}
 
@@ -152,7 +178,7 @@ Manage customer payments and transactions.
                 <a href="{% url 'payments:payment_receipt' payment.id %}"
                    class="btn btn-info btn-sm">
 
-                    <i class="fa-solidfa-file-pdf"></i>
+                    <i class="fa-solid fa-file-pdf"></i>
                     Receipt
                     
                 </a>

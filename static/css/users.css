@@ -1,0 +1,164 @@
+.page-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: #eaf2ff;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.user-category-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all .2s ease;
+}
+
+.user-category-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,.08);
+}
+
+.user-category-card.active {
+    border: 2px solid #2563eb;
+    box-shadow: 0 5px 15px rgba(37,99,235,.12);
+}
+
+.category-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 21px;
+}
+
+.all-icon {
+    background: #eaf2ff;
+    color: #2563eb;
+}
+
+.staff-icon {
+    background: #fff4d6;
+    color: #d97706;
+}
+
+.customer-icon {
+    background: #e8f8f0;
+    color: #16a34a;
+}
+
+.category-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.category-title {
+    font-size: 14px;
+    color: #64748b;
+}
+
+.category-content strong {
+    font-size: 25px;
+    color: #172033;
+    line-height: 1.2;
+}
+
+.category-content small {
+    color: #94a3b8;
+}
+
+.user-table thead th {
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    padding: 15px 12px;
+    white-space: nowrap;
+}
+
+.user-table tbody td {
+    padding: 16px 12px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.user-table tbody tr:hover {
+    background: #fafcff;
+}
+
+.user-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-avatar-default {
+    background: #2563eb;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.role-badge,
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.role-badge.owner {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.role-badge.admin {
+    background: #ede9fe;
+    color: #6d28d9;
+}
+
+.role-badge.driver {
+    background: #fff4d6;
+    color: #b45309;
+}
+
+.role-badge.customer {
+    background: #dff7ff;
+    color: #0891b2;
+}
+
+.status-badge.active {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status-badge.inactive {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.empty-state {
+    color: #94a3b8;
+}
+
+.empty-state i {
+    font-size: 40px;
+}

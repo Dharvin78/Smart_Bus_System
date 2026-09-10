@@ -1,5 +1,6 @@
 from urllib import request
 
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.paginator import Paginator
@@ -193,4 +194,37 @@ def booking_delete(request, pk):
         {
             "booking": booking,
         },
+    )
+
+@login_required
+def driver_trips(request):
+
+    # Make sure the logged-in user is a Driver
+    if request.user.profile.role != "Driver":
+        messages.error(
+            request,
+            "You do not have permission to access assigned trips."
+        )
+
+        return redirect("dashboard")
+
+    # Get trips assigned to this driver
+    bookings = Booking.objects.filter(
+        driver__user=request.user
+    ).select_related(
+        "vehicle",
+        "driver"
+    ).order_by(
+        "travel_date",
+        "departure_time"
+    )
+
+    context = {
+        "bookings": bookings,
+    }
+
+    return render(
+        request,
+        "bookings/driver_trips.html",
+        context
     )

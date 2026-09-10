@@ -8,20 +8,39 @@ from django.http import FileResponse
 from .models import Payment
 from .forms import PaymentForm
 from apps.emails.services import send_payment_receipt
+from apps.accounts.decorators import role_required
+from django.contrib.auth.decorators import login_required
 from .pdf import generate_payment_receipt
 
-
+@login_required
 def payment_list(request):
     """
     Display all payments with search and pagination.
     """
 
-    search = request.GET.get("search", "")
+    role = request.user.profile.role
 
     payments = Payment.objects.select_related(
         "booking",
         "booking__customer"
     ).order_by("-payment_date")
+
+    # Role-based data Acess Control
+    if role == "customer":
+
+        payments = payments.filter(
+            booking__customer=request.user.profile.user
+        )
+    elif role in ["Owner", "Admin"]:
+
+        payments = payments
+
+    else:
+
+        # Driver and other roles no Access to payments
+        payments = payments.none()
+
+    search = request.GET.get("search", "").strip()
 
     if search:
         payments = payments.filter(
@@ -30,6 +49,8 @@ def payment_list(request):
             Q(booking__customer__last_name__icontains=search) |
             Q(transaction_id__icontains=search)
         )
+
+    #Pagination
 
     paginator = Paginator(payments, 10)
 
@@ -42,6 +63,7 @@ def payment_list(request):
         "payments": page_obj,
         "search": search,
         "is_paginated": page_obj.has_other_pages(),
+        "role": role,
     }
 
     return render(
@@ -50,7 +72,8 @@ def payment_list(request):
         context,
     )
 
-
+@login_required
+@role_required(["Owner", "Admin"])
 def payment_create(request):
 
     if request.method == "POST":
@@ -87,7 +110,8 @@ def payment_create(request):
         },
     )
 
-
+@login_required
+@role_required(["Owner", "Admin"])
 def payment_update(request, pk):
 
     payment = get_object_or_404(
@@ -131,7 +155,8 @@ def payment_update(request, pk):
         },
     )
 
-
+@login_required
+@role_required(["Owner", "Admin"])
 def payment_delete(request, pk):
 
     payment = get_object_or_404(
@@ -160,9 +185,36 @@ def payment_delete(request, pk):
         },
     )
 
+@login_required
 def payment_receipt(request, pk):
 
-    payment = get_object_or_404(Payment, pk=pk)
+    role = request.user.profile.role
+
+    if role == "customer":
+
+        payment = get_object_or_404(
+            Payment,
+            pk=pk,
+            booking__customer__user=request.user
+        )
+
+    elif role in ["Owner", "Admin"]:
+
+        payment = get_object_or_404(
+            Payment,
+            pk=pk
+        )
+
+    else:
+
+        messages.error(
+            request,
+            "You do not have permission to access this receipt."
+        )
+
+        return redirect("dashboard:dashboard")
+
+    #payment = get_object_or_404(Payment, pk=pk)
 
     pdf = generate_payment_receipt(payment)
 
