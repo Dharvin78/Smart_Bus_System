@@ -37,6 +37,7 @@ urlpatterns = [
     path("ai/",include("apps.ai.urls")),
     path("settings/", include("apps.settings.urls")),
     path("analytics/", include("apps.analytics.urls")),
+    path("reports/", include("apps.reports.urls")),
     
 ]
 

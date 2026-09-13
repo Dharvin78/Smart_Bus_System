@@ -133,8 +133,8 @@
             </a>
         </li>
 
-        <li>
-            <a href="#">
+        <li class="{% if request.resolver_match.url_name == 'dashboard' and request.resolver_match.app_name == 'reports' %}active{% endif %}">
+            <a href="{% url 'reports:dashboard' %}" class="nav-link">
                 <i class="fa-solid fa-file-lines"></i>
                 <span>Reports</span>
             </a>

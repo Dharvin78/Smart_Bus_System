@@ -1,0 +1,275 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Fuel Usage Report</h2>
+            <p class="text-muted mb-0">
+                Monitor fuel consumption and fuel expenditure.
+            </p>
+        </div>
+
+        <div class="d-flex gap-2">
+
+            <a
+                href="{% url 'reports:maintenance_report_pdf' %}?vehicle={{ selected_vehicle|default:'' }}&maintenance_type={{ selected_type|default:'' }}&start_date={{ start_date|default:'' }}&end_date={{ end_date|default:'' }}"
+                class="btn btn-danger"
+            >
+                <i class="fa-solid fa-file-pdf me-2"></i>
+                Generate PDF
+            </a>
+
+            <a
+                href="{% url 'reports:dashboard' %}"
+                class="btn btn-outline-secondary"
+            >
+                <i class="fa-solid fa-arrow-left me-2"></i>
+                Back to Reports
+            </a>
+
+        </div>
+    </div>
+
+
+    <!-- SUMMARY CARDS -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Total Fuel Used</div>
+                    <h3 class="fw-bold mt-2">
+                        {{ summary.total_litres|default:0|floatformat:2 }} L
+                    </h3>
+                    <i class="fa-solid fa-gas-pump text-muted"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Total Fuel Cost</div>
+                    <h3 class="fw-bold mt-2">
+                        RM {{ summary.total_cost|default:0|floatformat:2 }}
+                    </h3>
+                    <i class="fa-solid fa-money-bill-wave text-muted"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Average Price / Litre</div>
+                    <h3 class="fw-bold mt-2">
+                        RM {{ summary.average_price|default:0|floatformat:2 }}
+                    </h3>
+                    <i class="fa-solid fa-chart-line text-muted"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Total Refills</div>
+                    <h3 class="fw-bold mt-2">
+                        {{ summary.total_refills|default:0 }}
+                    </h3>
+                    <i class="fa-solid fa-receipt text-muted"></i>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- FILTER -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+
+            <h5 class="fw-bold mb-3">
+                <i class="fa-solid fa-filter me-2"></i>
+                Filter Report
+            </h5>
+
+            <form method="GET">
+
+                <div class="row g-3">
+
+                    <div class="col-md-4">
+                        <label class="form-label">Vehicle</label>
+
+                        <select name="vehicle" class="form-select">
+                            <option value="">All Vehicles</option>
+
+                            {% for vehicle in vehicles %}
+                                <option value="{{ vehicle.id }}"
+                                    {% if selected_vehicle == vehicle.id|stringformat:"s" %}
+                                        selected
+                                    {% endif %}>
+                                    {{ vehicle.registration_number }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+
+                    <div class="col-md-3">
+                        <label class="form-label">Start Date</label>
+
+                        <input
+                            type="date"
+                            name="start_date"
+                            class="form-control"
+                            value="{{ start_date|default:'' }}"
+                        >
+                    </div>
+
+
+                    <div class="col-md-3">
+                        <label class="form-label">End Date</label>
+
+                        <input
+                            type="date"
+                            name="end_date"
+                            class="form-control"
+                            value="{{ end_date|default:'' }}"
+                        >
+                    </div>
+
+
+                    <div class="col-md-2 d-flex align-items-end">
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fa-solid fa-filter me-2"></i>
+                            Apply
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="mt-3">
+                    <a href="{% url 'reports:fuel_report' %}"
+                       class="btn btn-sm btn-outline-secondary">
+                        Clear Filters
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+
+    <!-- TABLE -->
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <div>
+                    <h5 class="fw-bold mb-1">Fuel Records</h5>
+                    <small class="text-muted">
+                        Detailed fuel usage records
+                    </small>
+                </div>
+
+            </div>
+
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Vehicle</th>
+                            <th>Fuel Type</th>
+                            <th>Litres</th>
+                            <th>Price/Litre</th>
+                            <th>Total Cost</th>
+                            <th>Fuel Station</th>
+                            <th>Mileage</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for fuel in fuels %}
+
+                        <tr>
+
+                            <td>
+                                {{ fuel.refill_date|date:"d M Y" }}
+                            </td>
+
+                            <td>
+                                <strong>
+                                    {{ fuel.vehicle.registration_number }}
+                                </strong>
+                            </td>
+
+                            <td>
+                                {{ fuel.fuel_type }}
+                            </td>
+
+                            <td>
+                                {{ fuel.litres|floatformat:2 }} L
+                            </td>
+
+                            <td>
+                                RM {{ fuel.price_per_litre|floatformat:2 }}
+                            </td>
+
+                            <td>
+                                <strong>
+                                    RM {{ fuel.total_cost|floatformat:2 }}
+                                </strong>
+                            </td>
+
+                            <td>
+                                {{ fuel.fuel_station }}
+                            </td>
+
+                            <td>
+                                {{ fuel.mileage }} km
+                            </td>
+
+                        </tr>
+
+                        {% empty %}
+
+                        <tr>
+                            <td colspan="8" class="text-center py-5">
+
+                                <i class="fa-solid fa-gas-pump fa-2x text-muted mb-3"></i>
+
+                                <p class="text-muted mb-0">
+                                    No fuel records found.
+                                </p>
+
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

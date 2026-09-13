@@ -1,0 +1,592 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}
+Maintenance Report
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="fa-solid fa-screwdriver-wrench me-2"></i>
+                Maintenance Report
+            </h2>
+
+            <p class="text-muted mb-0">
+                Monitor vehicle maintenance activities and expenditure.
+            </p>
+        </div>
+
+        <div class="d-flex gap-2">
+
+            <a
+                href="{% url 'reports:maintenance_report_pdf' %}?vehicle={{ selected_vehicle|default:'' }}&maintenance_type={{ selected_type|default:'' }}&start_date={{ start_date|default:'' }}&end_date={{ end_date|default:'' }}"
+                class="btn btn-danger"
+            >
+                <i class="fa-solid fa-file-pdf me-2"></i>
+                Generate PDF
+            </a>
+
+            <a
+                href="{% url 'reports:dashboard' %}"
+                class="btn btn-outline-secondary"
+            >
+                <i class="fa-solid fa-arrow-left me-2"></i>
+                Back to Reports
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- SUMMARY CARDS -->
+    <!-- ========================= -->
+
+    <div class="row g-3 mb-4">
+
+        <!-- Total Records -->
+        <div class="col-md-6 col-xl-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+                            <div class="text-muted small">
+                                Total Records
+                            </div>
+
+                            <h3 class="fw-bold mt-2 mb-0">
+                                {{ total_records }}
+                            </h3>
+                        </div>
+
+                        <div class="bg-primary-subtle rounded-3 p-3">
+                            <i class="fa-solid fa-screwdriver-wrench text-primary fa-lg"></i>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Total Cost -->
+        <div class="col-md-6 col-xl-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+                            <div class="text-muted small">
+                                Total Maintenance Cost
+                            </div>
+
+                            <h3 class="fw-bold mt-2 mb-0">
+                                RM {{ total_cost|floatformat:2 }}
+                            </h3>
+                        </div>
+
+                        <div class="bg-danger-subtle rounded-3 p-3">
+                            <i class="fa-solid fa-money-bill-wave text-danger fa-lg"></i>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Completed -->
+        <div class="col-md-6 col-xl-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+                            <div class="text-muted small">
+                                Completed
+                            </div>
+
+                            <h3 class="fw-bold mt-2 mb-0">
+                                {{ completed_count }}
+                            </h3>
+                        </div>
+
+                        <div class="bg-success-subtle rounded-3 p-3">
+                            <i class="fa-solid fa-circle-check text-success fa-lg"></i>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Scheduled -->
+        <div class="col-md-6 col-xl-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+                            <div class="text-muted small">
+                                Scheduled
+                            </div>
+
+                            <h3 class="fw-bold mt-2 mb-0">
+                                {{ scheduled_count }}
+                            </h3>
+                        </div>
+
+                        <div class="bg-warning-subtle rounded-3 p-3">
+                            <i class="fa-solid fa-calendar-check text-warning fa-lg"></i>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- ADDITIONAL STATUS SUMMARY -->
+    <!-- ========================= -->
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-6">
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+                            <span class="text-muted">
+                                In Progress
+                            </span>
+
+                            <h5 class="fw-bold mb-0 mt-1">
+                                {{ in_progress_count }}
+                            </h5>
+                        </div>
+
+                        <span class="badge bg-info">
+                            In Progress
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-6">
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+                            <span class="text-muted">
+                                Cancelled
+                            </span>
+
+                            <h5 class="fw-bold mb-0 mt-1">
+                                {{ cancelled_count }}
+                            </h5>
+                        </div>
+
+                        <span class="badge bg-secondary">
+                            Cancelled
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- FILTER -->
+    <!-- ========================= -->
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <h5 class="fw-bold mb-3">
+                <i class="fa-solid fa-filter me-2"></i>
+                Filter Report
+            </h5>
+
+            <form method="GET">
+
+                <div class="row g-3">
+
+                    <!-- Vehicle -->
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+                            Vehicle
+                        </label>
+
+                        <select
+                            name="vehicle"
+                            class="form-select"
+                        >
+
+                            <option value="">
+                                All Vehicles
+                            </option>
+
+                            {% for vehicle in vehicles %}
+
+                                <option
+                                    value="{{ vehicle.id }}"
+                                    {% if selected_vehicle == vehicle.id|stringformat:"s" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ vehicle.registration_number }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Maintenance Type -->
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+                            Maintenance Type
+                        </label>
+
+                        <select
+                            name="maintenance_type"
+                            class="form-select"
+                        >
+
+                            <option value="">
+                                All Maintenance Types
+                            </option>
+
+                            {% for type in maintenance_types %}
+
+                                <option
+                                    value="{{ type }}"
+                                    {% if selected_type == type %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ type }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Start Date -->
+                    <div class="col-md-2">
+
+                        <label class="form-label">
+                            Start Date
+                        </label>
+
+                        <input
+                            type="date"
+                            name="start_date"
+                            class="form-control"
+                            value="{{ start_date|default:'' }}"
+                        >
+
+                    </div>
+
+
+                    <!-- End Date -->
+                    <div class="col-md-2">
+
+                        <label class="form-label">
+                            End Date
+                        </label>
+
+                        <input
+                            type="date"
+                            name="end_date"
+                            class="form-control"
+                            value="{{ end_date|default:'' }}"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="d-flex gap-2 mt-3">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        <i class="fa-solid fa-filter me-2"></i>
+                        Apply Filters
+                    </button>
+
+                    <a
+                        href="{% url 'reports:maintenance_report' %}"
+                        class="btn btn-outline-secondary"
+                    >
+                        <i class="fa-solid fa-rotate-left me-2"></i>
+                        Clear
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- MAINTENANCE TABLE -->
+    <!-- ========================= -->
+
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <div>
+
+                    <h5 class="fw-bold mb-1">
+                        Maintenance Records
+                    </h5>
+
+                    <small class="text-muted">
+                        Detailed vehicle maintenance history
+                    </small>
+
+                </div>
+
+                <span class="badge bg-primary">
+                    {{ total_records }} Records
+                </span>
+
+            </div>
+
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle">
+
+                    <thead class="table-light">
+
+                        <tr>
+
+                            <th>Date</th>
+                            <th>Vehicle</th>
+                            <th>Maintenance Type</th>
+                            <th>Workshop</th>
+                            <th>Mileage</th>
+                            <th>Cost</th>
+                            <th>Status</th>
+                            <th>Next Service</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for record in records %}
+
+                        <tr>
+
+                            <!-- Date -->
+                            <td>
+                                {{ record.service_date|date:"d M Y" }}
+                            </td>
+
+
+                            <!-- Vehicle -->
+                            <td>
+
+                                <strong>
+                                    {{ record.vehicle.registration_number }}
+                                </strong>
+
+                            </td>
+
+
+                            <!-- Type -->
+                            <td>
+                                {{ record.maintenance_type }}
+                            </td>
+
+
+                            <!-- Workshop -->
+                            <td>
+                                {{ record.workshop }}
+                            </td>
+
+
+                            <!-- Mileage -->
+                            <td>
+                                {{ record.mileage }} km
+                            </td>
+
+
+                            <!-- Cost -->
+                            <td>
+
+                                <strong>
+                                    RM {{ record.cost|floatformat:2 }}
+                                </strong>
+
+                            </td>
+
+
+                            <!-- Status -->
+                            <td>
+
+                                {% if record.status == "Completed" %}
+
+                                    <span class="badge bg-success">
+                                        Completed
+                                    </span>
+
+                                {% elif record.status == "Scheduled" %}
+
+                                    <span class="badge bg-warning text-dark">
+                                        Scheduled
+                                    </span>
+
+                                {% elif record.status == "In Progress" %}
+
+                                    <span class="badge bg-info">
+                                        In Progress
+                                    </span>
+
+                                {% elif record.status == "Cancelled" %}
+
+                                    <span class="badge bg-secondary">
+                                        Cancelled
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- Next Service -->
+                            <td>
+
+                                {% if record.next_service_date %}
+
+                                    {{ record.next_service_date|date:"d M Y" }}
+
+                                {% else %}
+
+                                    <span class="text-muted">
+                                        —
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+
+                        {% empty %}
+
+                        <tr>
+
+                            <td
+                                colspan="8"
+                                class="text-center py-5"
+                            >
+
+                                <i class="fa-solid fa-screwdriver-wrench fa-2x text-muted mb-3"></i>
+
+                                <h6 class="text-muted">
+                                    No maintenance records found.
+                                </h6>
+
+                                <p class="text-muted small mb-0">
+                                    Try changing your filters.
+                                </p>
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

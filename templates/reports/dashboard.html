@@ -1,0 +1,151 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}
+Reports
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="mb-1">
+                <i class="fa-solid fa-file-lines me-2"></i>
+                Reports
+            </h2>
+
+            <p class="text-muted mb-0">
+                Generate and view business performance reports.
+            </p>
+        </div>
+
+    </div>
+
+
+    <!-- Report Cards -->
+    <div class="row g-4">
+
+        <!-- Fuel Usage -->
+        <div class="col-md-6 col-xl-4">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex align-items-center mb-3">
+
+                        <div class="bg-warning-subtle rounded-3 p-3">
+                            <i class="fa-solid fa-gas-pump fa-xl text-warning"></i>
+                        </div>
+
+                    </div>
+
+                    <h4 class="mb-2">
+                        Fuel Usage Report
+                    </h4>
+
+                    <p class="text-muted">
+                        Analyse fuel consumption, fuel costs,
+                        vehicle usage and refuelling history.
+                    </p>
+
+                    <a
+                        href="{% url 'reports:fuel_report' %}"
+                        class="btn btn-outline-primary"
+                    >
+                        <i class="fa-solid fa-chart-line me-2"></i>
+                        Generate Report
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Maintenance -->
+        <div class="col-md-6 col-xl-4">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex align-items-center mb-3">
+
+                        <div class="bg-danger-subtle rounded-3 p-3">
+                            <i class="fa-solid fa-screwdriver-wrench fa-xl text-danger"></i>
+                        </div>
+
+                    </div>
+
+                    <h4 class="mb-2">
+                        Maintenance Report
+                    </h4>
+
+                    <p class="text-muted">
+                        Analyse vehicle maintenance records,
+                        maintenance costs and service history.
+                    </p>
+
+                    <a
+                        href="{% url 'reports:maintenance_report' %}"
+                        class="btn btn-outline-primary"
+                    >
+                        <i class="fa-solid fa-chart-line me-2"></i>
+                        Generate Report
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Revenue -->
+        <div class="col-md-6 col-xl-4">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex align-items-center mb-3">
+
+                        <div class="bg-success-subtle rounded-3 p-3">
+                            <i class="fa-solid fa-money-bill-trend-up fa-xl text-success"></i>
+                        </div>
+
+                    </div>
+
+                    <h4 class="mb-2">
+                        Revenue Report
+                    </h4>
+
+                    <p class="text-muted">
+                        Analyse booking revenue, payments,
+                        payment methods and revenue trends.
+                    </p>
+
+                    <a
+                        href="{% url 'reports:revenue_report' %}"
+                        class="btn btn-outline-primary"
+                    >
+                        <i class="fa-solid fa-chart-line me-2"></i>
+                        Generate Report
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

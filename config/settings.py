@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "apps.ai",
     "apps.settings",
     "apps.analytics",
+    "apps.reports",
 ]
 
 MIDDLEWARE = [
