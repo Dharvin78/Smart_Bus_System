@@ -13,6 +13,7 @@ from apps.fuel.models import Fuel
 from apps.maintenance.models import Maintenance
 from apps.vehicles.models import Vehicle
 from apps.payments.models import Payment
+from .pdf_utils import build_revenue_pdf
 
 @login_required
 def report_dashboard(request):
@@ -39,11 +40,7 @@ def report_dashboard(request):
         }
     )
 
-#Fuel usage report view
-# =========================================================
 # FUEL USAGE REPORT
-# =========================================================
-
 @login_required
 def fuel_report(request):
 
@@ -60,18 +57,12 @@ def fuel_report(request):
         )
         return redirect("dashboard")
 
-    # ---------------------------------
     # Get fuel records
-    # ---------------------------------
-
     fuels = Fuel.objects.select_related(
         "vehicle"
     ).all().order_by("-refill_date")
 
-    # ---------------------------------
     # Filters
-    # ---------------------------------
-
     vehicle_id = request.GET.get("vehicle", "").strip()
     start_date = request.GET.get("start_date", "").strip()
     end_date = request.GET.get("end_date", "").strip()
@@ -608,3 +599,125 @@ def revenue_report(request):
         "reports/revenue_report.html",
         context
     )
+
+@login_required
+def revenue_report_pdf(request):
+
+    current_role = request.user.profile.role
+
+    if current_role not in [
+        UserProfile.OWNER,
+        UserProfile.ADMIN,
+    ]:
+        messages.error(
+            request,
+            "You do not have permission to generate reports."
+        )
+        return redirect("dashboard")
+
+    payments = Payment.objects.select_related(
+        "booking",
+        "booking__customer",
+    ).all()
+
+    # ---------------------------------
+    # Filters
+    # ---------------------------------
+
+    start_date = request.GET.get(
+        "start_date",
+        ""
+    ).strip()
+
+    end_date = request.GET.get(
+        "end_date",
+        ""
+    ).strip()
+
+    payment_status = request.GET.get(
+        "payment_status",
+        ""
+    ).strip()
+
+    # ---------------------------------
+    # Apply filters
+    # ---------------------------------
+
+    if start_date:
+        payments = payments.filter(
+            payment_date__gte=start_date
+        )
+
+    if end_date:
+        payments = payments.filter(
+            payment_date__lte=end_date
+        )
+
+    if payment_status:
+        payments = payments.filter(
+            payment_status=payment_status
+        )
+
+    # ---------------------------------
+    # Summary
+    # ---------------------------------
+
+    total_revenue = (
+        payments.filter(
+            payment_status="Paid"
+        ).aggregate(
+            total=Sum("amount")
+        )["total"]
+        or 0
+    )
+
+    total_payments = payments.count()
+
+    paid_count = payments.filter(
+        payment_status="Paid"
+    ).count()
+
+    pending_count = payments.filter(
+        payment_status="Pending"
+    ).count()
+
+    partially_paid_count = payments.filter(
+        payment_status="Partially Paid"
+    ).count()
+
+    refunded_count = payments.filter(
+        payment_status="Refunded"
+    ).count()
+
+    cancelled_count = payments.filter(
+        payment_status="Cancelled"
+    ).count()
+
+    # ---------------------------------
+    # PDF response
+    # ---------------------------------
+
+    response = HttpResponse(
+        content_type="application/pdf"
+    )
+
+    response["Content-Disposition"] = (
+        'attachment; filename="revenue_report.pdf"'
+    )
+
+    build_revenue_pdf(
+        response,
+        payments,
+        total_revenue,
+        total_payments,
+        paid_count,
+        pending_count,
+        partially_paid_count,
+        refunded_count,
+        cancelled_count,
+        start_date=start_date,
+        end_date=end_date,
+        payment_status=payment_status,
+    )
+
+    return response

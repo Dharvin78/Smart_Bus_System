@@ -22,13 +22,24 @@ Revenue Report
             </p>
         </div>
 
-        <a
-            href="{% url 'reports:dashboard' %}"
-            class="btn btn-outline-secondary"
-        >
-            <i class="fa-solid fa-arrow-left me-2"></i>
-            Back to Reports
-        </a>
+       <div class="d-flex gap-2">
+            <a
+                href="{% url 'reports:revenue_report_pdf' %}?payment_status={{ selected_status|default:'' }}&start_date={{ start_date|default:'' }}&end_date={{ end_date|default:'' }}"
+                class="btn btn-danger"
+            >
+                <i class="fa-solid fa-file-pdf me-2"></i>
+                Generate PDF
+            </a>
+
+            <a
+                href="{% url 'reports:dashboard' %}"
+                class="btn btn-outline-secondary"
+            >
+                <i class="fa-solid fa-arrow-left me-2"></i>
+                Back to Reports
+            </a>
+
+        </div>
 
     </div>
 
