@@ -1,0 +1,807 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}AI Help Assistant{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+
+    <!-- Header -->
+    <div class="mb-4">
+        <h2 class="fw-bold mb-1">
+            AI Help Assistant
+        </h2>
+
+        <p class="text-muted mb-0">
+            Get help with the Smart Bus Management System.
+        </p>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Conversation Sidebar -->
+        <div class="col-lg-3">
+
+            <div class="card border-0 shadow-sm conversation-card">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+
+                        <h5 class="fw-bold mb-0">
+                            Conversations
+                        </h5>
+
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-primary"
+                            id="newConversationBtn"
+                        >
+                            <i class="bi bi-plus-lg"></i>
+                        </button>
+
+                    </div>
+
+                    <div id="conversationList">
+
+                        {% if conversations %}
+
+                            {% for conversation in conversations %}
+
+                                <div
+                                    class="conversation-item"
+                                    data-conversation-id="{{ conversation.id }}"
+                                >
+
+                                    <div class="d-flex align-items-center">
+
+                                        <i class="bi bi-chat-left-text me-2 text-primary"></i>
+
+                                        <div class="text-truncate">
+
+                                            <div class="fw-semibold small text-truncate">
+                                                {{ conversation.title|default:"New Conversation" }}
+                                            </div>
+
+                                            <div class="text-muted" style="font-size: 11px;">
+                                                {{ conversation.updated_at|date:"d M Y, h:i A" }}
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            {% endfor %}
+
+                        {% else %}
+
+                            <div class="text-center text-muted py-4">
+
+                                <i class="bi bi-chat-dots fs-3"></i>
+
+                                <p class="small mt-2 mb-0">
+                                    No conversations yet.
+                                </p>
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Chat Area -->
+        <div class="col-lg-9">
+
+            <div class="card border-0 shadow-sm chat-card">
+
+                <!-- Chat Header -->
+                <div class="card-header bg-white border-0 py-3">
+
+                    <div class="d-flex align-items-center">
+
+                        <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
+                            <i class="bi bi-robot text-primary fs-4"></i>
+                        </div>
+
+                        <div>
+                            <h5 class="fw-bold mb-0">
+                                Smart Bus AI Assistant
+                            </h5>
+
+                            <small class="text-muted">
+                                Role: {{ role }}
+                            </small>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Messages -->
+                <div
+                    class="card-body chat-messages"
+                    id="chatMessages"
+                >
+
+                    <div class="assistant-message">
+
+                        <div class="message-avatar">
+                            <i class="bi bi-robot"></i>
+                        </div>
+
+                        <div class="message-content">
+
+                            <div class="message-bubble">
+                                Hello! 👋
+                                <br><br>
+                                I'm the Smart Bus AI Assistant.
+                                You can ask me questions about the system,
+                                bookings, payments, vehicles, drivers,
+                                maintenance and more.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Input -->
+                <div class="card-footer bg-white border-0 p-3">
+
+                    <form id="chatForm">
+
+                        <div class="input-group">
+
+                            <textarea
+                                id="messageInput"
+                                class="form-control"
+                                rows="1"
+                                placeholder="Ask the AI Assistant..."
+                                style="resize: none;"
+                            ></textarea>
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary px-4"
+                                id="sendButton"
+                            >
+                                <i class="bi bi-send-fill"></i>
+                            </button>
+
+                        </div>
+
+                        <div class="text-muted small mt-2">
+                            AI responses will be based on your system role and permissions.
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+/* =========================================
+   AI HELP PAGE
+   ========================================= */
+
+.chat-card {
+    height: 650px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.conversation-card {
+    height: 650px;
+    overflow: hidden;
+}
+
+
+/* =========================================
+   CONVERSATION SIDEBAR
+   ========================================= */
+
+.conversation-card .card-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 20px;
+}
+
+#conversationList {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+/* Sidebar scrollbar */
+
+#conversationList::-webkit-scrollbar {
+    width: 6px;
+}
+
+#conversationList::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#conversationList::-webkit-scrollbar-thumb {
+    background: #d6dbe1;
+    border-radius: 10px;
+}
+
+#conversationList::-webkit-scrollbar-thumb:hover {
+    background: #b8bec6;
+}
+
+
+/* Conversation item */
+
+.conversation-item {
+    padding: 11px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-bottom: 5px;
+    transition: background-color 0.2s ease,
+                transform 0.15s ease;
+}
+
+.conversation-item:hover {
+    background: #f1f5f9;
+}
+
+.conversation-item:active {
+    transform: scale(0.99);
+}
+
+.conversation-item .bi-chat-left-text {
+    font-size: 15px;
+}
+
+
+/* =========================================
+   CHAT AREA
+   ========================================= */
+
+.chat-messages {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    background: #f8f9fb;
+    padding: 25px;
+}
+
+
+/* Chat scrollbar */
+
+.chat-messages::-webkit-scrollbar {
+    width: 7px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: #d6dbe1;
+    border-radius: 10px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #b8bec6;
+}
+
+
+/* =========================================
+   MESSAGES
+   ========================================= */
+
+.assistant-message,
+.user-message {
+    display: flex;
+    margin-bottom: 22px;
+    align-items: flex-start;
+}
+
+.user-message {
+    justify-content: flex-end;
+}
+
+
+/* Avatar */
+
+.message-avatar {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    border-radius: 50%;
+    background: rgba(13, 110, 253, 0.10);
+    color: #0d6efd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+}
+
+.user-message .message-avatar {
+    order: 2;
+    margin-right: 0;
+    margin-left: 10px;
+    background: rgba(25, 135, 84, 0.10);
+    color: #198754;
+}
+
+
+/* Message content */
+
+.message-content {
+    max-width: 75%;
+}
+
+
+/* Message bubble */
+
+.message-bubble {
+    background: white;
+    padding: 12px 16px;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    line-height: 1.6;
+    color: #212529;
+    word-wrap: break-word;
+}
+
+.user-message .message-bubble {
+    background: #0d6efd;
+    color: white;
+    border-bottom-right-radius: 5px;
+}
+
+.assistant-message .message-bubble {
+    border-bottom-left-radius: 5px;
+}
+
+
+/* =========================================
+   FEEDBACK BUTTONS
+   ========================================= */
+
+.message-feedback {
+    display: flex;
+    gap: 5px;
+    margin-top: 7px;
+}
+
+.feedback-btn {
+    width: 32px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid #e1e5ea;
+    background: white;
+    color: #6c757d;
+    border-radius: 7px;
+    transition: all 0.2s ease;
+}
+
+.feedback-btn:hover {
+    background: #f1f5f9;
+    color: #0d6efd;
+    border-color: #cfd6df;
+}
+
+.feedback-btn.active {
+    background: #e7f1ff;
+    color: #0d6efd;
+    border-color: #b8d4ff;
+}
+
+.feedback-btn:disabled {
+    opacity: 1;
+    cursor: default;
+}
+
+
+/* =========================================
+   CHAT INPUT
+   ========================================= */
+
+.chat-card .card-footer {
+    border-top: 1px solid #eef0f2 !important;
+}
+
+#messageInput {
+    border-radius: 12px 0 0 12px;
+    border-color: #dce1e7;
+    box-shadow: none;
+    padding: 12px 14px;
+}
+
+#messageInput:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.10);
+}
+
+#sendButton {
+    border-radius: 0 12px 12px 0;
+    min-width: 58px;
+}
+
+
+/* =========================================
+   NEW CONVERSATION BUTTON
+   ========================================= */
+
+#newConversationBtn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+
+@media (max-width: 991px) {
+
+    .conversation-card {
+        height: 300px;
+    }
+
+    .chat-card {
+        height: 650px;
+    }
+
+}
+
+</style>
+
+const chatForm = document.getElementById("chatForm");
+const messageInput = document.getElementById("messageInput");
+const chatMessages = document.getElementById("chatMessages");
+
+let currentConversationId = null;
+
+const newConversationBtn =
+    document.getElementById("newConversationBtn");
+
+newConversationBtn.addEventListener("click", function() {
+
+    currentConversationId = null;
+
+    chatMessages.innerHTML = `
+        <div class="assistant-message">
+
+            <div class="message-avatar">
+                <i class="bi bi-robot"></i>
+            </div>
+
+            <div class="message-content">
+
+                <div class="message-bubble">
+                    Hello! 👋
+                    <br><br>
+                    I'm the Smart Bus AI Assistant.
+                    How can I help you?
+                </div>
+
+            </div>
+
+        </div>
+    `;
+
+    messageInput.focus();
+
+});
+
+document.querySelectorAll(".conversation-item").forEach(function(item) {
+
+    item.addEventListener("click", function() {
+
+        const conversationId =
+            this.dataset.conversationId;
+
+        loadConversation(conversationId);
+
+    });
+
+});
+
+async function loadConversation(conversationId) {
+
+    try {
+
+        const response = await fetch(
+            `/help/conversation/${conversationId}/`
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.error || "Unable to load conversation."
+            );
+        }
+
+        currentConversationId =
+            data.conversation_id;
+
+        chatMessages.innerHTML = "";
+
+        data.messages.forEach(function(message) {
+
+            if (message.type === "user") {
+
+                addUserMessage(message.message);
+
+            } else {
+
+                addAssistantMessage(message.message, message.id);
+
+            }
+
+        });
+
+        scrollToBottom();
+
+    } catch (error) {
+
+        console.error(error);
+
+        addAssistantMessage(
+            "Unable to load this conversation."
+        );
+
+    }
+
+}
+
+chatForm.addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    const message = messageInput.value.trim();
+
+    if (!message) {
+        return;
+    }
+
+    addUserMessage(message);
+
+    messageInput.value = "";
+
+    try {
+
+        const formData = new FormData();
+
+        formData.append("message", message);
+
+        if (currentConversationId) {
+            formData.append(
+                "conversation_id",
+                currentConversationId
+            );
+        }
+
+        const response = await fetch(
+            "{% url 'helpdesk:chat' %}",
+            {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken")
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.error || "Something went wrong."
+            );
+        }
+
+        currentConversationId = data.conversation_id;
+
+        addAssistantMessage(
+            data.response,
+            data.message_id
+        );
+
+    } catch (error) {
+
+        addAssistantMessage(
+            "Sorry, something went wrong while processing your question."
+        );
+
+        console.error(error);
+    }
+
+});
+
+
+function addUserMessage(message) {
+
+    const wrapper = document.createElement("div");
+
+    wrapper.className = "user-message";
+
+    wrapper.innerHTML = `
+        <div class="message-avatar">
+            <i class="bi bi-person-fill"></i>
+        </div>
+
+        <div class="message-content">
+
+            <div class="message-bubble">
+                ${escapeHtml(message)}
+            </div>
+
+        </div>
+    `;
+
+    chatMessages.appendChild(wrapper);
+
+    scrollToBottom();
+}
+
+
+function addAssistantMessage(message, messageId = null) {
+
+    const messageDiv = document.createElement("div");
+
+    messageDiv.className = "assistant-message";
+
+    messageDiv.innerHTML = `
+        <div class="message-avatar">
+            <i class="bi bi-robot"></i>
+        </div>
+
+        <div class="message-content">
+
+            <div class="message-bubble">
+                ${escapeHtml(message)}
+            </div>
+
+            ${
+                messageId
+                ? `
+                <div class="message-feedback">
+
+                    <button
+                        type="button"
+                        class="btn btn-sm feedback-btn"
+                        onclick="sendFeedback(${messageId}, true, this)"
+                        title="Helpful"
+                    >
+                        <i class="bi bi-hand-thumbs-up"></i>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-sm feedback-btn"
+                        onclick="sendFeedback(${messageId}, false, this)"
+                        title="Not helpful"
+                    >
+                        <i class="bi bi-hand-thumbs-down"></i>
+                    </button>
+
+                </div>
+                `
+                : ""
+            }
+
+        </div>
+    `;
+
+    chatMessages.appendChild(messageDiv);
+
+    scrollToBottom();
+}
+
+async function sendFeedback(messageId, helpful, button) {
+    const formData = new FormData();
+
+    formData.append("message_id", messageId);
+    formData.append("helpful", helpful ? "true" : "false");
+
+    try {
+        const response = await fetch(
+            "{% url 'helpdesk:feedback' %}",
+            {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken")
+                },
+                body: formData
+            }
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+            const parent = button.closest(".message-feedback");
+
+            parent.querySelectorAll("button").forEach(btn => {
+                btn.disabled = true;
+            });
+
+            button.classList.add("active");
+        }
+    } catch (error) {
+        console.error("Feedback error:", error);
+    }
+}
+
+function scrollToBottom() {
+
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+}
+
+
+function escapeHtml(text) {
+
+    const div = document.createElement("div");
+
+    div.textContent = text;
+
+    return div.innerHTML;
+
+}
+
+
+function getCookie(name) {
+
+    let cookieValue = null;
+
+    if (document.cookie && document.cookie !== "") {
+
+        const cookies = document.cookie.split(";");
+
+        for (let cookie of cookies) {
+
+            cookie = cookie.trim();
+
+            if (cookie.substring(0, name.length + 1) ===
+                (name + "=")) {
+
+                cookieValue = decodeURIComponent(
+                    cookie.substring(name.length + 1)
+                );
+
+                break;
+            }
+        }
+    }
+
+    return cookieValue;
+}
+
+</script>
+{% endblock %}
