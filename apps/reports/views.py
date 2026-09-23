@@ -13,6 +13,7 @@ from apps.fuel.models import Fuel
 from apps.maintenance.models import Maintenance
 from apps.vehicles.models import Vehicle
 from apps.payments.models import Payment
+from apps.helpdesk.services.analytics import get_helpdesk_analytics
 from .pdf_utils import build_revenue_pdf
 
 @login_required
@@ -38,6 +39,39 @@ def report_dashboard(request):
         {
             "role": current_role,
         }
+    )
+
+# =========================================================
+# AI HELP ANALYTICS REPORT
+# =========================================================
+
+@login_required
+def ai_help_report(request):
+
+    current_role = request.user.profile.role
+
+    # Only Owner and Admin can access reports
+    if current_role not in [
+        UserProfile.OWNER,
+        UserProfile.ADMIN,
+    ]:
+        messages.error(
+            request,
+            "You do not have permission to access reports."
+        )
+        return redirect("dashboard")
+
+    analytics = get_helpdesk_analytics()
+
+    context = {
+        "role": current_role,
+        "analytics": analytics,
+    }
+
+    return render(
+        request,
+        "reports/ai_help_report.html",
+        context
     )
 
 # FUEL USAGE REPORT

@@ -1,0 +1,451 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}AI Help Analytics{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+
+    <!-- Header -->
+    <div class="mb-4">
+        <h2 class="fw-bold mb-1">
+            AI Help Analytics
+        </h2>
+
+        <p class="text-muted mb-0">
+            Analyse how users interact with the Smart Bus AI Help Assistant.
+        </p>
+    </div>
+
+
+    <!-- KPI CARDS -->
+    <div class="row g-3 mb-4">
+
+        <!-- Conversations -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-start">
+
+                        <div>
+                            <p class="text-muted small mb-1">
+                                Total Conversations
+                            </p>
+
+                            <h3 class="fw-bold mb-0">
+                                {{ analytics.total_conversations }}
+                            </h3>
+                        </div>
+
+                        <div class="kpi-icon bg-primary bg-opacity-10 text-primary">
+                            <i class="bi bi-chat-left-text"></i>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Questions -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-start">
+
+                        <div>
+                            <p class="text-muted small mb-1">
+                                Questions Asked
+                            </p>
+
+                            <h3 class="fw-bold mb-0">
+                                {{ analytics.total_questions }}
+                            </h3>
+                        </div>
+
+                        <div class="kpi-icon bg-success bg-opacity-10 text-success">
+                            <i class="bi bi-question-circle"></i>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Answer Rate -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-start">
+
+                        <div>
+                            <p class="text-muted small mb-1">
+                                Answer Rate
+                            </p>
+
+                            <h3 class="fw-bold mb-0">
+                                {{ analytics.answer_rate }}%
+                            </h3>
+                        </div>
+
+                        <div class="kpi-icon bg-info bg-opacity-10 text-info">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Helpful -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-start">
+
+                        <div>
+                            <p class="text-muted small mb-1">
+                                Helpful Responses
+                            </p>
+
+                            <h3 class="fw-bold mb-0">
+                                {{ analytics.helpful_percentage }}%
+                            </h3>
+                        </div>
+
+                        <div class="kpi-icon bg-warning bg-opacity-10 text-warning">
+                            <i class="bi bi-hand-thumbs-up"></i>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- SECONDARY SUMMARY -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-lg-4">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <h5 class="fw-bold mb-3">
+                        Response Feedback
+                    </h5>
+
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">
+                            Helpful
+                        </span>
+
+                        <strong class="text-success">
+                            {{ analytics.helpful_count }}
+                        </strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">
+                            Not Helpful
+                        </span>
+
+                        <strong class="text-danger">
+                            {{ analytics.not_helpful_count }}
+                        </strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">
+                            Total Feedback
+                        </span>
+
+                        <strong>
+                            {{ analytics.feedback_count }}
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-lg-4">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <h5 class="fw-bold mb-3">
+                        Question Status
+                    </h5>
+
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">
+                            Answered
+                        </span>
+
+                        <strong class="text-success">
+                            {{ analytics.answered_questions }}
+                        </strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">
+                            Unanswered
+                        </span>
+
+                        <strong class="text-danger">
+                            {{ analytics.unanswered_questions }}
+                        </strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">
+                            Total Questions
+                        </span>
+
+                        <strong>
+                            {{ analytics.total_questions }}
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-lg-4">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <h5 class="fw-bold mb-3">
+                        Message Activity
+                    </h5>
+
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">
+                            User Messages
+                        </span>
+
+                        <strong>
+                            {{ analytics.total_user_messages }}
+                        </strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">
+                            AI Responses
+                        </span>
+
+                        <strong>
+                            {{ analytics.total_assistant_messages }}
+                        </strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">
+                            Total Messages
+                        </span>
+
+                        <strong>
+                            {{ analytics.total_messages }}
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- MOST ASKED CATEGORIES -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-lg-6">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-header bg-white border-0 pt-4 px-4">
+
+                    <h5 class="fw-bold mb-1">
+                        Most Asked Categories
+                    </h5>
+
+                    <p class="text-muted small mb-0">
+                        Categories users ask the AI assistant about most often.
+                    </p>
+
+                </div>
+
+                <div class="card-body px-4">
+
+                    {% if analytics.categories %}
+
+                        {% for category in analytics.categories %}
+
+                            <div class="d-flex align-items-center mb-3">
+
+                                <div class="flex-grow-1">
+
+                                    <div class="d-flex justify-content-between mb-1">
+
+                                        <span class="fw-semibold">
+                                            {{ category.category|title }}
+                                        </span>
+
+                                        <span class="text-muted small">
+                                            {{ category.count }}
+                                        </span>
+
+                                    </div>
+
+                                    <div class="progress" style="height: 7px;">
+
+                                        <div
+                                            class="progress-bar"
+                                            style="width:
+                                                {% widthratio category.count analytics.total_questions 100 %}
+                                                %;"
+                                        ></div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <div class="text-center text-muted py-4">
+                            No category data available yet.
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- MOST ASKED QUESTIONS -->
+
+        <div class="col-lg-6">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-header bg-white border-0 pt-4 px-4">
+
+                    <h5 class="fw-bold mb-1">
+                        Most Asked Questions
+                    </h5>
+
+                    <p class="text-muted small mb-0">
+                        Questions users ask repeatedly.
+                    </p>
+
+                </div>
+
+                <div class="card-body px-4">
+
+                    {% if analytics.most_asked_questions %}
+
+                        <div class="list-group list-group-flush">
+
+                            {% for item in analytics.most_asked_questions %}
+
+                                <div class="list-group-item px-0 py-3">
+
+                                    <div class="d-flex justify-content-between gap-3">
+
+                                        <span class="small">
+                                            {{ item.question }}
+                                        </span>
+
+                                        <span class="badge bg-primary rounded-pill align-self-start">
+                                            {{ item.count }}
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% else %}
+
+                        <div class="text-center text-muted py-4">
+                            No questions available yet.
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+.kpi-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 20px;
+}
+
+.progress {
+    background-color: #eef1f4;
+    border-radius: 10px;
+}
+
+.progress-bar {
+    border-radius: 10px;
+}
+
+.list-group-item {
+    border-color: #eef0f2;
+}
+
+</style>
+
+{% endblock %}
