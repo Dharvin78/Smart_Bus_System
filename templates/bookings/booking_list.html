@@ -161,13 +161,31 @@ Manage customer bookings and reservations.
 
             <td class="text-center">
 
-                <a href="{% url 'bookings:booking_update' booking.pk %}"
-                   class="btn btn-warning btn-sm">
-                    <i class="fas fa-edit"></i>
-                </a>
+                {% if booking.booking_status == "Pending" %}
 
+                    <!-- Review Pending Booking -->
+                    <a href="{% url 'bookings:booking_review' booking.pk %}"
+                    class="btn btn-primary btn-sm"
+                    title="Review Booking">
+                        <i class="fas fa-clipboard-check me-1"></i>
+                        Review
+                    </a>
+
+                {% else %}
+
+                    <!-- Edit Booking -->
+                    <a href="{% url 'bookings:booking_update' booking.pk %}"
+                    class="btn btn-warning btn-sm"
+                    title="Edit Booking">
+                        <i class="fas fa-edit"></i>
+                    </a>
+
+                {% endif %}
+
+                <!-- Delete -->
                 <a href="{% url 'bookings:booking_delete' booking.pk %}"
-                   class="btn btn-danger btn-sm">
+                class="btn btn-danger btn-sm"
+                title="Delete Booking">
                     <i class="fas fa-trash"></i>
                 </a>
 

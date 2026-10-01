@@ -133,24 +133,10 @@
             </a>
         </li>
 
-        <li class="{% if request.resolver_match.url_name == 'prediction' %}active{% endif %}">
-            <a href="{% url 'ai_prediction:prediction' %}" class="nav-link">
-                <i class="fa-solid fa-robot"></i>
-                <span>AI Prediction</span>
-            </a>
-        </li>
-
         <li class="{% if request.resolver_match.url_name == 'dashboard' and request.resolver_match.app_name == 'reports' %}active{% endif %}">
             <a href="{% url 'reports:dashboard' %}" class="nav-link">
                 <i class="fa-solid fa-file-lines"></i>
                 <span>Reports</span>
-            </a>
-        </li>
-
-        <li class = "{% if request.resolver_match.app_name == 'ai' %}active{% endif %}">
-            <a href="{% url 'ai:dashboard' %}">
-                <i class="fa-solid fa-brain"></i>
-                <span>AI Dashboard</span>
             </a>
         </li>
 

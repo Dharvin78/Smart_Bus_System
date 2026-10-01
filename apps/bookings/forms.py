@@ -88,24 +88,17 @@ class BookingForm(forms.ModelForm):
         }
 
 class BookingReviewForm(forms.Form):
-
     vehicle = forms.ModelChoiceField(
         queryset=None,
-        widget=forms.Select(
-            attrs={
-                "class": "form-select",
-            }
-        ),
+        required=False,
+        widget=forms.Select(attrs={"class": "form-select"}),
         empty_label="Select Vehicle",
     )
 
     driver = forms.ModelChoiceField(
         queryset=None,
-        widget=forms.Select(
-            attrs={
-                "class": "form-select",
-            }
-        ),
+        required=False,
+        widget=forms.Select(attrs={"class": "form-select"}),
         empty_label="Select Driver",
     )
 
