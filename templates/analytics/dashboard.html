@@ -102,27 +102,101 @@
 
 </div>
 
-<!-- AI Insights -->
+<!-- AI Business Analysis -->
 <div class="insight-card">
 
-    <h3>
-        <i class="fa-solid fa-brain"></i>
-        AI Business Insights
-    </h3>
+    <div class="insight-header">
+        <div>
+            <h3>
+                <i class="fa-solid fa-brain"></i>
+                AI Business Analysis
+            </h3>
 
-    <ul>
+            <p>
+                AI-generated recommendations based on current
+                business and operational data.
+            </p>
+        </div>
+    </div>
 
-    {% for insight in ai_insights %}
+    <div class="ai-analysis-list">
 
-        <li>{{ insight }}</li>
+        {% for insight in ai_insights %}
 
-    {% empty %}
+        <div class="ai-analysis-item">
 
-        <li>No business insights available.</li>
+            <div class="ai-analysis-top">
 
-    {% endfor %}
+                <span class="ai-category">
+                    {{ insight.category }}
+                </span>
 
-    </ul>
+                <h4>
+                    {{ insight.title }}
+                </h4>
+
+            </div>
+
+            <div class="ai-analysis-section">
+
+                <strong>
+                    <i class="fa-solid fa-chart-line"></i>
+                    Finding
+                </strong>
+
+                <p>
+                    {{ insight.finding }}
+                </p>
+
+            </div>
+
+            <div class="ai-analysis-section">
+
+                <strong>
+                    <i class="fa-solid fa-lightbulb"></i>
+                    Recommendation
+                </strong>
+
+                <p>
+                    {{ insight.recommendation }}
+                </p>
+
+            </div>
+
+            <div class="ai-analysis-evidence">
+
+                <strong>
+                    Evidence:
+                </strong>
+
+                <span>
+                    {{ insight.evidence }}
+                </span>
+
+            </div>
+
+        </div>
+
+        {% empty %}
+
+        <div class="ai-empty-state">
+
+            <i class="fa-solid fa-circle-info"></i>
+
+            <div>
+                <strong>No business analysis available.</strong>
+
+                <p>
+                    There is currently not enough business data
+                    to generate AI recommendations.
+                </p>
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
 
 </div>
 

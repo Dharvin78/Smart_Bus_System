@@ -86,3 +86,45 @@ class BookingForm(forms.ModelForm):
             }),
 
         }
+
+class BookingReviewForm(forms.Form):
+
+    vehicle = forms.ModelChoiceField(
+        queryset=None,
+        widget=forms.Select(
+            attrs={
+                "class": "form-select",
+            }
+        ),
+        empty_label="Select Vehicle",
+    )
+
+    driver = forms.ModelChoiceField(
+        queryset=None,
+        widget=forms.Select(
+            attrs={
+                "class": "form-select",
+            }
+        ),
+        empty_label="Select Driver",
+    )
+
+    reason = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                "class": "form-control",
+                "rows": 4,
+                "placeholder": "Enter the reason if rejecting this booking...",
+            }
+        ),
+    )
+
+    def __init__(self, *args, **kwargs):
+        vehicle_queryset = kwargs.pop("vehicle_queryset")
+        driver_queryset = kwargs.pop("driver_queryset")
+
+        super().__init__(*args, **kwargs)
+
+        self.fields["vehicle"].queryset = vehicle_queryset
+        self.fields["driver"].queryset = driver_queryset

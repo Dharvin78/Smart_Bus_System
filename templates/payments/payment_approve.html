@@ -1,0 +1,100 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+
+<div class="container py-4">
+
+    <div class="mb-4">
+        <h2 class="fw-bold">
+            <i class="fa-solid fa-circle-check text-success me-2"></i>
+            Approve Payment
+        </h2>
+
+        <p class="text-muted">
+            Review this payment request before approving it.
+        </p>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4">
+
+            <div class="row g-4">
+
+                <div class="col-md-6">
+                    <small class="text-muted">Payment ID</small>
+                    <h5 class="fw-semibold">
+                        #{{ payment.id }}
+                    </h5>
+                </div>
+
+                <div class="col-md-6">
+                    <small class="text-muted">Booking</small>
+                    <h5 class="fw-semibold">
+                        {{ payment.booking.booking_number }}
+                    </h5>
+                </div>
+
+                <div class="col-md-6">
+                    <small class="text-muted">Customer</small>
+                    <h5 class="fw-semibold">
+                        {{ payment.booking.customer.first_name }}
+                        {{ payment.booking.customer.last_name }}
+                    </h5>
+                </div>
+
+                <div class="col-md-6">
+                    <small class="text-muted">Amount</small>
+                    <h5 class="fw-semibold">
+                        RM {{ payment.amount }}
+                    </h5>
+                </div>
+
+                <div class="col-md-6">
+                    <small class="text-muted">Payment Method</small>
+                    <h5 class="fw-semibold">
+                        {{ payment.payment_method }}
+                    </h5>
+                </div>
+
+                <div class="col-md-6">
+                    <small class="text-muted">Current Status</small>
+                    <h5>
+                        <span class="badge bg-warning text-dark">
+                            {{ payment.approval_status }}
+                        </span>
+                    </h5>
+                </div>
+
+            </div>
+
+            <hr class="my-4">
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="d-flex gap-2">
+
+                    <a
+                        href="{% url 'payments:payment_list' %}"
+                        class="btn btn-light rounded-pill px-4"
+                    >
+                        Cancel
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="btn btn-success rounded-pill px-4 fw-semibold"
+                    >
+                        <i class="fa-solid fa-check me-2"></i>
+                        Approve Payment
+                    </button>
+
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

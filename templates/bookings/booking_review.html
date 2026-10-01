@@ -1,0 +1,311 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Review Booking{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Review Booking</h2>
+            <p class="text-muted mb-0">
+                Review the booking details before approving or rejecting the request.
+            </p>
+        </div>
+
+        <a href="{% url 'bookings:booking_list' %}"
+           class="btn btn-outline-secondary">
+            <i class="fa-solid fa-arrow-left me-1"></i>
+            Back to Bookings
+        </a>
+    </div>
+
+
+    <!-- Booking Information -->
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-header bg-white border-0 py-3">
+            <h5 class="fw-bold mb-0">
+                <i class="fa-solid fa-file-lines me-2"></i>
+                Booking Information
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row g-4">
+
+                <!-- Booking Number -->
+                <div class="col-md-4">
+                    <label class="form-label text-muted">
+                        Booking Number
+                    </label>
+                    <input type="text"
+                           class="form-control bg-light"
+                           value="{{ booking.booking_number }}"
+                           disabled>
+                </div>
+
+                <!-- Customer -->
+                <div class="col-md-4">
+                    <label class="form-label text-muted">
+                        Customer
+                    </label>
+                    <input type="text"
+                           class="form-control bg-light"
+                           value="{{ booking.customer.first_name }} {{ booking.customer.last_name }}"
+                           disabled>
+                </div>
+
+                <!-- Customer Email -->
+                <div class="col-md-4">
+                    <label class="form-label text-muted">
+                        Customer Email
+                    </label>
+                    <input type="text"
+                           class="form-control bg-light"
+                           value="{{ booking.customer.email }}"
+                           disabled>
+                </div>
+
+
+                <!-- Pickup -->
+                <div class="col-md-6">
+                    <label class="form-label text-muted">
+                        Pickup Location
+                    </label>
+                    <input type="text"
+                           class="form-control bg-light"
+                           value="{{ booking.pickup_location }}"
+                           disabled>
+                </div>
+
+                <!-- Destination -->
+                <div class="col-md-6">
+                    <label class="form-label text-muted">
+                        Destination
+                    </label>
+                    <input type="text"
+                           class="form-control bg-light"
+                           value="{{ booking.destination }}"
+                           disabled>
+                </div>
+
+
+                <!-- Travel Date -->
+                <div class="col-md-4">
+                    <label class="form-label text-muted">
+                        Travel Date
+                    </label>
+                    <input type="text"
+                           class="form-control bg-light"
+                           value="{{ booking.travel_date|date:'d/m/Y' }}"
+                           disabled>
+                </div>
+
+                <!-- Departure -->
+                <div class="col-md-4">
+                    <label class="form-label text-muted">
+                        Departure Time
+                    </label>
+                    <input type="text"
+                           class="form-control bg-light"
+                           value="{{ booking.departure_time|time:'h:i A' }}"
+                           disabled>
+                </div>
+
+                <!-- Return Date -->
+                <div class="col-md-4">
+                    <label class="form-label text-muted">
+                        Return Date
+                    </label>
+                    <input type="text"
+                           class="form-control bg-light"
+                           value="{% if booking.return_date %}{{ booking.return_date|date:'d/m/Y' }}{% else %}N/A{% endif %}"
+                           disabled>
+                </div>
+
+
+                <!-- Passenger Count -->
+                <div class="col-md-4">
+                    <label class="form-label text-muted">
+                        Passenger Count
+                    </label>
+                    <input type="text"
+                           class="form-control bg-light"
+                           value="{{ booking.passenger_count }}"
+                           disabled>
+                </div>
+
+                <!-- Total Price -->
+                <div class="col-md-4">
+                    <label class="form-label text-muted">
+                        Total Price
+                    </label>
+                    <input type="text"
+                           class="form-control bg-light"
+                           value="RM {{ booking.total_price }}"
+                           disabled>
+                </div>
+
+                <!-- Booking Status -->
+                <div class="col-md-4">
+                    <label class="form-label text-muted">
+                        Booking Status
+                    </label>
+                    <input type="text"
+                           class="form-control bg-light"
+                           value="{{ booking.booking_status }}"
+                           disabled>
+                </div>
+
+                <!-- Payment Status -->
+                <div class="col-md-4">
+                    <label class="form-label text-muted">
+                        Payment Status
+                    </label>
+                    <input type="text"
+                           class="form-control bg-light"
+                           value="{{ booking.payment_status }}"
+                           disabled>
+                </div>
+
+
+                <!-- Remarks -->
+                <div class="col-12">
+                    <label class="form-label text-muted">
+                        Remarks
+                    </label>
+
+                    <textarea class="form-control bg-light"
+                              rows="3"
+                              disabled>{% if booking.remarks %}{{ booking.remarks }}{% else %}No remarks{% endif %}</textarea>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Assignment Section -->
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold mb-1">
+                    <i class="fa-solid fa-bus me-2"></i>
+                    Vehicle & Driver Assignment
+                </h5>
+
+                <p class="text-muted mb-0 small">
+                    Select the vehicle and driver only if you are approving this booking.
+                </p>
+            </div>
+
+            <div class="card-body">
+
+                <div class="row g-4">
+
+                    <!-- Vehicle -->
+                    <div class="col-md-6">
+
+                        <label for="{{ form.vehicle.id_for_label }}"
+                               class="form-label fw-semibold">
+                            Vehicle
+                        </label>
+
+                        {{ form.vehicle }}
+
+                        {% if form.vehicle.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.vehicle.errors }}
+                            </div>
+                        {% endif %}
+
+                        <div class="form-text">
+                            Only available vehicles are shown.
+                        </div>
+
+                    </div>
+
+
+                    <!-- Driver -->
+                    <div class="col-md-6">
+
+                        <label for="{{ form.driver.id_for_label }}"
+                               class="form-label fw-semibold">
+                            Driver
+                        </label>
+
+                        {{ form.driver }}
+
+                        {% if form.driver.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.driver.errors }}
+                            </div>
+                        {% endif %}
+
+                        <div class="form-text">
+                            Only available drivers are shown.
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- Action Buttons -->
+        <div class="card border-0 shadow-sm">
+
+            <div class="card-body">
+
+                <div class="d-flex justify-content-end gap-2">
+
+                    <a href="{% url 'bookings:booking_list' %}"
+                       class="btn btn-secondary">
+                        <i class="fa-solid fa-xmark me-1"></i>
+                        Cancel
+                    </a>
+
+                    <button type="submit"
+                            name="action"
+                            value="reject"
+                            class="btn btn-danger"
+                            onclick="return confirm('Are you sure you want to reject this booking?');">
+
+                        <i class="fa-solid fa-ban me-1"></i>
+                        Reject Booking
+
+                    </button>
+
+                    <button type="submit"
+                            name="action"
+                            value="approve"
+                            class="btn btn-success"
+                            onclick="return confirm('Are you sure you want to approve this booking?');">
+
+                        <i class="fa-solid fa-check me-1"></i>
+                        Approve Booking
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

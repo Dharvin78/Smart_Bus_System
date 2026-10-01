@@ -1,5 +1,6 @@
 from django import forms
 
+
 from .models import Payment
 
 
@@ -13,7 +14,6 @@ class PaymentForm(forms.ModelForm):
             "booking",
             "amount",
             "payment_method",
-            "payment_status",
             "transaction_id",
             "payment_date",
             "remarks",
@@ -35,7 +35,40 @@ class PaymentForm(forms.ModelForm):
                 "class": "form-select"
             }),
 
-            "payment_status": forms.Select(attrs={
+            "transaction_id": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Transaction / Receipt Number"
+            }),
+
+            "payment_date": forms.DateInput(attrs={
+                "class": "form-control",
+                "type": "date"
+            }),
+
+            "remarks": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 3,
+                "placeholder": "Remarks (Optional)"
+            }),
+
+        }
+
+
+class CustomerPaymentForm(forms.ModelForm):
+
+    class Meta:
+        model = Payment
+
+        fields = [
+            "payment_method",
+            "transaction_id",
+            "payment_date",
+            "remarks",
+        ]
+
+        widgets = {
+
+            "payment_method": forms.Select(attrs={
                 "class": "form-select"
             }),
 

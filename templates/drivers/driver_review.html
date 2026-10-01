@@ -1,0 +1,154 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+
+<div class="container py-4">
+
+    <div class="mb-4">
+        <h2 class="fw-bold">
+            <i class="fa-solid fa-star text-warning me-2"></i>
+            Rate Your Driver
+        </h2>
+        <p class="text-muted mb-0">
+            Share your experience with the driver.
+        </p>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+
+        <div class="card-body p-4">
+
+            <div class="mb-4">
+                <h5 class="fw-bold mb-2">
+                    {{ booking.driver.full_name }}
+                </h5>
+
+                <p class="text-muted mb-1">
+                    <i class="fa-solid fa-route me-2"></i>
+                    {{ booking.pickup_location }}
+                    →
+                    {{ booking.destination }}
+                </p>
+
+                <p class="text-muted mb-0">
+                    <i class="fa-solid fa-calendar me-2"></i>
+                    {{ booking.travel_date }}
+                </p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold d-block">
+                        Driver Rating
+                    </label>
+
+                    <div class="rating-stars">
+
+                        <input type="radio" name="rating" value="5" id="rating5" required>
+                        <label for="rating5">
+                            <i class="fa-solid fa-star"></i>
+                        </label>
+
+                        <input type="radio" name="rating" value="4" id="rating4">
+                        <label for="rating4">
+                            <i class="fa-solid fa-star"></i>
+                        </label>
+
+                        <input type="radio" name="rating" value="3" id="rating3">
+                        <label for="rating3">
+                            <i class="fa-solid fa-star"></i>
+                        </label>
+
+                        <input type="radio" name="rating" value="2" id="rating2">
+                        <label for="rating2">
+                            <i class="fa-solid fa-star"></i>
+                        </label>
+
+                        <input type="radio" name="rating" value="1" id="rating1">
+                        <label for="rating1">
+                            <i class="fa-solid fa-star"></i>
+                        </label>
+
+                    </div>
+
+                    {% if form.rating.errors %}
+                        <div class="text-danger small mt-2">
+                            {{ form.rating.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">
+                        Comment
+                    </label>
+
+                    {{ form.comment }}
+
+                    {% if form.comment.errors %}
+                        <div class="text-danger small mt-2">
+                            {{ form.comment.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a
+                        href="{% url 'bookings:customer_bookings' %}"
+                        class="btn btn-light px-4 rounded-pill"
+                    >
+                        Cancel
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="btn btn-warning px-4 rounded-pill fw-semibold"
+                    >
+                        <i class="fa-solid fa-paper-plane me-2"></i>
+                        Submit Review
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+<style>
+.rating-stars {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.rating-stars input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.rating-stars label {
+    font-size: 32px;
+    color: #d9dee7;
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.rating-stars label:hover {
+    transform: scale(1.08);
+}
+
+.rating-stars label:hover,
+.rating-stars label:hover ~ label,
+.rating-stars input:checked ~ label {
+    color: #ffc107;
+}
+</style>
+
+{% endblock %}

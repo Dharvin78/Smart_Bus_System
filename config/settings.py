@@ -183,4 +183,6 @@ EMAIL_HOST_PASSWORD = "owez exob duew qunq"
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+#OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+AIMLAPI_KEY = os.getenv("AIMLAPI_KEY", "")

@@ -44,6 +44,31 @@ class Payment(models.Model):
         default="Pending"
     )
 
+    APPROVAL_STATUS_CHOICES = [
+        ("Pending", "Pending Approval"),
+        ("Approved", "Approved"),
+        ("Rejected", "Rejected"),
+    ]
+
+    approval_status = models.CharField(
+        max_length=20,
+        choices=APPROVAL_STATUS_CHOICES,
+        default="Pending",
+    )
+
+    approved_by = models.ForeignKey(
+        "auth.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="approved_payments",
+    )
+
+    approved_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+
     transaction_id = models.CharField(
         max_length=100,
         blank=True,

@@ -2,14 +2,15 @@ import json
 from datetime import date, datetime, time
 from decimal import Decimal
 
+import requests
 from django.conf import settings
-from openai import OpenAI
 
 
 def make_json_safe(data):
     """
     Convert Django/queryset values into JSON-safe Python values.
     """
+
     if isinstance(data, list):
         return [make_json_safe(item) for item in data]
 
@@ -34,7 +35,6 @@ def build_conversation_history(conversation, limit=10):
     """
 
     messages = conversation.messages.order_by("-created_at")[:limit]
-
     messages = reversed(list(messages))
 
     history = []
@@ -99,7 +99,6 @@ Recent conversation history:
 Instructions:
 - Answer the current question using the authorised system information.
 - Use the conversation history to understand follow-up questions.
-- Use the conversation history to understand follow-up questions.
 - Resolve references such as:
   "it",
   "that",
@@ -138,10 +137,10 @@ def generate_response(
     conversation=None,
 ):
     """
-    Generate a natural-language answer using OpenAI.
+    Generate a natural-language answer using AIMLAPI.
     """
 
-    api_key = getattr(settings, "OPENAI_API_KEY", None)
+    api_key = getattr(settings, "AIMLAPI_KEY", None)
 
     if not api_key:
         return (
@@ -155,8 +154,6 @@ def generate_response(
         data_for_ai = data
 
     try:
-        client = OpenAI(api_key=api_key)
-
         prompt = build_ai_prompt(
             user=user,
             question=question,
@@ -165,15 +162,51 @@ def generate_response(
             conversation=conversation,
         )
 
-        response = client.responses.create(
-            model="gpt-5.6-luna",
-            input=prompt,
+        response = requests.post(
+            "https://api.aimlapi.com/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": "openai/gpt-5-5",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    }
+                ],
+            },
+            timeout=60,
         )
 
-        return response.output_text.strip()
+        response.raise_for_status()
+
+        result = response.json()
+
+        return (
+            result["choices"][0]["message"]["content"]
+            .strip()
+        )
+
+    except requests.exceptions.RequestException as exc:
+        print(f"AIMLAPI request error: {exc}")
+
+        return (
+            "I am currently unable to connect to the AI service. "
+            "Please try again shortly."
+        )
+
+    except (KeyError, TypeError, ValueError) as exc:
+        print(f"AIMLAPI response error: {exc}")
+
+        return (
+            "The AI service returned an unexpected response. "
+            "Please try again shortly."
+        )
 
     except Exception as exc:
-        print(f"OpenAI API error: {exc}")
+        print(f"AIMLAPI error: {exc}")
 
         return (
             "I am currently unable to process your question. "

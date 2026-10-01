@@ -2,6 +2,10 @@
 from django.db import models
 from apps.vehicles.models import Vehicle
 
+from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
+
+from apps.vehicles.models import Vehicle
 
 class Driver(models.Model):
 
@@ -64,3 +68,34 @@ class Driver(models.Model):
 
     def __str__(self):
         return self.full_name
+
+# Driver Rating Model
+class DriverReview(models.Model):
+
+    booking = models.OneToOneField(
+        "bookings.Booking",
+        on_delete=models.CASCADE,
+        related_name="driver_review"
+    )
+
+    rating = models.PositiveSmallIntegerField(
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(5),
+        ]
+    )
+
+    comment = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return (
+            f"{self.booking.driver.full_name} - "
+            f"{self.rating}/5"
+        )

@@ -56,19 +56,16 @@ Manage customer payments and transactions.
 <table class="table table-hover align-middle">
 
     <thead class="table-primary">
-
         <tr>
-
             <th>Booking</th>
             <th>Customer</th>
             <th>Amount (RM)</th>
             <th>Method</th>
-            <th>Status</th>
+            <th>Approval</th>
+            <th>Payment Status</th>
             <th>Payment Date</th>
-            <th width="170">Actions</th>
-
+            <th width="230">Actions</th>
         </tr>
-
     </thead>
 
     <tbody>
@@ -94,49 +91,51 @@ Manage customer payments and transactions.
                 {{ payment.payment_method }}
             </td>
 
+            <!-- APPROVAL STATUS -->
+            <td>
+
+                {% if payment.approval_status == "Pending" %}
+
+                    <span class="badge bg-warning text-dark">
+                        Pending Approval
+                    </span>
+
+                {% elif payment.approval_status == "Approved" %}
+
+                    <span class="badge bg-success">
+                        Approved
+                    </span>
+
+                {% elif payment.approval_status == "Rejected" %}
+
+                    <span class="badge bg-danger">
+                        Rejected
+                    </span>
+
+                {% endif %}
+
+            </td>
+
+            <!-- PAYMENT STATUS -->
             <td>
 
                 {% if payment.payment_status == "Paid" %}
 
-                    <a href="{% url 'payments:payment_receipt' payment.pk %}"
-                    class="btn btn-info btn-sm">
+                    <span class="badge bg-success">
+                        Paid
+                    </span>
 
-                        <i class="fa-solid fa-receipt"></i>
-                        Receipt
+                {% elif payment.payment_status == "Partially Paid" %}
 
-                    </a>
+                    <span class="badge bg-info text-dark">
+                        Partially Paid
+                    </span>
 
-                {% elif payment.payment_status == "Pending" or payment.payment_status == "Partially Paid" %}
+                {% elif payment.payment_status == "Pending" %}
 
-                    {% if role == "Customer" %}
-
-                        <a href="{% url 'payments:payment_create' %}?booking={{ payment.booking.pk }}"
-                        class="btn btn-success btn-sm">
-
-                            <i class="fa-solid fa-credit-card"></i>
-                            Pay
-
-                        </a>
-
-                    {% elif role == "Owner" or role == "Admin" %}
-
-                        <a href="{% url 'payments:payment_update' payment.pk %}"
-                        class="btn btn-warning btn-sm">
-
-                            <i class="fa-solid fa-pen"></i>
-                            Edit
-
-                        </a>
-
-                        <a href="{% url 'payments:payment_delete' payment.pk %}"
-                        class="btn btn-danger btn-sm">
-
-                            <i class="fa-solid fa-trash"></i>
-                            Delete
-
-                        </a>
-
-                    {% endif %}
+                    <span class="badge bg-warning text-dark">
+                        Pending
+                    </span>
 
                 {% elif payment.payment_status == "Refunded" %}
 
@@ -158,30 +157,84 @@ Manage customer payments and transactions.
                 {{ payment.payment_date }}
             </td>
 
+            <!-- ACTIONS -->
             <td>
 
+                {% if role == "Owner" or role == "Admin" %}
 
-                <a href="{% url 'payments:payment_update' payment.pk %}"
-                   class="btn btn-warning btn-sm">
+                    {% if payment.approval_status == "Pending" %}
 
-                    <i class="fas fa-edit"></i>
+                        <a
+                            href="{% url 'payments:payment_approve' payment.pk %}"
+                            class="btn btn-success btn-sm"
+                            title="Approve"
+                        >
+                            <i class="fa-solid fa-check"></i>
+                        </a>
 
-                </a>
+                        <a
+                            href="{% url 'payments:payment_reject' payment.pk %}"
+                            class="btn btn-danger btn-sm"
+                            title="Reject"
+                        >
+                            <i class="fa-solid fa-xmark"></i>
+                        </a>
 
-                <a href="{% url 'payments:payment_delete' payment.pk %}"
-                   class="btn btn-danger btn-sm">
+                    {% endif %}
 
-                    <i class="fas fa-trash"></i>
+                    <a
+                        href="{% url 'payments:payment_update' payment.pk %}"
+                        class="btn btn-warning btn-sm"
+                        title="Edit"
+                    >
+                        <i class="fas fa-edit"></i>
+                    </a>
 
-                </a>
+                    <a
+                        href="{% url 'payments:payment_delete' payment.pk %}"
+                        class="btn btn-danger btn-sm"
+                        title="Delete"
+                    >
+                        <i class="fas fa-trash"></i>
+                    </a>
 
-                <a href="{% url 'payments:payment_receipt' payment.id %}"
-                   class="btn btn-info btn-sm">
+                {% elif role == "Customer" %}
 
-                    <i class="fa-solid fa-file-pdf"></i>
-                    Receipt
-                    
-                </a>
+                    {% if payment.approval_status == "Pending" %}
+
+                        <span class="badge bg-warning text-dark">
+                            Waiting for Approval
+                        </span>
+
+                    {% elif payment.approval_status == "Rejected" %}
+
+                        <span class="badge bg-danger">
+                            Payment Rejected
+                        </span>
+
+                    {% elif payment.approval_status == "Approved" and payment.payment_status != "Paid" %}
+
+                        <a
+                            href="{% url 'payments:payment_create' %}?booking={{ payment.booking.pk }}"
+                            class="btn btn-success btn-sm"
+                        >
+                            <i class="fa-solid fa-credit-card me-1"></i>
+                            Pay Now
+                        </a>
+
+                    {% elif payment.payment_status == "Paid" %}
+
+                        <a
+                            href="{% url 'payments:payment_receipt' payment.pk %}"
+                            class="btn btn-info btn-sm"
+                        >
+                            <i class="fa-solid fa-receipt me-1"></i>
+                            Receipt
+                        </a>
+
+                    {% endif %}
+
+                {% endif %}
 
             </td>
 
@@ -190,15 +243,13 @@ Manage customer payments and transactions.
     {% empty %}
 
         <tr>
-
-            <td colspan="7" class="text-center py-5">
+            <td colspan="8" class="text-center py-5">
 
                 <h5 class="text-muted">
                     No payment records found.
                 </h5>
 
             </td>
-
         </tr>
 
     {% endfor %}

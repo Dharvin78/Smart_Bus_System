@@ -13,4 +13,6 @@ urlpatterns = [
 
     path("delete/<int:pk>/", views.driver_delete, name="driver_delete"),
 
+     path("review/<int:booking_id>/", views.driver_review, name="driver_review",),
+
 ]

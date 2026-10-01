@@ -36,4 +36,8 @@ urlpatterns = [
         name="payment_receipt",
     ),
 
+    path("approve/<int:pk>/", views.payment_approve, name="payment_approve",),
+
+    path("reject/<int:pk>/",views.payment_reject,name="payment_reject",),
+
 ]

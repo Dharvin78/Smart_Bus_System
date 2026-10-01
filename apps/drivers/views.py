@@ -3,9 +3,15 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.contrib.auth.decorators import login_required
 
 from .models import Driver
 from .forms import DriverForm
+
+from .forms import DriverReviewForm
+from .models import DriverReview
+from apps.bookings.models import Booking
+from apps.helpdesk.services.data_access import get_customer_for_user
 
 
 def driver_list(request):
@@ -97,3 +103,66 @@ def driver_delete(request, pk):
     return render(request, "drivers/driver_delete.html", {
         "driver": driver
     })
+
+@login_required
+def driver_review(request, booking_id):
+    # Only customers can submit driver reviews
+    if request.user.profile.role != "Customer":
+        messages.error(
+            request,
+            "You do not have permission to submit driver reviews."
+        )
+        return redirect("dashboard")
+
+    # Find the Customer record linked to this login
+    customer = get_customer_for_user(request.user)
+
+    if not customer:
+        messages.error(
+            request,
+            "No customer profile is associated with your account."
+        )
+        return redirect("dashboard")
+
+    # Customer can only access their own completed booking
+    booking = get_object_or_404(
+        Booking,
+        pk=booking_id,
+        customer=customer,
+        booking_status="Completed",
+    )
+
+    # Prevent duplicate reviews
+    if DriverReview.objects.filter(booking=booking).exists():
+        messages.info(
+            request,
+            "You have already submitted a review for this booking."
+        )
+        return redirect("bookings:customer_bookings")
+
+    if request.method == "POST":
+        form = DriverReviewForm(request.POST)
+
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.booking = booking
+            review.save()
+
+            messages.success(
+                request,
+                "Driver review submitted successfully."
+            )
+
+            return redirect("bookings:customer_bookings")
+
+    else:
+        form = DriverReviewForm()
+
+    return render(
+        request,
+        "drivers/driver_review.html",
+        {
+            "form": form,
+            "booking": booking,
+        }
+    )

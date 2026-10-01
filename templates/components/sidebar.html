@@ -31,12 +31,19 @@
             </a>
         </li>
 
-        <li class="{% if request.resolver_match.app_name == 'bookings' %}active{% endif %}">
-            <a href="{% url 'bookings:booking_list' %}" class="nav-link">
-                <i class="fa-solid fa-calendar-days"></i>
+        {% if request.user.profile.role == "Customer" %}
+            <a href="{% url 'bookings:customer_bookings' %}"
+            class="sidebar-link">
+                <i class="fa-solid fa-calendar-check"></i>
+                <span>My Bookings</span>
+            </a>
+        {% else %}
+            <a href="{% url 'bookings:booking_list' %}"
+            class="sidebar-link">
+                <i class="fa-solid fa-calendar"></i>
                 <span>Bookings</span>
             </a>
-        </li>
+        {% endif %}
 
     </ul>
 

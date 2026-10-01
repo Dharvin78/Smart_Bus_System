@@ -6,11 +6,14 @@ from django.db.models import Q
 from django.http import FileResponse
 
 from .models import Payment
-from .forms import PaymentForm
+from .forms import PaymentForm, CustomerPaymentForm
 from apps.emails.services import send_payment_receipt
 from apps.accounts.decorators import role_required
 from django.contrib.auth.decorators import login_required
 from .pdf import generate_payment_receipt
+from django.utils import timezone
+from apps.bookings.models import Booking
+from apps.helpdesk.services.data_access import get_customer_for_user
 
 @login_required
 def payment_list(request):
@@ -26,7 +29,7 @@ def payment_list(request):
     ).order_by("-payment_date")
 
     # Role-based data Acess Control
-    if role == "customer":
+    if role == "Customer":
 
         payments = payments.filter(
             booking__customer=request.user.profile.user
@@ -74,28 +77,193 @@ def payment_list(request):
 
 @login_required
 @role_required(["Owner", "Admin"])
+def payment_approve(request, pk):
+
+    payment = get_object_or_404(
+        Payment,
+        pk=pk,
+        approval_status="Pending",
+    )
+
+    if request.method == "POST":
+
+        payment.approval_status = "Approved"
+        payment.approved_by = request.user
+        payment.approved_at = timezone.now()
+        payment.save()
+
+        messages.success(
+            request,
+            f"Payment #{payment.id} approved successfully."
+        )
+
+        return redirect("payments:payment_list")
+
+    return render(
+        request,
+        "payments/payment_approve.html",
+        {
+            "payment": payment,
+        },
+    )
+
+@login_required
+@role_required(["Owner", "Admin"])
+def payment_reject(request, pk):
+
+    payment = get_object_or_404(
+        Payment,
+        pk=pk,
+        approval_status="Pending",
+    )
+
+    if request.method == "POST":
+
+        payment.approval_status = "Rejected"
+        payment.approved_by = request.user
+        payment.approved_at = timezone.now()
+        payment.save()
+
+        messages.warning(
+            request,
+            f"Payment #{payment.id} rejected."
+        )
+
+        return redirect("payments:payment_list")
+
+    return render(
+        request,
+        "payments/payment_reject.html",
+        {
+            "payment": payment,
+        },
+    )
+
+@login_required
 def payment_create(request):
 
+    role = request.user.profile.role
+
+    # Only Owner/Admin or Customer can access payment creation
+    if role not in ["Owner", "Admin", "Customer"]:
+        messages.error(
+            request,
+            "You do not have permission to make payments."
+        )
+        return redirect("dashboard")
+
+    # CUSTOMER PAYMENT FLOW
+    if role == "Customer":
+
+        customer = get_customer_for_user(request.user)
+
+        if not customer:
+            messages.error(
+                request,
+                "No customer profile is associated with your account."
+            )
+            return redirect("dashboard")
+
+        booking_id = request.GET.get("booking")
+
+        if not booking_id:
+            messages.error(
+                request,
+                "No booking was selected for payment."
+            )
+            return redirect("payments:payment_list")
+
+        booking = get_object_or_404(
+            Booking,
+            pk=booking_id,
+            customer=customer,
+        )
+
+        # Find the customer's pending payment
+        payment = Payment.objects.filter(
+            booking=booking,
+            approval_status="Approved",
+            payment_status__in=["Pending", "Partially Paid"],
+        ).first()
+
+        if not payment:
+            messages.error(
+                request,
+                "This booking has not been approved for payment."
+            )
+            return redirect("payments:payment_list")
+
+        if request.method == "POST":
+
+            form = CustomerPaymentForm(
+                request.POST,
+                instance=payment,
+            )
+
+            if form.is_valid():
+
+                payment = form.save(commit=False)
+
+                # Customer cannot change these values
+                payment.booking = booking
+                payment.approval_status = "Approved"
+
+                # Payment becomes paid only after customer submits payment
+                payment.payment_status = "Paid"
+
+                payment.save()
+
+                payment.booking.payment_status = "Paid"
+                payment.booking.save()
+
+                send_payment_receipt(payment)
+
+                messages.success(
+                    request,
+                    "Payment completed successfully."
+                )
+
+                return redirect(
+                    "payments:payment_list"
+                )
+
+        else:
+
+            form = CustomerPaymentForm(
+                instance=payment
+            )
+
+        return render(
+            request,
+            "payments/payment_form.html",
+            {
+                "form": form,
+                "title": "Make Payment",
+            },
+        )
+
+    # OWNER / ADMIN PAYMENT FLOW
     if request.method == "POST":
 
         form = PaymentForm(request.POST)
 
         if form.is_valid():
 
-            payment = form.save()
+            payment = form.save(commit=False)
 
-            send_payment_receipt(payment)
+            payment.approval_status = "Pending"
+            payment.payment_status = "Pending"
 
-            # Automatically update booking payment status
-            payment.booking.payment_status = payment.payment_status
-            payment.booking.save()
+            payment.save()
 
             messages.success(
                 request,
-                "Payment added successfully."
+                "Payment request created and is waiting for approval."
             )
 
-            return redirect("payments:payment_list")
+            return redirect(
+                "payments:payment_list"
+            )
 
     else:
 

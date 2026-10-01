@@ -11,6 +11,8 @@ class AuditLog(models.Model):
         ("LOGIN", "Login"),
         ("LOGOUT", "Logout"),
         ("VIEW", "View"),
+        ("APPROVE", "Approve"),
+        ("REJECT", "Reject"),
         ("OTHER", "Other"),
     )
 
@@ -28,6 +30,24 @@ class AuditLog(models.Model):
     action = models.CharField(
         max_length=20,
         choices=ACTIONS,
+    )
+
+    # Optional reference to the affected booking
+    booking = models.ForeignKey(
+        "bookings.Booking",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="audit_logs",
+    )
+
+    # Optional reference to the affected customer
+    customer = models.ForeignKey(
+        "customers.Customer",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="audit_logs",
     )
 
     description = models.TextField()

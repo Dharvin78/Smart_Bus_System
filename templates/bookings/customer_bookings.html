@@ -1,0 +1,290 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="fa-solid fa-calendar-check me-2"></i>
+                My Bookings
+            </h2>
+
+            <p class="text-muted mb-0">
+                View your bus bookings and rate your driver after a completed trip.
+            </p>
+        </div>
+    </div>
+
+
+    {% if bookings %}
+
+        <div class="row g-4">
+
+            {% for booking in bookings %}
+
+                <div class="col-12">
+
+                    <div class="card border-0 shadow-sm rounded-4">
+
+                        <div class="card-body p-4">
+
+                            <!-- Booking Header -->
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+
+                                <div>
+                                    <span class="text-muted small">
+                                        Booking Number
+                                    </span>
+
+                                    <h5 class="fw-bold mb-0">
+                                        {{ booking.booking_number }}
+                                    </h5>
+                                </div>
+
+
+                                <!-- Booking Status -->
+                                {% if booking.booking_status == "Completed" %}
+
+                                    <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">
+                                        <i class="fa-solid fa-circle-check me-1"></i>
+                                        Completed
+                                    </span>
+
+                                {% elif booking.booking_status == "Confirmed" %}
+
+                                    <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill">
+                                        <i class="fa-solid fa-circle-check me-1"></i>
+                                        Confirmed
+                                    </span>
+
+                                {% elif booking.booking_status == "Pending" %}
+
+                                    <span class="badge bg-warning-subtle text-warning px-3 py-2 rounded-pill">
+                                        <i class="fa-solid fa-clock me-1"></i>
+                                        Pending
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill">
+                                        <i class="fa-solid fa-circle-xmark me-1"></i>
+                                        {{ booking.booking_status }}
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <hr>
+
+
+                            <!-- Booking Information -->
+                            <div class="row g-4">
+
+                                <!-- Date -->
+                                <div class="col-md-3">
+
+                                    <div class="text-muted small mb-1">
+                                        <i class="fa-regular fa-calendar me-1"></i>
+                                        Travel Date
+                                    </div>
+
+                                    <div class="fw-semibold">
+                                        {{ booking.travel_date|date:"d M Y" }}
+                                    </div>
+
+                                </div>
+
+
+                                <!-- Time -->
+                                <div class="col-md-3">
+
+                                    <div class="text-muted small mb-1">
+                                        <i class="fa-regular fa-clock me-1"></i>
+                                        Departure
+                                    </div>
+
+                                    <div class="fw-semibold">
+                                        {{ booking.departure_time|time:"h:i A" }}
+                                    </div>
+
+                                </div>
+
+
+                                <!-- Driver -->
+                                <div class="col-md-3">
+
+                                    <div class="text-muted small mb-1">
+                                        <i class="fa-solid fa-user-tie me-1"></i>
+                                        Driver
+                                    </div>
+
+                                    <div class="fw-semibold">
+                                        {{ booking.driver.full_name }}
+                                    </div>
+
+                                </div>
+
+
+                                <!-- Vehicle -->
+                                <div class="col-md-3">
+
+                                    <div class="text-muted small mb-1">
+                                        <i class="fa-solid fa-bus me-1"></i>
+                                        Vehicle
+                                    </div>
+
+                                    <div class="fw-semibold">
+                                        {{ booking.vehicle.vehicle_name }}
+                                    </div>
+
+                                </div>
+
+
+                                <!-- Route -->
+                                <div class="col-md-6">
+
+                                    <div class="text-muted small mb-1">
+                                        <i class="fa-solid fa-route me-1"></i>
+                                        Route
+                                    </div>
+
+                                    <div class="fw-semibold">
+                                        {{ booking.pickup_location }}
+                                        <span class="text-muted mx-2">→</span>
+                                        {{ booking.destination }}
+                                    </div>
+
+                                </div>
+
+
+                                <!-- Passengers -->
+                                <div class="col-md-3">
+
+                                    <div class="text-muted small mb-1">
+                                        <i class="fa-solid fa-users me-1"></i>
+                                        Passengers
+                                    </div>
+
+                                    <div class="fw-semibold">
+                                        {{ booking.passenger_count }}
+                                    </div>
+
+                                </div>
+
+
+                                <!-- Price -->
+                                <div class="col-md-3">
+
+                                    <div class="text-muted small mb-1">
+                                        <i class="fa-solid fa-money-bill-wave me-1"></i>
+                                        Total Price
+                                    </div>
+
+                                    <div class="fw-bold">
+                                        RM {{ booking.total_price|floatformat:2 }}
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Driver Review Section -->
+                            {% if booking.booking_status == "Completed" %}
+
+                                <hr class="my-4">
+
+                                <div class="d-flex justify-content-between align-items-center">
+
+                                    <div>
+
+                                        <h6 class="fw-bold mb-1">
+                                            <i class="fa-solid fa-star text-warning me-2"></i>
+                                            Driver Feedback
+                                        </h6>
+
+                                        {% if booking.driver_review %}
+
+                                            <p class="text-muted small mb-0">
+                                                You have already reviewed this driver.
+                                            </p>
+
+                                        {% else %}
+
+                                            <p class="text-muted small mb-0">
+                                                Share your experience with the driver.
+                                            </p>
+
+                                        {% endif %}
+
+                                    </div>
+
+
+                                    {% if booking.driver_review %}
+
+                                        <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">
+                                            <i class="fa-solid fa-check me-1"></i>
+                                            Review Submitted
+                                        </span>
+
+                                    {% else %}
+
+                                        <a href="{% url 'drivers:driver_review' booking.pk %}"
+                                           class="btn btn-warning px-4 rounded-pill fw-semibold">
+
+                                            <i class="fa-solid fa-star me-2"></i>
+                                            Rate Driver
+
+                                        </a>
+
+                                    {% endif %}
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+    {% else %}
+
+        <!-- Empty State -->
+
+        <div class="card border-0 shadow-sm rounded-4">
+
+            <div class="card-body text-center py-5">
+
+                <div class="mb-3">
+                    <i class="fa-solid fa-calendar-xmark fa-3x text-muted"></i>
+                </div>
+
+                <h5 class="fw-bold">
+                    No bookings found
+                </h5>
+
+                <p class="text-muted mb-0">
+                    You currently do not have any bookings.
+                </p>
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
