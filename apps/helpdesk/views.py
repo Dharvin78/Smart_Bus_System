@@ -136,21 +136,20 @@ def load_conversation(request, conversation_id):
             status=404
         )
 
-    messages = conversation.messages.all()
+    messages = conversation.messages.all().order_by("created_at")
 
     message_list = []
 
     for message in messages:
         message_list.append({
+            "id": message.id,
             "type": message.message_type,
             "message": message.message,
             "created_at": message.created_at.strftime(
                 "%d %b %Y, %I:%M %p"
             ),
             "helpful": message.helpful,
-        }
-        for message in conversation.messages.all()
-        )
+        })
 
     return JsonResponse({
         "success": True,

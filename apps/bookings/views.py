@@ -224,102 +224,106 @@ def booking_review(request, pk):
 
     if request.method == "POST":
 
+        action = request.POST.get("action")
+
         form = BookingReviewForm(
             request.POST,
             vehicle_queryset=available_vehicles,
             driver_queryset=available_drivers,
         )
 
-        if form.is_valid():
+        # =========================
+        # APPROVE BOOKING
+        # =========================
+        if action == "approve":
 
-            action = request.POST.get("action")
-
-            # =========================
-            # APPROVE BOOKING
-            # =========================
-            if action == "approve":
+            if form.is_valid():
 
                 vehicle = form.cleaned_data["vehicle"]
                 driver = form.cleaned_data["driver"]
 
-                old_status = booking.booking_status
+                if not vehicle or not driver:
+                    messages.error(
+                        request,
+                        "Please select both a vehicle and a driver before approving the booking."
+                    )
+                else:
+                    old_status = booking.booking_status
 
-                # Assign vehicle and driver
-                booking.vehicle = vehicle
-                booking.driver = driver
-                booking.booking_status = "Confirmed"
-                booking.save()
+                    booking.vehicle = vehicle
+                    booking.driver = driver
+                    booking.booking_status = "Confirmed"
+                    booking.save()
 
-                # Mark vehicle as booked
-                vehicle.status = "Booked"
-                vehicle.save()
+                    vehicle.status = "Booked"
+                    vehicle.save()
 
-                AuditLog.objects.create(
-                    user=request.user,
-                    module="Booking",
-                    action="APPROVE",
-                    booking=booking,
-                    customer=booking.customer,
-                    description=(
-                        f"{request.user.get_full_name() or request.user.username} "
-                        f"approved booking {booking.booking_number} for customer "
-                        f"{booking.customer.first_name} "
-                        f"{booking.customer.last_name}. "
-                        f"Booking status changed from "
-                        f"{old_status} to Confirmed. "
-                        f"Vehicle assigned: "
-                        f"{vehicle.vehicle_name} "
-                        f"({vehicle.registration_number}). "
-                        f"Driver assigned: "
-                        f"{driver.full_name}."
-                    ),
-                    ip_address=request.META.get("REMOTE_ADDR"),
-                )
+                    AuditLog.objects.create(
+                        user=request.user,
+                        module="Booking",
+                        action="APPROVE",
+                        booking=booking,
+                        customer=booking.customer,
+                        description=(
+                            f"{request.user.get_full_name() or request.user.username} "
+                            f"approved booking {booking.booking_number} for customer "
+                            f"{booking.customer.first_name} "
+                            f"{booking.customer.last_name}. "
+                            f"Booking status changed from "
+                            f"{old_status} to Confirmed. "
+                            f"Vehicle assigned: "
+                            f"{vehicle.vehicle_name} "
+                            f"({vehicle.registration_number}). "
+                            f"Driver assigned: "
+                            f"{driver.full_name}."
+                        ),
+                        ip_address=request.META.get("REMOTE_ADDR"),
+                    )
 
-                messages.success(
-                    request,
-                    f"Booking {booking.booking_number} approved successfully."
-                )
+                    messages.success(
+                        request,
+                        f"Booking {booking.booking_number} approved successfully."
+                    )
 
-                return redirect("bookings:booking_list")
+                    return redirect("bookings:booking_list")
 
-            # =========================
-            # REJECT BOOKING
-            # =========================
-            elif action == "reject":
+        # =========================
+        # REJECT BOOKING
+        # =========================
+        elif action == "reject":
 
-                old_status = booking.booking_status
+            reason = request.POST.get("reason", "").strip()
 
-                reason = form.cleaned_data["reason"]
+            old_status = booking.booking_status
 
-                booking.booking_status = "Cancelled"
-                booking.save()
+            booking.booking_status = "Cancelled"
+            booking.save()
 
-                AuditLog.objects.create(
-                    user=request.user,
-                    module="Booking",
-                    action="REJECT",
-                    booking=booking,
-                    customer=booking.customer,
-                    description=(
-                        f"{request.user.get_full_name() or request.user.username} "
-                        f"rejected booking {booking.booking_number} for customer "
-                        f"{booking.customer.first_name} "
-                        f"{booking.customer.last_name}. "
-                        f"Booking status changed from "
-                        f"{old_status} to Cancelled. "
-                        f"Reason: "
-                        f"{reason if reason else 'No reason provided'}."
-                    ),
-                    ip_address=request.META.get("REMOTE_ADDR"),
-                )
+            AuditLog.objects.create(
+                user=request.user,
+                module="Booking",
+                action="REJECT",
+                booking=booking,
+                customer=booking.customer,
+                description=(
+                    f"{request.user.get_full_name() or request.user.username} "
+                    f"rejected booking {booking.booking_number} for customer "
+                    f"{booking.customer.first_name} "
+                    f"{booking.customer.last_name}. "
+                    f"Booking status changed from "
+                    f"{old_status} to Cancelled. "
+                    f"Reason: "
+                    f"{reason if reason else 'No reason provided'}."
+                ),
+                ip_address=request.META.get("REMOTE_ADDR"),
+            )
 
-                messages.warning(
-                    request,
-                    f"Booking {booking.booking_number} rejected."
-                )
+            messages.warning(
+                request,
+                f"Booking {booking.booking_number} rejected."
+            )
 
-                return redirect("bookings:booking_list")
+            return redirect("bookings:booking_list")
 
     else:
 
@@ -327,15 +331,6 @@ def booking_review(request, pk):
             vehicle_queryset=available_vehicles,
             driver_queryset=available_drivers,
         )
-
-    return render(
-        request,
-        "bookings/booking_review.html",
-        {
-            "booking": booking,
-            "form": form,
-        },
-    )
 
 @login_required
 def booking_delete(request, pk):

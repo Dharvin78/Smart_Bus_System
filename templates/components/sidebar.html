@@ -1,52 +1,63 @@
 <div class="sidebar">
 
     <!-- ========================= -->
-    <!-- Logo -->
+    <!-- LOGO -->
     <!-- ========================= -->
     <div class="logo-section">
-
         <i class="fa-solid fa-bus-simple"></i>
 
         <div>
             <h4>Smart Bus</h4>
-            <small>Charter System</small>
+            <small>Tour Bus System</small>
         </div>
-
     </div>
 
-    <!-- ========================= -->
-    <!-- Navigation -->
-    <!-- ========================= -->
 
+    <!-- ========================= -->
+    <!-- MAIN -->
+    <!-- ========================= -->
     <div class="menu-title">
         MAIN
     </div>
 
     <ul class="sidebar-menu">
 
-        <li class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+        <!-- Dashboard -->
+        <li class="{% if request.resolver_match.url_name == 'dashboard' and request.resolver_match.app_name != 'reports' %}active{% endif %}">
             <a href="{% url 'dashboard' %}">
                 <i class="fa-solid fa-house"></i>
                 <span>Dashboard</span>
             </a>
         </li>
 
+
+        <!-- Bookings -->
         {% if request.user.profile.role == "Customer" %}
-            <a href="{% url 'bookings:customer_bookings' %}"
-            class="sidebar-link">
+
+        <li class="{% if request.resolver_match.url_name == 'customer_bookings' %}active{% endif %}">
+            <a href="{% url 'bookings:customer_bookings' %}">
                 <i class="fa-solid fa-calendar-check"></i>
                 <span>My Bookings</span>
             </a>
+        </li>
+
         {% else %}
-            <a href="{% url 'bookings:booking_list' %}"
-            class="sidebar-link">
+
+        <li class="{% if request.resolver_match.app_name == 'bookings' %}active{% endif %}">
+            <a href="{% url 'bookings:booking_list' %}">
                 <i class="fa-solid fa-calendar"></i>
                 <span>Bookings</span>
             </a>
+        </li>
+
         {% endif %}
 
     </ul>
 
+
+    <!-- ========================= -->
+    <!-- MANAGEMENT -->
+    <!-- ========================= -->
     {% if user_role == "Owner" or user_role == "Admin" %}
 
     <div class="menu-title">
@@ -55,22 +66,27 @@
 
     <ul class="sidebar-menu">
 
+        <!-- Vehicles -->
         <li class="{% if request.resolver_match.app_name == 'vehicles' %}active{% endif %}">
-            <a href="{% url 'vehicles:vehicle_list' %}" class="nav-link">
+            <a href="{% url 'vehicles:vehicle_list' %}">
                 <i class="fa-solid fa-bus"></i>
                 <span>Vehicles</span>
             </a>
         </li>
 
+
+        <!-- Fuel -->
         <li class="{% if request.resolver_match.app_name == 'fuel' %}active{% endif %}">
-            <a href="{% url 'fuel:fuel_list' %}" class="nav-link">
+            <a href="{% url 'fuel:fuel_list' %}">
                 <i class="fa-solid fa-gas-pump"></i>
                 <span>Fuel</span>
             </a>
         </li>
 
+
+        <!-- Maintenance -->
         <li class="{% if request.resolver_match.app_name == 'maintenance' %}active{% endif %}">
-            <a href="{% url 'maintenance:maintenance_list' %}" class="nav-link">
+            <a href="{% url 'maintenance:maintenance_list' %}">
                 <i class="fa-solid fa-screwdriver-wrench"></i>
                 <span>Maintenance</span>
             </a>
@@ -79,22 +95,27 @@
     </ul>
 
 
-
+    <!-- ========================= -->
+    <!-- ACCESS CONTROL -->
+    <!-- ========================= -->
     <div class="menu-title">
         ACCESS CONTROL
     </div>
 
     <ul class="sidebar-menu">
 
+        <!-- Drivers -->
         <li class="{% if request.resolver_match.app_name == 'drivers' %}active{% endif %}">
-            <a href="{% url 'drivers:driver_list' %}" class="nav-link">
+            <a href="{% url 'drivers:driver_list' %}">
                 <i class="fa-solid fa-id-card"></i>
                 <span>Drivers</span>
             </a>
         </li>
 
-        <li class="{% if request.resolver_match.url_name == 'user_list' %}active{% endif %}">
-            <a href="{% url 'accounts:user_list' %}" class="nav-link">
+
+        <!-- Users -->
+        <li class="{% if request.resolver_match.app_name == 'accounts' and request.resolver_match.url_name == 'user_list' %}active{% endif %}">
+            <a href="{% url 'accounts:user_list' %}">
                 <i class="fa-solid fa-users"></i>
                 <span>Users</span>
             </a>
@@ -102,6 +123,10 @@
 
     </ul>
 
+
+    <!-- ========================= -->
+    <!-- BUSINESS -->
+    <!-- ========================= -->
     <div class="menu-title">
         BUSINESS
     </div>
@@ -110,64 +135,71 @@
 
     <ul class="sidebar-menu">
 
+        <!-- Payments -->
         <li class="{% if request.resolver_match.app_name == 'payments' %}active{% endif %}">
-            <a href="{% url 'payments:payment_list' %}" class="nav-link">   
-                    <i class="fas fa-credit-card"></i>
-             <span>Payments</span>
+            <a href="{% url 'payments:payment_list' %}">
+                <i class="fa-solid fa-credit-card"></i>
+                <span>Payments</span>
             </a>
         </li>
 
-    {% if user_role == "Owner" or user_role == "Admin" %}
 
+        {% if user_role == "Owner" or user_role == "Admin" %}
+
+        <!-- Business Analytics -->
         <li class="{% if request.resolver_match.app_name == 'analytics' %}active{% endif %}">
-            <a href="{% url 'analytics:dashboard' %}" class="nav-link">
+            <a href="{% url 'analytics:dashboard' %}">
                 <i class="fa-solid fa-chart-line"></i>
-            <span>Business Analytics</span>
+                <span>Business Analytics</span>
             </a>
         </li>
 
-        <li>
-            <a href="#">
-                <i class="fa-solid fa-chart-line"></i>
-                <span>Analytics</span>
-            </a>
-        </li>
 
-        <li class="{% if request.resolver_match.url_name == 'dashboard' and request.resolver_match.app_name == 'reports' %}active{% endif %}">
-            <a href="{% url 'reports:dashboard' %}" class="nav-link">
+        <!-- Reports -->
+        <li class="{% if request.resolver_match.app_name == 'reports' %}active{% endif %}">
+            <a href="{% url 'reports:dashboard' %}">
                 <i class="fa-solid fa-file-lines"></i>
                 <span>Reports</span>
             </a>
         </li>
 
+        {% endif %}
+
     </ul>
 
-    {% endif %}
 
+    <!-- ========================= -->
+    <!-- SYSTEM -->
+    <!-- ========================= -->
     <div class="menu-title">
         SYSTEM
     </div>
 
     <ul class="sidebar-menu">
 
+        <!-- Notifications -->
         <li class="{% if request.resolver_match.app_name == 'notifications' %}active{% endif %}">
-            <a href="{% url 'notifications:list' %}" class="nav-link">
+            <a href="{% url 'notifications:list' %}">
                 <i class="fa-solid fa-bell"></i>
                 <span>Notifications</span>
             </a>
         </li>
 
-        <li class="{% if request.resolver_match.app_name == 'accounts' %}active{% endif %}">
-            <a href="{% url 'accounts:profile' %}" class="nav-link">
+
+        <!-- My Profile -->
+        <li class="{% if request.resolver_match.app_name == 'accounts' and request.resolver_match.url_name == 'profile' %}active{% endif %}">
+            <a href="{% url 'accounts:profile' %}">
                 <i class="fa-solid fa-user"></i>
                 <span>My Profile</span>
             </a>
         </li>
 
+
         {% if user_role == "Owner" or user_role == "Admin" %}
 
+        <!-- Audit Log -->
         <li class="{% if request.resolver_match.app_name == 'audit' %}active{% endif %}">
-            <a href="{% url 'audit:list' %}" class ="nav-link">
+            <a href="{% url 'audit:list' %}">
                 <i class="fa-solid fa-clock-rotate-left"></i>
                 <span>Audit Log</span>
             </a>
@@ -175,6 +207,8 @@
 
         {% endif %}
 
+
+        <!-- Settings -->
         <li class="{% if request.resolver_match.app_name == 'settings' %}active{% endif %}">
             <a href="{% url 'settings:settings' %}">
                 <i class="fa-solid fa-gear"></i>
@@ -182,19 +216,27 @@
             </a>
         </li>
 
-        <li>
-            <a href="#">
+
+        
+        <!-- Helpdesk -->
+        <li class="{% if request.resolver_match.app_name == 'helpdesk' %}active{% endif %}">
+            <a href="{% url 'helpdesk:home' %}">
                 <i class="fa-solid fa-circle-info"></i>
-                <span>Help</span>
+                <span>Helpdesk</span>
             </a>
         </li>
+
     </ul>
 
+
+    <!-- ========================= -->
+    <!-- LOGOUT -->
+    <!-- ========================= -->
     <div class="logout-section">
 
         <a href="{% url 'accounts:logout' %}">
             <i class="fa-solid fa-right-from-bracket"></i>
-            Logout
+            <span>Logout</span>
         </a>
 
     </div>
