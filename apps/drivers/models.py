@@ -1,6 +1,7 @@
 # Create your models here.
 from django.db import models
 from apps.vehicles.models import Vehicle
+from django.conf import settings
 
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -11,6 +12,7 @@ class Driver(models.Model):
 
     STATUS_CHOICES = [
         ("Available", "Available"),
+        ("Reserved", "Reserved"),
         ("On Trip", "On Trip"),
         ("Leave", "Leave"),
         ("Inactive", "Inactive"),
@@ -57,6 +59,14 @@ class Driver(models.Model):
         upload_to="drivers/",
         blank=True,
         null=True
+    )
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="driver_record",
     )
 
     created_at = models.DateTimeField(auto_now_add=True)

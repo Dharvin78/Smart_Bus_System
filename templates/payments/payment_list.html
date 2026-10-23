@@ -1,317 +1,154 @@
 {% extends "crud/base_list.html" %}
 
-{% block page_title %}
-Payment
-{% endblock %}
+{% block page_title %}Payments{% endblock %}
 
 {% block header_title %}
 <i class="fas fa-credit-card me-2"></i>
-Payment Management
+Payment Records
 {% endblock %}
 
 {% block header_subtitle %}
-Manage customer payments and transactions.
+View customer payment transactions and payment status.
 {% endblock %}
 
 {% block add_button %}
-
-{% if role == "Owner" or role == "Admin" %}
-
-    <a href="{% url 'payments:payment_create' %}" class="btn btn-primary">
-        <i class="fas fa-plus me-2"></i>
-        Add Payment
-    </a>
-
-{% endif %}
-
+{# Payment creation is restricted to customers with confirmed bookings. #}
 {% endblock %}
 
 {% block search %}
-
 <form method="GET" class="mb-4">
-
     <div class="input-group">
-
         <input
             type="text"
             name="search"
             value="{{ search }}"
             class="form-control"
-            placeholder="{% if role == 'Customer' %}Search booking or transaction ID...
-            {% else %}Search booking, customer or transaction ID...
-            {% endif %}">
-
+            placeholder="Search booking, customer or transaction ID..."
+        >
         <button class="btn btn-outline-primary" type="submit">
             <i class="fas fa-search"></i>
         </button>
-
     </div>
-
 </form>
-
 {% endblock %}
 
 {% block table %}
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-primary">
+            <tr>
+                <th>Booking</th>
+                <th>Customer</th>
+                <th>Amount (RM)</th>
+                <th>Method</th>
+                <th>Payment Status</th>
+                <th>Payment Date</th>
+                <th class="text-center">Actions</th>
+            </tr>
+        </thead>
 
-<table class="table table-hover align-middle">
+        <tbody>
+        {% for payment in payments %}
+            <tr>
+                <td>{{ payment.booking.booking_number }}</td>
 
-    <thead class="table-primary">
-        <tr>
-            <th>Booking</th>
-            <th>Customer</th>
-            <th>Amount (RM)</th>
-            <th>Method</th>
-            <th>Approval</th>
-            <th>Payment Status</th>
-            <th>Payment Date</th>
-            <th width="230">Actions</th>
-        </tr>
-    </thead>
+                <td>
+                    {{ payment.booking.customer.first_name }}
+                    {{ payment.booking.customer.last_name }}
+                </td>
 
-    <tbody>
+                <td>RM {{ payment.amount|floatformat:2 }}</td>
 
-    {% for payment in payments %}
+                <td>{{ payment.payment_method }}</td>
 
-        <tr>
-
-            <td>
-                {{ payment.booking.booking_number }}
-            </td>
-
-            <td>
-                {{ payment.booking.customer.first_name }}
-                {{ payment.booking.customer.last_name }}
-            </td>
-
-            <td>
-                RM {{ payment.amount }}
-            </td>
-
-            <td>
-                {{ payment.payment_method }}
-            </td>
-
-            <!-- APPROVAL STATUS -->
-            <td>
-
-                {% if payment.approval_status == "Pending" %}
-
-                    <span class="badge bg-warning text-dark">
-                        Pending Approval
-                    </span>
-
-                {% elif payment.approval_status == "Approved" %}
-
-                    <span class="badge bg-success">
-                        Approved
-                    </span>
-
-                {% elif payment.approval_status == "Rejected" %}
-
-                    <span class="badge bg-danger">
-                        Rejected
-                    </span>
-
-                {% endif %}
-
-            </td>
-
-            <!-- PAYMENT STATUS -->
-            <td>
-
-                {% if payment.payment_status == "Paid" %}
-
-                    <span class="badge bg-success">
-                        Paid
-                    </span>
-
-                {% elif payment.payment_status == "Partially Paid" %}
-
-                    <span class="badge bg-info text-dark">
-                        Partially Paid
-                    </span>
-
-                {% elif payment.payment_status == "Pending" %}
-
-                    <span class="badge bg-warning text-dark">
-                        Pending
-                    </span>
-
-                {% elif payment.payment_status == "Refunded" %}
-
-                    <span class="badge bg-secondary">
-                        Refunded
-                    </span>
-
-                {% elif payment.payment_status == "Cancelled" %}
-
-                    <span class="badge bg-danger">
-                        Cancelled
-                    </span>
-
-                {% endif %}
-
-            </td>
-
-            <td>
-                {{ payment.payment_date }}
-            </td>
-
-            <!-- ACTIONS -->
-            <td>
-
-                {% if role == "Owner" or role == "Admin" %}
-
-                    {% if payment.approval_status == "Pending" %}
-
-                        <a
-                            href="{% url 'payments:payment_approve' payment.pk %}"
-                            class="btn btn-success btn-sm"
-                            title="Approve"
-                        >
-                            <i class="fa-solid fa-check"></i>
-                        </a>
-
-                        <a
-                            href="{% url 'payments:payment_reject' payment.pk %}"
-                            class="btn btn-danger btn-sm"
-                            title="Reject"
-                        >
-                            <i class="fa-solid fa-xmark"></i>
-                        </a>
-
+                <td>
+                    {% if payment.payment_status == "Paid" %}
+                        <span class="badge bg-success">Paid</span>
+                    {% elif payment.payment_status == "Partially Paid" %}
+                        <span class="badge bg-info text-dark">Partially Paid</span>
+                    {% elif payment.payment_status == "Pending" %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    {% elif payment.payment_status == "Refunded" %}
+                        <span class="badge bg-secondary">Refunded</span>
+                    {% elif payment.payment_status == "Cancelled" %}
+                        <span class="badge bg-danger">Cancelled</span>
                     {% endif %}
+                </td>
 
-                    <a
-                        href="{% url 'payments:payment_update' payment.pk %}"
-                        class="btn btn-warning btn-sm"
-                        title="Edit"
-                    >
-                        <i class="fas fa-edit"></i>
-                    </a>
+                <td>{{ payment.payment_date|date:"d M Y" }}</td>
 
-                    <a
-                        href="{% url 'payments:payment_delete' payment.pk %}"
-                        class="btn btn-danger btn-sm"
-                        title="Delete"
-                    >
-                        <i class="fas fa-trash"></i>
-                    </a>
-
-                {% elif role == "Customer" %}
-
-                    {% if payment.approval_status == "Pending" %}
-
-                        <span class="badge bg-warning text-dark">
-                            Waiting for Approval
-                        </span>
-
-                    {% elif payment.approval_status == "Rejected" %}
-
-                        <span class="badge bg-danger">
-                            Payment Rejected
-                        </span>
-
-                    {% elif payment.approval_status == "Approved" and payment.payment_status != "Paid" %}
-
-                        <a
-                            href="{% url 'payments:payment_create' %}?booking={{ payment.booking.pk }}"
-                            class="btn btn-success btn-sm"
-                        >
-                            <i class="fa-solid fa-credit-card me-1"></i>
-                            Pay Now
-                        </a>
-
-                    {% elif payment.payment_status == "Paid" %}
-
-                        <a
-                            href="{% url 'payments:payment_receipt' payment.pk %}"
-                            class="btn btn-info btn-sm"
-                        >
-                            <i class="fa-solid fa-receipt me-1"></i>
-                            Receipt
-                        </a>
-
+                <td class="text-center">
+                    {% if role == "Customer" %}
+                        {% if payment.payment_status == "Paid" %}
+                            <a
+                                href="{% url 'payments:payment_receipt' payment.pk %}"
+                                class="btn btn-info btn-sm"
+                            >
+                                <i class="fas fa-receipt me-1"></i> Receipt
+                            </a>
+                        {% elif payment.booking.booking_status == "Confirmed" and payment.payment_status == "Pending" %}
+                            <a
+                                href="{% url 'payments:payment_create' %}?booking={{ payment.booking.pk }}"
+                                class="btn btn-success btn-sm"
+                            >
+                                <i class="fas fa-credit-card me-1"></i> Pay Now
+                            </a>
+                        {% else %}
+                            <span class="text-muted">No action available</span>
+                        {% endif %}
+                    {% else %}
+                        {% if payment.payment_status == "Paid" %}
+                            <a
+                                href="{% url 'payments:payment_receipt' payment.pk %}"
+                                class="btn btn-outline-secondary btn-sm"
+                            >
+                                <i class="fas fa-receipt me-1"></i> View Receipt
+                            </a>
+                        {% else %}
+                            <span class="text-muted">View only</span>
+                        {% endif %}
                     {% endif %}
-
-                {% endif %}
-
-            </td>
-
-        </tr>
-
-    {% empty %}
-
-        <tr>
-            <td colspan="8" class="text-center py-5">
-
-                <h5 class="text-muted">
-                    No payment records found.
-                </h5>
-
-            </td>
-        </tr>
-
-    {% endfor %}
-
-    </tbody>
-
-</table>
-
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="7" class="text-center py-5">
+                    <i class="fas fa-receipt fa-2x text-muted mb-3"></i>
+                    <h5 class="text-muted">No payment records found.</h5>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}
 
 {% block pagination %}
-
 {% if is_paginated %}
-
 <nav>
-
     <ul class="pagination justify-content-center">
-
         {% if page_obj.has_previous %}
-
-        <li class="page-item">
-
-            <a class="page-link"
-               href="?search={{ search }}&page={{ page_obj.previous_page_number }}">
-
-                Previous
-
-            </a>
-
-        </li>
-
+            <li class="page-item">
+                <a class="page-link"
+                   href="?search={{ search|urlencode }}&page={{ page_obj.previous_page_number }}">
+                    Previous
+                </a>
+            </li>
         {% endif %}
 
         <li class="page-item active">
-
-            <span class="page-link">
-
-                {{ page_obj.number }}
-
-            </span>
-
+            <span class="page-link">{{ page_obj.number }}</span>
         </li>
 
         {% if page_obj.has_next %}
-
-        <li class="page-item">
-
-            <a class="page-link"
-               href="?search={{ search }}&page={{ page_obj.next_page_number }}">
-
-                Next
-
-            </a>
-
-        </li>
-
+            <li class="page-item">
+                <a class="page-link"
+                   href="?search={{ search|urlencode }}&page={{ page_obj.next_page_number }}">
+                    Next
+                </a>
+            </li>
         {% endif %}
-
     </ul>
-
 </nav>
-
 {% endif %}
-
 {% endblock %}

@@ -1,388 +1,206 @@
-# Create your views here.
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import FileResponse
+from django.contrib.auth.decorators import login_required
+import uuid
 
 from .models import Payment
-from .forms import PaymentForm, CustomerPaymentForm
-from apps.emails.services import send_payment_receipt
-from apps.accounts.decorators import role_required
-from django.contrib.auth.decorators import login_required
+from .forms import CustomerPaymentForm
 from .pdf import generate_payment_receipt
-from django.utils import timezone
 from apps.bookings.models import Booking
 from apps.helpdesk.services.data_access import get_customer_for_user
+from apps.emails.services import send_payment_receipt
+from django.utils import timezone
+from django.db import transaction
+from apps.accounts.decorators import role_required, customer_required
+from .services import process_simulated_payment, PaymentProcessingError
 
-@login_required
+@role_required(["Owner", "Admin", "Customer"])
 def payment_list(request):
-    """
-    Display all payments with search and pagination.
-    """
-
     role = request.user.profile.role
 
     payments = Payment.objects.select_related(
         "booking",
-        "booking__customer"
+        "booking__customer",
     ).order_by("-payment_date")
 
-    # Role-based data Acess Control
     if role == "Customer":
+        customer = get_customer_for_user(request.user)
 
-        payments = payments.filter(
-            booking__customer=request.user.profile.user
-        )
-    elif role in ["Owner", "Admin"]:
+        if not customer:
+            payments = payments.none()
+        else:
+            payments = payments.filter(booking__customer=customer)
 
-        payments = payments
-
-    else:
-
-        # Driver and other roles no Access to payments
-        payments = payments.none()
+    elif role not in ["Owner", "Admin"]:
+        messages.error(request, "You do not have permission to view payments.")
+        return redirect("dashboard")
 
     search = request.GET.get("search", "").strip()
 
     if search:
         payments = payments.filter(
-            Q(booking__booking_number__icontains=search) |
-            Q(booking__customer__first_name__icontains=search) |
-            Q(booking__customer__last_name__icontains=search) |
-            Q(transaction_id__icontains=search)
+            Q(booking__booking_number__icontains=search)
+            | Q(booking__customer__first_name__icontains=search)
+            | Q(booking__customer__last_name__icontains=search)
+            | Q(transaction_id__icontains=search)
         )
 
-    #Pagination
-
     paginator = Paginator(payments, 10)
-
-    page_number = request.GET.get("page")
-
-    page_obj = paginator.get_page(page_number)
-
-    context = {
-        "page_obj": page_obj,
-        "payments": page_obj,
-        "search": search,
-        "is_paginated": page_obj.has_other_pages(),
-        "role": role,
-    }
+    page_obj = paginator.get_page(request.GET.get("page"))
 
     return render(
         request,
         "payments/payment_list.html",
-        context,
-    )
-
-@login_required
-@role_required(["Owner", "Admin"])
-def payment_approve(request, pk):
-
-    payment = get_object_or_404(
-        Payment,
-        pk=pk,
-        approval_status="Pending",
-    )
-
-    if request.method == "POST":
-
-        payment.approval_status = "Approved"
-        payment.approved_by = request.user
-        payment.approved_at = timezone.now()
-        payment.save()
-
-        messages.success(
-            request,
-            f"Payment #{payment.id} approved successfully."
-        )
-
-        return redirect("payments:payment_list")
-
-    return render(
-        request,
-        "payments/payment_approve.html",
         {
-            "payment": payment,
+            "page_obj": page_obj,
+            "payments": page_obj,
+            "search": search,
+            "is_paginated": page_obj.has_other_pages(),
+            "role": role,
         },
     )
 
-@login_required
-@role_required(["Owner", "Admin"])
-def payment_reject(request, pk):
 
-    payment = get_object_or_404(
-        Payment,
-        pk=pk,
-        approval_status="Pending",
-    )
-
-    if request.method == "POST":
-
-        payment.approval_status = "Rejected"
-        payment.approved_by = request.user
-        payment.approved_at = timezone.now()
-        payment.save()
-
-        messages.warning(
-            request,
-            f"Payment #{payment.id} rejected."
-        )
-
-        return redirect("payments:payment_list")
-
-    return render(
-        request,
-        "payments/payment_reject.html",
-        {
-            "payment": payment,
-        },
-    )
-
-@login_required
+@customer_required
 def payment_create(request):
+    customer = get_customer_for_user(request.user)
 
-    role = request.user.profile.role
-
-    # Only Owner/Admin or Customer can access payment creation
-    if role not in ["Owner", "Admin", "Customer"]:
-        messages.error(
-            request,
-            "You do not have permission to make payments."
-        )
+    if not customer:
+        messages.error(request, "Customer profile not found.")
         return redirect("dashboard")
 
-    # CUSTOMER PAYMENT FLOW
-    if role == "Customer":
+    booking_id = (
+        request.POST.get("booking_id")
+        if request.method == "POST"
+        else request.GET.get("booking")
+    )
 
-        customer = get_customer_for_user(request.user)
+    if not booking_id:
+        messages.error(request, "Please select a booking.")
+        return redirect("bookings:customer_bookings")
 
-        if not customer:
-            messages.error(
-                request,
-                "No customer profile is associated with your account."
-            )
-            return redirect("dashboard")
+    booking = get_object_or_404(
+        Booking,
+        pk=booking_id,
+        customer=customer,
+    )
 
-        booking_id = request.GET.get("booking")
-
-        if not booking_id:
-            messages.error(
-                request,
-                "No booking was selected for payment."
-            )
-            return redirect("payments:payment_list")
-
-        booking = get_object_or_404(
-            Booking,
-            pk=booking_id,
-            customer=customer,
-        )
-
-        # Find the customer's pending payment
-        payment = Payment.objects.filter(
+    if (
+        booking.booking_status != "Confirmed"
+        or booking.payment_status == "Paid"
+        or Payment.objects.filter(
             booking=booking,
-            approval_status="Approved",
-            payment_status__in=["Pending", "Partially Paid"],
-        ).first()
+            payment_status="Paid",
+        ).exists()
+    ):
+        messages.error(request, "This booking is not available for payment.")
+        return redirect("bookings:customer_bookings")
 
-        if not payment:
-            messages.error(
-                request,
-                "This booking has not been approved for payment."
-            )
-            return redirect("payments:payment_list")
+    if booking.total_price is None or booking.total_price <= 0:
+        messages.error(request, "Invalid booking amount.")
+        return redirect("bookings:customer_bookings")
 
-        if request.method == "POST":
+    form = CustomerPaymentForm(
+        request.POST if request.method == "POST" else None
+    )
 
-            form = CustomerPaymentForm(
-                request.POST,
-                instance=payment,
-            )
+    if request.method == "POST":
+        result = request.POST.get("simulation_result")
 
-            if form.is_valid():
+        if result not in {"success", "failure"}:
+            messages.error(request, "Invalid payment request.")
 
-                payment = form.save(commit=False)
-
-                # Customer cannot change these values
-                payment.booking = booking
-                payment.approval_status = "Approved"
-
-                # Payment becomes paid only after customer submits payment
-                payment.payment_status = "Paid"
-
-                payment.save()
-
-                payment.booking.payment_status = "Paid"
-                payment.booking.save()
-
-                send_payment_receipt(payment)
-
-                messages.success(
+        elif form.is_valid():
+            if result == "failure":
+                messages.error(
                     request,
-                    "Payment completed successfully."
+                    "Simulated payment failed. Please try again."
                 )
+            else:
+                try:
+                    payment = process_simulated_payment(
+                        booking,
+                        customer,
+                        form.cleaned_data["payment_method"],
+                    )
+                except PaymentProcessingError as exc:
+                    messages.error(request, str(exc))
+                    return redirect("bookings:customer_bookings")
+                except OperationalError:
+                    messages.error(
+                        request,
+                        "Payment is temporarily unavailable. Please try again."
+                    )
+                    return redirect("bookings:customer_bookings")
 
-                return redirect(
-                    "payments:payment_list"
-                )
+                try:
+                    send_payment_receipt(payment)
+                except Exception:
+                    import logging
+                    logging.getLogger(__name__).exception(
+                        "Receipt email failed for payment %s",
+                        payment.pk,
+                    )
+                    messages.warning(
+                        request,
+                        "Payment successful, but the receipt email could not be sent."
+                    )
+                else:
+                    messages.success(
+                        request,
+                        "Payment successful. Your receipt has been emailed."
+                    )
+
+                return redirect("payments:payment_list")
 
         else:
-
-            form = CustomerPaymentForm(
-                instance=payment
-            )
-
-        return render(
-            request,
-            "payments/payment_form.html",
-            {
-                "form": form,
-                "title": "Make Payment",
-            },
-        )
-
-    # OWNER / ADMIN PAYMENT FLOW
-    if request.method == "POST":
-
-        form = PaymentForm(request.POST)
-
-        if form.is_valid():
-
-            payment = form.save(commit=False)
-
-            payment.approval_status = "Pending"
-            payment.payment_status = "Pending"
-
-            payment.save()
-
-            messages.success(
-                request,
-                "Payment request created and is waiting for approval."
-            )
-
-            return redirect(
-                "payments:payment_list"
-            )
-
-    else:
-
-        form = PaymentForm()
+            messages.error(request, "Please select a valid payment method.")
 
     return render(
         request,
         "payments/payment_form.html",
         {
             "form": form,
-            "title": "Add Payment",
-        },
-    )
-
-@login_required
-@role_required(["Owner", "Admin"])
-def payment_update(request, pk):
-
-    payment = get_object_or_404(
-        Payment,
-        pk=pk,
-    )
-
-    if request.method == "POST":
-
-        form = PaymentForm(
-            request.POST,
-            instance=payment,
-        )
-
-        if form.is_valid():
-
-            payment = form.save()
-
-            payment.booking.payment_status = payment.payment_status
-            payment.booking.save()
-
-            messages.success(
-                request,
-                "Payment updated successfully."
-            )
-
-            return redirect("payments:payment_list")
-
-    else:
-
-        form = PaymentForm(
-            instance=payment
-        )
-
-    return render(
-        request,
-        "payments/payment_form.html",
-        {
-            "form": form,
-            "title": "Edit Payment",
-        },
-    )
-
-@login_required
-@role_required(["Owner", "Admin"])
-def payment_delete(request, pk):
-
-    payment = get_object_or_404(
-        Payment,
-        pk=pk,
-    )
-
-    if request.method == "POST":
-
-        payment.delete()
-
-        messages.success(
-            request,
-            "Payment deleted successfully."
-        )
-
-        return redirect(
-            "payments:payment_list"
-        )
-
-    return render(
-        request,
-        "payments/payment_delete.html",
-        {
-            "payment": payment,
+            "title": "Complete Your Payment",
+            "booking": booking,
         },
     )
 
 @login_required
 def payment_receipt(request, pk):
-
     role = request.user.profile.role
 
-    if role == "customer":
+    if role == "Customer":
+        customer = get_customer_for_user(request.user)
+
+        if not customer:
+            messages.error(
+                request,
+                "No customer profile is associated with your account.",
+            )
+            return redirect("dashboard")
 
         payment = get_object_or_404(
-            Payment,
+            Payment.objects.select_related("booking", "booking__customer"),
             pk=pk,
-            booking__customer__user=request.user
+            booking__customer=customer,
         )
 
     elif role in ["Owner", "Admin"]:
-
         payment = get_object_or_404(
-            Payment,
-            pk=pk
+            Payment.objects.select_related("booking", "booking__customer"),
+            pk=pk,
         )
 
     else:
-
         messages.error(
             request,
-            "You do not have permission to access this receipt."
+            "You do not have permission to access this receipt.",
         )
-
-        return redirect("dashboard:dashboard")
-
-    #payment = get_object_or_404(Payment, pk=pk)
+        return redirect("dashboard")
 
     pdf = generate_payment_receipt(payment)
 
@@ -391,4 +209,3 @@ def payment_receipt(request, pk):
         as_attachment=True,
         filename=f"Receipt_{payment.booking.booking_number}.pdf",
     )
-

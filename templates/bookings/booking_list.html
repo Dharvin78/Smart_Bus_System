@@ -13,13 +13,6 @@ Booking Management
 Manage customer bookings and reservations.
 {% endblock %}
 
-{% block add_button %}
-<a href="{% url 'bookings:booking_create' %}" class="btn btn-primary">
-    <i class="fas fa-plus me-2"></i>
-    Add Booking
-</a>
-{% endblock %}
-
 {% block search %}
 <form method="GET" class="mb-4">
     <div class="input-group">
@@ -51,7 +44,7 @@ Manage customer bookings and reservations.
             <th>Destination</th>
             <th>Booking Status</th>
             <th>Payment Status</th>
-            <th class="text-center" width="170">Actions</th>
+            <th class="text-center">Actions</th>
         </tr>
     </thead>
 
@@ -160,35 +153,15 @@ Manage customer bookings and reservations.
             </td>
 
             <td class="text-center">
-
                 {% if booking.booking_status == "Pending" %}
-
-                    <!-- Review Pending Booking -->
                     <a href="{% url 'bookings:booking_review' booking.pk %}"
-                    class="btn btn-primary btn-sm"
-                    title="Review Booking">
+                    class="btn btn-primary btn-sm">
                         <i class="fas fa-clipboard-check me-1"></i>
                         Review
                     </a>
-
                 {% else %}
-
-                    <!-- Edit Booking -->
-                    <a href="{% url 'bookings:booking_update' booking.pk %}"
-                    class="btn btn-warning btn-sm"
-                    title="Edit Booking">
-                        <i class="fas fa-edit"></i>
-                    </a>
-
+                    <span class="text-muted">No action required</span>
                 {% endif %}
-
-                <!-- Delete -->
-                <a href="{% url 'bookings:booking_delete' booking.pk %}"
-                class="btn btn-danger btn-sm"
-                title="Delete Booking">
-                    <i class="fas fa-trash"></i>
-                </a>
-
             </td>
 
         </tr>

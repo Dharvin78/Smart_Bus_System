@@ -1,63 +1,613 @@
-{% extends "crud/base_form.html" %}
+{% extends "layouts/base.html" %}
 
-{% block form_title %}
-{{ title }}
-{% endblock %}
+{% block title %}{{ title|default:"Complete Your Payment" }}{% endblock %}
 
-{% block form_content %}
+{% block content %}
+<style>
+    .checkout-page {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 24px 0 48px;
+        color: #172b4d;
+    }
 
-<form method="POST">
+    .checkout-heading {
+        margin-bottom: 28px;
+    }
 
-    {% csrf_token %}
+    .checkout-heading h1 {
+        font-size: clamp(1.7rem, 3vw, 2.2rem);
+        font-weight: 750;
+        letter-spacing: -0.7px;
+        margin-bottom: 8px;
+    }
 
-    <div class="row">
+    .checkout-heading p {
+        color: #6b778c;
+        margin-bottom: 0;
+    }
 
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Booking</label>
-            {{ form.booking }}
+    .checkout-step {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #167d67;
+        font-size: .85rem;
+        font-weight: 700;
+        margin-bottom: 18px;
+    }
+
+    .checkout-step span {
+        width: 30px;
+        height: 30px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #e5f6f0;
+    }
+
+    .checkout-panel {
+        background: #fff;
+        border: 1px solid #e6ebf2;
+        border-radius: 18px;
+        box-shadow: 0 8px 28px rgba(31, 50, 81, .05);
+        overflow: hidden;
+    }
+
+    .panel-body {
+        padding: 26px;
+    }
+
+    .panel-title {
+        font-size: 1.05rem;
+        font-weight: 750;
+        margin-bottom: 6px;
+    }
+
+    .panel-subtitle {
+        font-size: .88rem;
+        color: #748198;
+        margin-bottom: 22px;
+    }
+
+    .trip-banner {
+        position: relative;
+        overflow: hidden;
+        border-radius: 14px;
+        padding: 24px;
+        color: #fff;
+        background: linear-gradient(120deg, #123c59, #137d79);
+        margin-bottom: 24px;
+    }
+
+    .trip-banner::after {
+        content: "";
+        position: absolute;
+        width: 190px;
+        height: 190px;
+        border: 30px solid rgba(255,255,255,.07);
+        border-radius: 50%;
+        right: -48px;
+        top: -85px;
+    }
+
+    .trip-label {
+        font-size: .72rem;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        color: #bde8e1;
+        font-weight: 700;
+    }
+
+    .trip-route {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin: 13px 0 18px;
+        font-size: 1.12rem;
+        font-weight: 700;
+        overflow-wrap: anywhere;
+    }
+
+    .trip-route .route-line {
+        flex: 1;
+        min-width: 22px;
+        border-top: 2px dashed rgba(255,255,255,.65);
+        position: relative;
+    }
+
+    .trip-route .route-line::after {
+        content: "›";
+        position: absolute;
+        right: -2px;
+        top: -16px;
+        font-size: 1.6rem;
+    }
+
+    .trip-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 22px;
+        font-size: .84rem;
+        color: #e0f2f1;
+    }
+
+    .trip-meta i {
+        margin-right: 6px;
+    }
+
+    .payment-method {
+        display: block;
+        position: relative;
+        height: 100%;
+        cursor: pointer;
+    }
+
+    .payment-method input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .method-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        height: 100%;
+        min-height: 88px;
+        padding: 16px;
+        border: 1.5px solid #e0e7ef;
+        border-radius: 13px;
+        background: #fff;
+        transition: border-color .18s, background .18s, box-shadow .18s;
+    }
+
+    .payment-method:hover .method-card {
+        border-color: #83c9ba;
+    }
+
+    .payment-method input:checked + .method-card {
+        border-color: #16856f;
+        background: #f0faf7;
+        box-shadow: 0 0 0 3px rgba(22,133,111,.09);
+    }
+
+    .payment-method input:focus-visible + .method-card {
+        outline: 3px solid #8ad9c7;
+        outline-offset: 3px;
+    }
+
+    .method-icon {
+        flex: 0 0 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #edf4fb;
+        color: #215b82;
+        font-size: 1.25rem;
+    }
+
+    .method-name {
+        display: block;
+        font-size: .92rem;
+        font-weight: 750;
+        color: #20344f;
+    }
+
+    .method-description {
+        display: block;
+        font-size: .78rem;
+        color: #77869b;
+        margin-top: 3px;
+    }
+
+    .method-check {
+        margin-left: auto;
+        color: #16856f;
+        opacity: 0;
+    }
+
+    .payment-method input:checked + .method-card .method-check {
+        opacity: 1;
+    }
+
+    .field-label {
+        display: block;
+        font-size: .85rem;
+        font-weight: 700;
+        margin-bottom: 7px;
+        color: #344563;
+    }
+
+    .checkout-input {
+        width: 100%;
+        border: 1px solid #dfe5ed;
+        border-radius: 10px;
+        padding: 11px 13px;
+        color: #172b4d;
+        background: #fff;
+    }
+
+    .checkout-input:focus {
+        border-color: #16856f;
+        outline: 0;
+        box-shadow: 0 0 0 3px rgba(22,133,111,.1);
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 13px 0;
+        font-size: .9rem;
+        border-bottom: 1px solid #edf0f5;
+    }
+
+    .summary-row:last-of-type {
+        border-bottom: 0;
+    }
+
+    .summary-label {
+        color: #718096;
+    }
+
+    .summary-value {
+        text-align: right;
+        font-weight: 650;
+        overflow-wrap: anywhere;
+    }
+
+    .total-row {
+        border-top: 1px solid #e4eaf1;
+        margin-top: 8px;
+        padding-top: 20px;
+    }
+
+    .total-row .summary-label {
+        color: #172b4d;
+        font-weight: 750;
+    }
+
+    .total-amount {
+        color: #137d68;
+        font-size: 1.65rem;
+        font-weight: 800;
+        letter-spacing: -.5px;
+    }
+
+    .secure-note {
+        display: flex;
+        gap: 10px;
+        margin: 20px 0;
+        padding: 13px;
+        border-radius: 11px;
+        background: #f2f8f7;
+        color: #466b67;
+        font-size: .79rem;
+        line-height: 1.5;
+    }
+
+    .pay-button {
+        width: 100%;
+        border: 0;
+        border-radius: 11px;
+        background: #147d69;
+        color: #fff;
+        padding: 14px 18px;
+        font-weight: 750;
+        transition: background .18s, transform .18s;
+    }
+
+    .pay-button:hover {
+        background: #106957;
+        transform: translateY(-1px);
+    }
+
+    .failure-button {
+        width: 100%;
+        border: 1px solid #e0e6ee;
+        border-radius: 11px;
+        background: #fff;
+        color: #66758a;
+        padding: 11px 14px;
+        font-size: .84rem;
+        font-weight: 650;
+    }
+
+    .failure-button:hover {
+        background: #f7f9fc;
+        border-color: #c7d0dd;
+    }
+
+    .simulation-note {
+        margin-top: 16px;
+        padding: 12px 13px;
+        border: 1px dashed #d8cda9;
+        border-radius: 10px;
+        background: #fffaf0;
+        color: #786536;
+        font-size: .78rem;
+        line-height: 1.5;
+    }
+
+    .back-link {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        margin-top: 20px;
+        color: #63738a;
+        text-decoration: none;
+        font-size: .88rem;
+    }
+
+    .back-link:hover {
+        color: #147d69;
+    }
+
+    @media (max-width: 767.98px) {
+        .checkout-page {
+            padding-top: 12px;
+        }
+
+        .panel-body {
+            padding: 20px;
+        }
+
+        .trip-banner {
+            padding: 20px;
+        }
+
+        .checkout-summary {
+            margin-top: 20px;
+        }
+    }
+</style>
+
+<div class="container-fluid checkout-page">
+    <div class="checkout-heading">
+        <div class="checkout-step">
+            <span><i class="bi bi-shield-check"></i></span>
+            SECURE CHECKOUT
         </div>
-
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Amount (RM)</label>
-            {{ form.amount }}
-        </div>
-
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Payment Method</label>
-            {{ form.payment_method }}
-        </div>
-
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Payment Status</label>
-            {{ form.payment_status }}
-        </div>
-
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Transaction ID</label>
-            {{ form.transaction_id }}
-        </div>
-
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Payment Date</label>
-            {{ form.payment_date }}
-        </div>
-
-        <div class="col-12 mb-3">
-            <label class="form-label">Remarks</label>
-            {{ form.remarks }}
-        </div>
-
+        <h1>Complete your booking</h1>
+        <p>One last step before your journey. Review your trip and choose a payment method.</p>
     </div>
 
-    <button type="submit" class="btn btn-primary">
-        Save Payment
-    </button>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
 
-    <a href="{% url 'payments:payment_list' %}"
-       class="btn btn-secondary">
-        Cancel
-    </a>
+    <form method="post" id="payment-form">
+        {% csrf_token %}
 
-</form>
+        <input
+            type="hidden"
+            name="booking_id"
+            value="{{ booking.pk }}"
+        >
 
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <section class="checkout-panel">
+                    <div class="panel-body">
+                        <h2 class="panel-title">Your journey</h2>
+                        <p class="panel-subtitle">Check the booking details before proceeding.</p>
+
+                        <div class="trip-banner">
+                            <div class="trip-label">Bus charter · Booking summary</div>
+                            <div class="trip-route">
+                                <span>{{ booking.pickup_location|default:"Pickup location" }}</span>
+                                <span class="route-line"></span>
+                                <span>{{ booking.destination|default:"Destination" }}</span>
+                            </div>
+                            <div class="trip-meta">
+                                <span><i class="bi bi-calendar3"></i>{{ booking.travel_date|date:"d M Y"|default:"Date not set" }}</span>
+                                <span><i class="bi bi-clock"></i>{{ booking.departure_time|time:"g:i A"|default:"Time not set" }}</span>
+                                <span><i class="bi bi-people"></i>{{ booking.passenger_count }} passenger{{ booking.passenger_count|pluralize }}</span>
+                            </div>
+                        </div>
+
+                        <h2 class="panel-title">Choose a payment method</h2>
+                        <p class="panel-subtitle">Select how you would like to complete this payment.</p>
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                        {% endif %}
+
+                        <div class="row g-3 mb-4">
+                            {% for value, label in form.fields.payment_method.choices %}
+                                <div class="col-sm-6">
+                                    <label class="payment-method">
+                                        <input
+                                            type="radio"
+                                            name="payment_method"
+                                            value="{{ value }}"
+                                            {% if form.payment_method.value == value %}checked{% endif %}
+                                            required
+                                        >
+                                        <span class="method-card">
+                                            <span class="method-icon">
+                                                {% if value == "Credit Card" %}
+                                                    <i class="bi bi-credit-card-2-front"></i>
+                                                {% elif value == "Debit Card" %}
+                                                    <i class="bi bi-credit-card"></i>
+                                                {% elif value == "Online Banking" %}
+                                                    <i class="bi bi-bank"></i>
+                                                {% elif value == "E-Wallet" %}
+                                                    <i class="bi bi-wallet2"></i>
+                                                {% elif value == "Bank Transfer" %}
+                                                    <i class="bi bi-arrow-left-right"></i>
+                                                {% else %}
+                                                    <i class="bi bi-cash-coin"></i>
+                                                {% endif %}
+                                            </span>
+                                            <span>
+                                                <span class="method-name">{{ label }}</span>
+                                                <span class="method-description">
+                                                    {% if value == "Credit Card" or value == "Debit Card" %}
+                                                        Card payment simulation
+                                                    {% elif value == "Online Banking" %}
+                                                        Simulated bank checkout
+                                                    {% elif value == "E-Wallet" %}
+                                                        Simulated digital wallet
+                                                    {% elif value == "Bank Transfer" %}
+                                                        Record a simulated transfer
+                                                    {% else %}
+                                                        Cash payment record
+                                                    {% endif %}
+                                                </span>
+                                            </span>
+                                            <i class="bi bi-check-circle-fill method-check"></i>
+                                        </span>
+                                    </label>
+                                    {% if form.payment_method.errors %}
+                                        <div class="text-danger small mt-1">{{ form.payment_method.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.transaction_id.id_for_label }}" class="field-label">
+                                Transaction reference <span class="text-muted fw-normal">(optional)</span>
+                            </label>
+                            {% if form.transaction_id.errors %}
+                                <div class="text-danger small mt-1">{{ form.transaction_id.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">For this demo, do not enter real card numbers, CVVs, passwords, or banking credentials.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.payment_date.id_for_label }}" class="field-label">Payment date</label>
+                            {% if form.payment_date.errors %}
+                                <div class="text-danger small mt-1">{{ form.payment_date.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.remarks.id_for_label }}" class="field-label">
+                                Notes <span class="text-muted fw-normal">(optional)</span>
+                            </label>
+                            {% if form.remarks.errors %}
+                                <div class="text-danger small mt-1">{{ form.remarks.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="col-lg-5 checkout-summary">
+                <section class="checkout-panel">
+                    <div class="panel-body">
+                        <h2 class="panel-title">Payment summary</h2>
+                        <p class="panel-subtitle">Your final amount for this booking.</p>
+
+                        <div class="summary-row">
+                            <span class="summary-label">Booking reference</span>
+                            <span class="summary-value">{{ booking.booking_number|default:booking.pk }}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Bus type</span>
+                            <span class="summary-value">{{ booking.bus_type|default:"Charter bus" }}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Booking status</span>
+                            <span class="summary-value">{{ booking.booking_status }}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Payment status</span>
+                            <span class="summary-value">{{ booking.payment_status }}</span>
+                        </div>
+                        <div class="summary-row total-row">
+                            <span class="summary-label">Total due</span>
+                            <span class="total-amount">
+                                RM {{ booking.total_price|floatformat:2 }}
+                            </span>
+                        </div>
+
+                        <div class="secure-note">
+                            <i class="bi bi-shield-lock-fill fs-5"></i>
+                            <span>
+                                <strong>Demo checkout</strong><br>
+                                No real payment is taken. The system updates the booking only when the simulated payment succeeds.
+                            </span>
+                        </div>
+
+                        <button
+                            type="submit"
+                            name="simulation_result"
+                            value="success"
+                            class="pay-button"
+                            id="pay-button"
+                        >
+                            <i class="bi bi-lock-fill me-2"></i>
+                            Simulate Successful Payment
+                            <i class="bi bi-arrow-right ms-2"></i>
+                        </button>
+
+                        <div class="mt-2">
+                            <button
+                                type="submit"
+                                name="simulation_result"
+                                value="failure"
+                                class="failure-button"
+                            >
+                                <i class="bi bi-x-circle me-1"></i>
+                                Simulate Failed Payment
+                            </button>
+                        </div>
+
+                        <div class="simulation-note">
+                            <i class="bi bi-info-circle me-1"></i>
+                            These buttons are for project testing only. A real payment integration must verify the transaction with the payment provider on the server before recording it as paid.
+                        </div>
+
+                        <a href="{% url 'bookings:customer_bookings' %}" class="back-link">
+                            <i class="bi bi-arrow-left"></i> Back to my bookings
+                        </a>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const paymentForm = document.getElementById("payment-form");
+    const payButton = document.getElementById("pay-button");
+
+    if (!paymentForm) return;
+
+    paymentForm.addEventListener("submit", function (event) {
+        const method = paymentForm.querySelector(
+            'input[name="payment_method"]:checked'
+        );
+
+        if (!method) {
+            event.preventDefault();
+            alert("Please select a payment method first.");
+            return;
+        }
+
+        const clickedButton = event.submitter;
+
+        if (clickedButton && clickedButton.value === "success") {
+            // Keep the submit button enabled so its value is submitted.
+            payButton.innerHTML =
+                '<span class="spinner-border spinner-border-sm me-2"></span>' +
+                'Processing simulation...';
+        }
+    });
+});
+</script>
 {% endblock %}

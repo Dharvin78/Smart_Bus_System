@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 
 class Customer(models.Model):
@@ -18,12 +19,14 @@ class Customer(models.Model):
     )
 
     email = models.EmailField(
-        unique=True
+        blank=True
     )
 
     phone = models.CharField(
         max_length=20,
-        unique=True
+        unique=True,
+        null=True,
+        blank=True
     )
 
     address = models.TextField()
@@ -49,6 +52,14 @@ class Customer(models.Model):
         upload_to="customers/",
         blank=True,
         null=True
+    )
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="customer_record",
     )
 
     created_at = models.DateTimeField(

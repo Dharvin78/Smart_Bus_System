@@ -1,0 +1,67 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Driver Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <h2 class="fw-bold mb-2">Driver Dashboard</h2>
+    <p class="text-muted mb-4">
+        Welcome back, {{ request.user.username }}!
+    </p>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 p-3">
+                <p>Total Assigned Trips</p>
+                <h3>{{ total_trips }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 p-3">
+                <p>Completed Trips</p>
+                <h3>{{ completed_trips }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white">
+            <h5 class="fw-bold mb-0">Upcoming Trips</h5>
+        </div>
+
+        <div class="card-body table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Booking No.</th>
+                        <th>Pickup</th>
+                        <th>Destination</th>
+                        <th>Travel Date</th>
+                        <th>Departure</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for trip in upcoming_trips %}
+                    <tr>
+                        <td>{{ trip.booking_number }}</td>
+                        <td>{{ trip.pickup_location }}</td>
+                        <td>{{ trip.destination }}</td>
+                        <td>{{ trip.travel_date }}</td>
+                        <td>{{ trip.departure_time }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">
+                            No upcoming trips assigned.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -4,9 +4,11 @@ from django.db.models.functions import TruncMonth
 from apps.bookings.models import Booking
 from apps.payments.models import Payment
 from apps.vehicles.models import Vehicle
-from apps.drivers.models import Driver
+from apps.drivers.models import Driver, DriverReview
 from apps.maintenance.models import Maintenance
 from apps.fuel.models import Fuel
+from django.db import models
+from django.db.models import Count, Sum, Avg, Q
 
 
 def get_business_data():
@@ -152,30 +154,85 @@ def get_business_data():
         status="Inactive"
     ).count()
 
+    # ==========================
+    # DRIVER CUSTOMER RATINGS
+    # ==========================
+
     driver_performance = (
-        Booking.objects
-        .filter(
-            booking_status="Completed",
-            driver__isnull=False,
-        )
-        .values(
-            "driver__full_name"
-        )
+        Driver.objects
         .annotate(
-            completed_trips=Count("id"),
-            revenue=Sum("total_price"),
+            average_rating=Avg(
+                "bookings__driver_review__rating",
+                filter=models.Q(
+                    bookings__booking_status="Completed"
+                ),
+            ),
+            total_reviews=Count(
+                "bookings__driver_review",
+                filter=models.Q(
+                    bookings__booking_status="Completed"
+                ),
+                distinct=True,
+            ),
         )
-        .order_by("-completed_trips")
+        .order_by("-average_rating", "-total_reviews")
     )
 
-    driver_data = [
-        {
-            "driver": item["driver__full_name"],
-            "completed_trips": item["completed_trips"],
-            "revenue": float(item["revenue"] or 0),
-        }
-        for item in driver_performance
-    ]
+    driver_data = []
+
+    for driver in driver_performance:
+
+        average_rating = driver.average_rating
+        total_reviews = driver.total_reviews
+
+        if average_rating is None:
+            performance_category = "Not Yet Rated"
+
+        elif average_rating >= 4.5:
+            performance_category = "Excellent"
+
+        elif average_rating >= 4.0:
+            performance_category = "Good"
+
+        elif average_rating >= 3.0:
+            performance_category = "Satisfactory"
+
+        elif average_rating >= 2.0:
+            performance_category = "Needs Improvement"
+
+        else:
+            performance_category = "Poor"
+
+        driver_data.append({
+            "driver_id": driver.id,
+            "driver": driver.full_name,
+            "average_rating": (
+                round(float(average_rating), 2)
+                if average_rating is not None
+                else None
+            ),
+            "total_reviews": total_reviews,
+            "performance_category": performance_category,
+        })
+
+    # ==========================
+    # OVERALL DRIVER RATINGS
+    # ==========================
+
+    rating_summary = DriverReview.objects.filter(
+        booking__driver__isnull=False
+    ).aggregate(
+        average_rating=Avg("rating"),
+        total_reviews=Count("id"),
+    )
+
+    overall_driver_rating = (
+        round(float(rating_summary["average_rating"]), 2)
+        if rating_summary["average_rating"] is not None
+        else None
+    )
+
+    total_driver_reviews = rating_summary["total_reviews"]
 
     # ==========================
     # ROUTES
@@ -304,6 +361,10 @@ def get_business_data():
             "available": available_drivers,
             "on_trip": on_trip_drivers,
             "inactive": inactive_drivers,
+
+            "overall_average_rating": overall_driver_rating,
+            "total_customer_reviews": total_driver_reviews,
+
             "performance": driver_data,
         },
 

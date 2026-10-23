@@ -7,9 +7,10 @@ from django.db.models import Q
 from .models import Vehicle
 from .forms import VehicleForm
 
+from apps.accounts.decorators import admin_required
 from apps.audit.utils import create_audit_log
 
-
+@admin_required
 def vehicle_list(request):
     """
     Display all vehicles with search and pagination.
@@ -37,6 +38,7 @@ def vehicle_list(request):
     return render(request, "vehicles/vehicle_list.html", context)
 
 
+@admin_required
 def vehicle_create(request):
 
     if request.method == "POST":
@@ -64,6 +66,7 @@ def vehicle_create(request):
     })
 
 
+@admin_required
 def vehicle_update(request, pk):
 
     vehicle = get_object_or_404(Vehicle, pk=pk)
@@ -97,6 +100,7 @@ def vehicle_update(request, pk):
     })
 
 
+@admin_required
 def vehicle_delete(request, pk):
 
     vehicle = get_object_or_404(Vehicle, pk=pk)

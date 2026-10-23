@@ -6,25 +6,41 @@ from apps.vehicles.models import Vehicle
 from apps.drivers.models import Driver
 from apps.payments.models import Payment
 from django.db.models.functions import TruncMonth
-from decimal import Decimal
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import redirect
 
 from django.utils import timezone
 
 
 
+@login_required
 def dashboard(request):
 
-    # ==========================
-    # BASIC COUNTS
-    # ==========================
+    profile = getattr(request.user, "profile", None)
+
+    if profile is None:
+        raise PermissionDenied("User profile not found.")
+
+    if profile.role == "Customer":
+        return redirect("customer_dashboard")
+
+    if profile.role == "Driver":
+        return redirect("driver_dashboard")
+
+    if profile.role not in ["Owner", "Admin"]:
+        raise PermissionDenied("Access denied.")
+
+    # ========================== BASIC COUNTS ==========================
 
     total_bookings = Booking.objects.count()
     total_vehicles = Vehicle.objects.count()
     total_drivers = Driver.objects.count()
 
-    # ==========================
-    # REVENUE
-    # ==========================
+    # ========================== REVENUE ==========================
 
     # Only paid payments are treated as revenue
     total_revenue = (
@@ -197,4 +213,68 @@ def dashboard(request):
         request,
         "dashboard/dashboard.html",
         context
+    )
+
+@login_required
+def customer_dashboard(request):
+    profile = getattr(request.user, "profile", None)
+
+    if not profile or profile.role != "Customer":
+        raise PermissionDenied
+
+    bookings = (
+        Booking.objects
+        .filter(customer__user=request.user)
+        .order_by("-travel_date")
+    )
+
+    context = {
+        "total_bookings": bookings.count(),
+        "pending_bookings": bookings.filter(
+            booking_status="Pending"
+        ).count(),
+        "confirmed_bookings": bookings.filter(
+            booking_status="Confirmed"
+        ).count(),
+        "completed_bookings": bookings.filter(
+            booking_status="Completed"
+        ).count(),
+        "recent_bookings": bookings[:5],
+    }
+
+    return render(
+        request,
+        "dashboard/customer_dashboard.html",
+        context,
+    )
+
+
+@login_required
+def driver_dashboard(request):
+    profile = getattr(request.user, "profile", None)
+
+    if not profile or profile.role != "Driver":
+        raise PermissionDenied
+
+    bookings = (
+        Booking.objects
+        .filter(driver__user=request.user)
+        .order_by("travel_date")
+    )
+
+    context = {
+        "total_trips": bookings.count(),
+        "upcoming_trips": bookings.filter(
+            booking_status="Confirmed",
+            travel_date__gte=timezone.localdate(),
+        ),
+        "completed_trips": bookings.filter(
+            booking_status="Completed"
+        ).count(),
+    }
+
+    return render(
+        request,
+        "dashboard/driver_dashboard.html",
+        context,
     )

@@ -12,8 +12,9 @@ from .forms import DriverReviewForm
 from .models import DriverReview
 from apps.bookings.models import Booking
 from apps.helpdesk.services.data_access import get_customer_for_user
+from apps.accounts.decorators import admin_required, customer_required
 
-
+@admin_required
 def driver_list(request):
 
     search = request.GET.get("search", "").strip()
@@ -44,7 +45,7 @@ def driver_list(request):
         }
     )
 
-
+@admin_required
 def driver_create(request):
 
     if request.method == "POST":
@@ -64,7 +65,7 @@ def driver_create(request):
         "title": "Add Driver"
     })
 
-
+@admin_required
 def driver_update(request, pk):
 
     driver = get_object_or_404(Driver, pk=pk)
@@ -90,7 +91,7 @@ def driver_update(request, pk):
         "title": "Edit Driver"
     })
 
-
+@admin_required
 def driver_delete(request, pk):
 
     driver = get_object_or_404(Driver, pk=pk)
@@ -104,7 +105,7 @@ def driver_delete(request, pk):
         "driver": driver
     })
 
-@login_required
+@customer_required
 def driver_review(request, booking_id):
     # Only customers can submit driver reviews
     if request.user.profile.role != "Customer":
@@ -116,13 +117,6 @@ def driver_review(request, booking_id):
 
     # Find the Customer record linked to this login
     customer = get_customer_for_user(request.user)
-
-    if not customer:
-        messages.error(
-            request,
-            "No customer profile is associated with your account."
-        )
-        return redirect("dashboard")
 
     # Customer can only access their own completed booking
     booking = get_object_or_404(

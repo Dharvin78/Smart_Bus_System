@@ -51,7 +51,6 @@ INSTALLED_APPS = [
     'apps.maintenance',
     'apps.fuel',
     'apps.customers',
-    'core',
     "apps.notifications.apps.NotificationsConfig",
     "apps.accounts.apps.AccountsConfig",
     "apps.audit.apps.AuditConfig",

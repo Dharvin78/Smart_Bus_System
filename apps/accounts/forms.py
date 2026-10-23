@@ -16,7 +16,6 @@ from django.utils.crypto import get_random_string
 from .decorators import role_required
 from .models import UserProfile
 
-
 class SignupForm(forms.ModelForm):
 
     password = forms.CharField(
@@ -128,6 +127,7 @@ class ProfileForm(forms.ModelForm):
 
         self.profile = kwargs.pop("profile", None)
         self.current_role = kwargs.pop("current_role", None)
+        self.user = kwargs.pop("user", None)
 
         super().__init__(*args, **kwargs)
 

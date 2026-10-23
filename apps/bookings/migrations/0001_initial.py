@@ -13,6 +13,7 @@ class Migration(migrations.Migration):
         ('accounts', '0001_initial'),
         ('drivers', '0001_initial'),
         ('vehicles', '0001_initial'),
+        ('customers', '0003_initial'),
     ]
 
     operations = [

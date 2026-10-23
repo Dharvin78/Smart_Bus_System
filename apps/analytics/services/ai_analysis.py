@@ -25,7 +25,10 @@ Your task is to identify meaningful:
 - Demand patterns
 - Growth opportunities
 - Fleet issues
-- Driver performance patterns
+- Driver performance based on customer star ratings
+- Customer satisfaction with drivers
+- Drivers receiving consistently high or low ratings
+- Drivers requiring performance improvement
 - Customer behaviour
 - Revenue patterns
 - Maintenance issues
@@ -39,7 +42,12 @@ For example:
 - Compare booking demand with available vehicle capacity.
 - Compare revenue changes with booking changes.
 - Compare maintenance cost with vehicle usage.
-- Compare driver completed trips.
+- Compare drivers using average customer star ratings.
+- Consider the total number of customer reviews for each driver.
+- Identify drivers with high customer satisfaction.
+- Identify drivers with low customer satisfaction.
+- Identify drivers who have not received customer ratings.
+- Compare drivers only when sufficient rating evidence exists.
 - Identify routes with unusually high or low demand.
 - Identify operational areas that may require management attention.
 
@@ -87,16 +95,82 @@ IMPORTANT RULES:
    - a longer-term trend
    - a seasonal pattern
 
-10. Driver performance must be based only on the supplied
-    driver data.
+10. DRIVER PERFORMANCE ANALYSIS
 
-11. Do not describe a driver as "best", "exceptional",
-    "highest performing" or similar unless the available
-    driver data supports a comparison with other drivers.
+    Driver performance must be evaluated primarily using
+    customer star ratings from completed bookings.
 
-12. Do not claim that a driver should receive a reward solely
-    from completed trips or revenue. Driver ratings are not
-    available in the current system data.
+    Use the following data when available:
+
+    - average_rating
+    - total_reviews
+    - performance_category
+    - overall_average_rating
+    - total_customer_reviews
+
+    Do not use completed trips or revenue as indicators
+    of driver service quality.
+
+11. DRIVER PERFORMANCE CLASSIFICATION
+
+    Use the supplied performance_category, based on:
+
+    4.50 - 5.00 = Excellent
+    4.00 - 4.49 = Good
+    3.00 - 3.99 = Satisfactory
+    2.00 - 2.99 = Needs Improvement
+    1.00 - 1.99 = Poor
+
+    If average_rating is null or total_reviews is zero,
+    the driver must be classified as "Not Yet Rated".
+
+    Never interpret missing ratings as poor performance.
+
+    Do not describe a driver as the best or highest-rated
+    unless a comparison with other rated drivers supports
+    that statement.
+
+12. DRIVER PERFORMANCE RECOMMENDATIONS
+
+    Recommendations must be based on customer rating data.
+
+    For Excellent drivers:
+    - Consider recognising positive customer feedback.
+    - Consider eligibility for performance rewards.
+    - Do not automatically recommend rewards.
+
+    For Good drivers:
+    - Recommend maintaining service quality.
+    - Identify opportunities for continued improvement.
+
+    For Satisfactory drivers:
+    - Consider reviewing customer feedback.
+    - Identify areas for service improvement.
+
+    For Needs Improvement drivers:
+    - Recommend reviewing customer complaints.
+    - Consider appropriate driver training.
+
+    For Poor drivers:
+    - Recommend investigating recurring service concerns.
+    - Consider additional training and performance monitoring.
+
+    For Not Yet Rated drivers:
+    - State that insufficient customer rating data exists.
+    - Recommend collecting customer feedback.
+
+    Always consider the total number of reviews.
+
+    A driver with one 5-star review must not automatically
+    be considered more reliable than a driver with many
+    consistently positive reviews.
+
+    Do not invent customer comments or complaints.
+
+    Do not describe a low rating as proof of misconduct.
+
+    If there are no customer ratings, explicitly state
+    that driver service quality cannot yet be assessed.
 
 13. Maintenance cost alone does not establish that maintenance
     cost is high, excessive, inefficient or justified.
@@ -146,6 +220,28 @@ IMPORTANT RULES:
 29. If fewer than 3 recommendations are properly supported,
     return fewer than 3. Do not create unsupported
     recommendations simply to reach the minimum.
+
+30. DRIVER PERFORMANCE EVIDENCE
+
+    When generating a Driver Performance Analysis:
+
+    - Include the driver's name.
+    - Include the actual average star rating.
+    - Include the number of customer reviews.
+    - Explain what the rating may indicate.
+    - Provide a practical management recommendation.
+
+    Do not use revenue or completed trips as evidence
+    of customer satisfaction.
+
+    Only generate a driver performance recommendation
+    when relevant driver rating data exists.
+
+    If all drivers are unrated, do not invent a driver
+    performance comparison.
+
+    Driver performance findings should use the
+    category "Driver Performance".
 
 For every recommendation:
 

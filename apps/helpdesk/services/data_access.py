@@ -8,40 +8,33 @@ from apps.vehicles.models import Vehicle
 from apps.maintenance.models import Maintenance
 from apps.fuel.models import Fuel
 
+from apps.customers.models import Customer
+
 
 def get_customer_for_user(user):
     """
-    Find the Customer record belonging to the logged-in user
-    using the user's email address.
+    Return the customer record linked to this user ID.
+    Never identify customers by email.
     """
-
     if not user.is_authenticated:
         return None
 
-    if not user.email:
-        return None
-
     return Customer.objects.filter(
-        email__iexact=user.email
+        user=user
     ).first()
 
 
 def get_driver_for_user(user):
     """
-    Find the Driver record belonging to the logged-in user
-    using the user's email address.
+    Return the driver record linked to this user ID.
+    Never identify drivers by email.
     """
-
     if not user.is_authenticated:
         return None
 
-    if not user.email:
-        return None
-
     return Driver.objects.filter(
-        email__iexact=user.email
+        user=user
     ).first()
-
 
 # ============================================================
 # CUSTOMER DATA

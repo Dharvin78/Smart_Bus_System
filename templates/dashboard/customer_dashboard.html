@@ -1,0 +1,79 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Customer Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <h2 class="fw-bold mb-2">Customer Dashboard</h2>
+    <p class="text-muted mb-4">
+        Welcome back, {{ request.user.username }}!
+    </p>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 p-3">
+                <p>Total Bookings</p>
+                <h3>{{ total_bookings }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 p-3">
+                <p>Pending Bookings</p>
+                <h3>{{ pending_bookings }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 p-3">
+                <p>Confirmed Bookings</p>
+                <h3>{{ confirmed_bookings }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 p-3">
+                <p>Completed Bookings</p>
+                <h3>{{ completed_bookings }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white">
+            <h5 class="fw-bold mb-0">My Recent Bookings</h5>
+        </div>
+
+        <div class="card-body table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Booking No.</th>
+                        <th>Destination</th>
+                        <th>Travel Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in recent_bookings %}
+                    <tr>
+                        <td>{{ booking.booking_number }}</td>
+                        <td>{{ booking.destination }}</td>
+                        <td>{{ booking.travel_date }}</td>
+                        <td>{{ booking.booking_status }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">
+                            No bookings found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

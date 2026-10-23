@@ -6,8 +6,9 @@ from django.db.models import Q
 
 from .models import Maintenance
 from .forms import MaintenanceForm
+from apps.accounts.decorators import admin_required
 
-
+@admin_required
 def maintenance_list(request):
     """
     Display all maintenance records with search and pagination.
@@ -45,6 +46,7 @@ def maintenance_list(request):
     )
 
 
+@admin_required
 def maintenance_create(request):
 
     if request.method == "POST":
@@ -75,7 +77,7 @@ def maintenance_create(request):
         },
     )
 
-
+@admin_required
 def maintenance_update(request, pk):
 
     maintenance = get_object_or_404(
@@ -116,7 +118,7 @@ def maintenance_update(request, pk):
         },
     )
 
-
+@admin_required
 def maintenance_delete(request, pk):
 
     maintenance = get_object_or_404(

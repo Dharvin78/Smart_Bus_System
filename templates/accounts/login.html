@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Bus Charter - Login</title>
+    <title>Smart Bus Management - Login</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -88,7 +88,7 @@
 <body>
 
     <div class="login-container">
-        <h2>Smart Bus Charter</h2>
+        <h2>Smart Bus Booking</h2>
 
         {% if messages %}
             {% for message in messages %}
@@ -121,13 +121,6 @@
             
             <button type="submit" class="btn-login">Login</button>
         </form>
-
-        <div class="divider">or sign in with</div>
-
-        <a href="#" class="google-btn">
-            <img class="google-icon" src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google">
-            Continue with Google
-        </a>
 
         <div class="footer-links">
             <p>Don't have an account? <a href="/signup/">Sign Up</a></p>

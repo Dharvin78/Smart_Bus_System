@@ -13,6 +13,10 @@ class AuditLog(models.Model):
         ("VIEW", "View"),
         ("APPROVE", "Approve"),
         ("REJECT", "Reject"),
+        ("CANCEL", "Cancel"),
+        ("PAYMENT_EXPIRED", "Payment Expired"),
+        ("REVIEW_EXPIRED", "Review Expired"),
+        ("RESOURCE_RELEASE", "Resource Released"),
         ("OTHER", "Other"),
     )
 

@@ -102,103 +102,187 @@
 
 </div>
 
-<!-- AI Business Analysis -->
-<div class="insight-card">
 
-    <div class="insight-header">
-        <div>
-            <h3>
+<!-- ================================ -->
+<!-- AI BUSINESS INSIGHTS DASHBOARD   -->
+<!-- ================================ -->
+
+<section class="ai-dashboard" id="aiBusinessInsights">
+
+    <div class="ai-dashboard-header">
+        <div class="ai-dashboard-heading">
+            <div class="ai-heading-icon">
                 <i class="fa-solid fa-brain"></i>
-                AI Business Analysis
-            </h3>
+            </div>
 
-            <p>
-                AI-generated recommendations based on current
-                business and operational data.
-            </p>
+            <div>
+                <h3>AI Business Insights</h3>
+                <p>
+                    Intelligent recommendations based on your
+                    business and operational data.
+                </p>
+            </div>
+        </div>
+
+        <div class="ai-insight-count">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            {{ ai_insights|length }} Insights Generated
         </div>
     </div>
 
-    <div class="ai-analysis-list">
+    <!-- Category Filters -->
+    {% if ai_insights %}
+    <div class="ai-filter-bar">
+        <button type="button"
+                class="ai-filter-btn active"
+                data-filter="all">
+            <i class="fa-solid fa-layer-group"></i>
+            All Insights
+        </button>
+
+        <button type="button"
+                class="ai-filter-btn"
+                data-filter="fleet">
+            <i class="fa-solid fa-bus"></i>
+            Fleet
+        </button>
+
+        <button type="button"
+                class="ai-filter-btn"
+                data-filter="revenue">
+            <i class="fa-solid fa-chart-line"></i>
+            Revenue
+        </button>
+
+        <button type="button"
+                class="ai-filter-btn"
+                data-filter="driver">
+            <i class="fa-solid fa-star"></i>
+            Drivers
+        </button>
+
+        <button type="button"
+                class="ai-filter-btn"
+                data-filter="maintenance">
+            <i class="fa-solid fa-screwdriver-wrench"></i>
+            Maintenance
+        </button>
+
+        <button type="button"
+                class="ai-filter-btn"
+                data-filter="fuel">
+            <i class="fa-solid fa-gas-pump"></i>
+            Fuel
+        </button>
+    </div>
+    {% endif %}
+
+    <!-- Insight Cards -->
+    <div class="ai-insights-grid">
 
         {% for insight in ai_insights %}
 
-        <div class="ai-analysis-item">
+        <article class="ai-insight-card"
+                 data-category="{{ insight.category|lower }}">
 
-            <div class="ai-analysis-top">
+            <div class="ai-insight-card-header">
 
-                <span class="ai-category">
-                    {{ insight.category }}
+                <div class="ai-insight-category">
+
+                    <span class="ai-insight-icon">
+                        {% with category=insight.category|lower %}
+
+                        {% if "fleet" in category %}
+                            <i class="fa-solid fa-bus"></i>
+                        {% elif "revenue" in category %}
+                            <i class="fa-solid fa-chart-line"></i>
+                        {% elif "driver" in category %}
+                            <i class="fa-solid fa-star"></i>
+                        {% elif "maintenance" in category %}
+                            <i class="fa-solid fa-screwdriver-wrench"></i>
+                        {% elif "fuel" in category %}
+                            <i class="fa-solid fa-gas-pump"></i>
+                        {% elif "booking" in category %}
+                            <i class="fa-solid fa-calendar-check"></i>
+                        {% elif "payment" in category %}
+                            <i class="fa-solid fa-credit-card"></i>
+                        {% else %}
+                            <i class="fa-solid fa-chart-pie"></i>
+                        {% endif %}
+
+                        {% endwith %}
+                    </span>
+
+                    <span class="ai-category-label">
+                        {{ insight.category }}
+                    </span>
+                </div>
+
+                <span class="ai-insight-number">
+                    #{{ forloop.counter|stringformat:"02d" }}
                 </span>
 
-                <h4>
-                    {{ insight.title }}
-                </h4>
-
             </div>
 
-            <div class="ai-analysis-section">
+            <h4 class="ai-insight-title">
+                {{ insight.title }}
+            </h4>
 
-                <strong>
-                    <i class="fa-solid fa-chart-line"></i>
-                    Finding
-                </strong>
+            <div class="ai-finding">
+                <div class="ai-section-label">
+                    <i class="fa-solid fa-magnifying-glass-chart"></i>
+                    Key Finding
+                </div>
 
-                <p>
-                    {{ insight.finding }}
-                </p>
-
+                <p>{{ insight.finding }}</p>
             </div>
 
-            <div class="ai-analysis-section">
-
-                <strong>
+            <div class="ai-recommendation">
+                <div class="ai-section-label">
                     <i class="fa-solid fa-lightbulb"></i>
-                    Recommendation
-                </strong>
+                    Recommended Action
+                </div>
 
-                <p>
-                    {{ insight.recommendation }}
-                </p>
-
+                <p>{{ insight.recommendation }}</p>
             </div>
 
-            <div class="ai-analysis-evidence">
-
-                <strong>
-                    Evidence:
-                </strong>
-
-                <span>
-                    {{ insight.evidence }}
-                </span>
-
+            <div class="ai-evidence">
+                <i class="fa-solid fa-circle-info"></i>
+                <div>
+                    <strong>Supporting Evidence</strong>
+                    <p>{{ insight.evidence }}</p>
+                </div>
             </div>
 
-        </div>
+        </article>
 
         {% empty %}
 
         <div class="ai-empty-state">
-
-            <i class="fa-solid fa-circle-info"></i>
-
-            <div>
-                <strong>No business analysis available.</strong>
-
-                <p>
-                    There is currently not enough business data
-                    to generate AI recommendations.
-                </p>
-            </div>
-
+            <i class="fa-solid fa-chart-line"></i>
+            <h4>No AI insights available</h4>
+            <p>
+                There are currently no supported business
+                recommendations to display.
+            </p>
         </div>
 
         {% endfor %}
 
     </div>
 
-</div>
+    <div class="ai-no-filter-results" id="aiNoFilterResults" hidden>
+        <i class="fa-solid fa-filter-circle-xmark"></i>
+        <p>No insights found for this category.</p>
+    </div>
+
+    <div class="ai-dashboard-footer">
+        <i class="fa-solid fa-shield-halved"></i>
+        AI-generated recommendations are decision-support insights.
+        Review the underlying business data before taking action.
+    </div>
+
+</section>
 
 {{ labels|json_script:"chart-labels" }}
 {{ revenue|json_script:"chart-data" }}
@@ -229,4 +313,5 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'js/analytics.js' %}"></script>
+<script src="{% static 'js/ai_insights.js' %}"></script>
 {% endblock %}

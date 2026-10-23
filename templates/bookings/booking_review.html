@@ -139,17 +139,6 @@
                            disabled>
                 </div>
 
-                <!-- Total Price -->
-                <div class="col-md-4">
-                    <label class="form-label text-muted">
-                        Total Price
-                    </label>
-                    <input type="text"
-                           class="form-control bg-light"
-                           value="RM {{ booking.total_price }}"
-                           disabled>
-                </div>
-
                 <!-- Booking Status -->
                 <div class="col-md-4">
                     <label class="form-label text-muted">
@@ -190,122 +179,72 @@
     </div>
 
 
-    <!-- Assignment Section -->
-    <form method="POST">
-
+    <!-- Approval Section: independent form -->
+    <form method="post" id="approve-booking-form">
         {% csrf_token %}
-
         <div class="card border-0 shadow-sm mb-4">
-
-            <div class="card-header bg-white border-0 py-3">
-                <h5 class="fw-bold mb-1">
-                    <i class="fa-solid fa-bus me-2"></i>
-                    Vehicle & Driver Assignment
-                </h5>
-
-                <p class="text-muted mb-0 small">
-                    Select the vehicle and driver only if you are approving this booking.
-                </p>
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-1"><i class="fa-solid fa-circle-check text-success me-2"></i>Approve Booking</h5>
+                <p class="text-muted small mb-0">Assign an available vehicle and driver, then enter the total price. Approval starts the payment window.</p>
             </div>
-
             <div class="card-body">
-
-                <div class="row g-4">
-
-                    <!-- Vehicle -->
-                    <div class="col-md-6">
-
-                        <label for="{{ form.vehicle.id_for_label }}"
-                               class="form-label fw-semibold">
-                            Vehicle
-                        </label>
-
-                        {{ form.vehicle }}
-
-                        {% if form.vehicle.errors %}
-                            <div class="text-danger small mt-1">
-                                {{ form.vehicle.errors }}
-                            </div>
-                        {% endif %}
-
-                        <div class="form-text">
-                            Only available vehicles are shown.
-                        </div>
-
+                {% if approval_form.non_field_errors %}
+                    <div class="alert alert-danger">{{ approval_form.non_field_errors }}</div>
+                {% endif %}
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label for="{{ approval_form.total_price.id_for_label }}" class="form-label fw-semibold">Total Booking Price (RM) <span class="text-danger">*</span></label>
+                        {{ approval_form.total_price }}
+                        {% for error in approval_form.total_price.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
                     </div>
-
-
-                    <!-- Driver -->
                     <div class="col-md-6">
-
-                        <label for="{{ form.driver.id_for_label }}"
-                               class="form-label fw-semibold">
-                            Driver
-                        </label>
-
-                        {{ form.driver }}
-
-                        {% if form.driver.errors %}
-                            <div class="text-danger small mt-1">
-                                {{ form.driver.errors }}
-                            </div>
-                        {% endif %}
-
-                        <div class="form-text">
-                            Only available drivers are shown.
-                        </div>
-
+                        <label for="{{ approval_form.vehicle.id_for_label }}" class="form-label fw-semibold">Vehicle <span class="text-danger">*</span></label>
+                        {{ approval_form.vehicle }}
+                        {% for error in approval_form.vehicle.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                        <div class="form-text">Only currently available vehicles are listed.</div>
                     </div>
-
+                    <div class="col-md-6">
+                        <label for="{{ approval_form.driver.id_for_label }}" class="form-label fw-semibold">Driver <span class="text-danger">*</span></label>
+                        {{ approval_form.driver }}
+                        {% for error in approval_form.driver.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                        <div class="form-text">Only currently available drivers are listed.</div>
+                    </div>
+                    <div class="col-12">
+                        <label for="{{ approval_form.approval_notes.id_for_label }}" class="form-label fw-semibold">Approval Notes (Optional)</label>
+                        {{ approval_form.approval_notes }}
+                        {% for error in approval_form.approval_notes.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                    </div>
                 </div>
-
+            </div>
+            <div class="card-footer bg-white d-flex justify-content-end gap-2 py-3">
+                <a href="{% url 'bookings:booking_list' %}" class="btn btn-outline-secondary">Back to Bookings</a>
+                <button type="submit" name="action" value="approve" class="btn btn-success" onclick="return confirm('Approve this booking and start its payment deadline?');">
+                    <i class="fa-solid fa-check me-1"></i>Approve Booking
+                </button>
             </div>
         </div>
-
-
-        <!-- Action Buttons -->
-        <div class="card border-0 shadow-sm">
-
-            <div class="card-body">
-
-                <div class="d-flex justify-content-end gap-2">
-
-                    <a href="{% url 'bookings:booking_list' %}"
-                       class="btn btn-secondary">
-                        <i class="fa-solid fa-xmark me-1"></i>
-                        Cancel
-                    </a>
-
-                    <button type="submit"
-                            name="action"
-                            value="reject"
-                            class="btn btn-danger"
-                            onclick="return confirm('Are you sure you want to reject this booking?');">
-
-                        <i class="fa-solid fa-ban me-1"></i>
-                        Reject Booking
-
-                    </button>
-
-                    <button type="submit"
-                            name="action"
-                            value="approve"
-                            class="btn btn-success"
-                            onclick="return confirm('Are you sure you want to approve this booking?');">
-
-                        <i class="fa-solid fa-check me-1"></i>
-                        Approve Booking
-
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-
     </form>
 
+    <!-- Rejection Section: separate form, no approval validation -->
+    <form method="post" id="reject-booking-form">
+        {% csrf_token %}
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-1"><i class="fa-solid fa-ban text-danger me-2"></i>Reject Booking</h5>
+                <p class="text-muted small mb-0">Rejection does not require a price, vehicle or driver.</p>
+            </div>
+            <div class="card-body">
+                {% if reject_form.non_field_errors %}<div class="alert alert-danger">{{ reject_form.non_field_errors }}</div>{% endif %}
+                <label for="{{ reject_form.reason.id_for_label }}" class="form-label fw-semibold">Rejection Notes (Optional)</label>
+                {{ reject_form.reason }}
+                {% for error in reject_form.reason.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+            </div>
+            <div class="card-footer bg-white d-flex justify-content-end py-3">
+                <button type="submit" name="action" value="reject" class="btn btn-danger" onclick="return confirm('Are you sure you want to reject this booking?');">
+                    <i class="fa-solid fa-xmark me-1"></i>Reject Booking
+                </button>
+            </div>
+        </div>
+    </form>
 </div>
-
 {% endblock %}

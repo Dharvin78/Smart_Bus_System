@@ -4,10 +4,12 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
 
+from apps.accounts.decorators import admin_required
+
 from .models import Fuel
 from .forms import FuelForm
 
-
+@admin_required
 def fuel_list(request):
 
     search = request.GET.get("search", "")
@@ -47,7 +49,7 @@ def fuel_list(request):
 
     )
 
-
+@admin_required
 def fuel_create(request):
 
     if request.method == "POST":
@@ -82,7 +84,7 @@ def fuel_create(request):
 
     )
 
-
+@admin_required
 def fuel_update(request, pk):
 
     fuel = get_object_or_404(
@@ -127,7 +129,7 @@ def fuel_update(request, pk):
 
     )
 
-
+@admin_required
 def fuel_delete(request, pk):
 
     fuel = get_object_or_404(

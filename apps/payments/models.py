@@ -1,6 +1,7 @@
-# Create your models here.
 from django.db import models
 from apps.bookings.models import Booking
+
+from django.db.models import Q
 
 
 class Payment(models.Model):
@@ -17,6 +18,7 @@ class Payment(models.Model):
     PAYMENT_STATUS_CHOICES = [
         ("Pending", "Pending"),
         ("Paid", "Paid"),
+        ("Failed", "Failed"),
         ("Partially Paid", "Partially Paid"),
         ("Refunded", "Refunded"),
         ("Cancelled", "Cancelled"),
@@ -25,66 +27,49 @@ class Payment(models.Model):
     booking = models.ForeignKey(
         Booking,
         on_delete=models.CASCADE,
-        related_name="payments"
+        related_name="payments",
     )
 
     amount = models.DecimalField(
         max_digits=10,
-        decimal_places=2
+        decimal_places=2,
     )
 
     payment_method = models.CharField(
         max_length=30,
-        choices=PAYMENT_METHOD_CHOICES
+        choices=PAYMENT_METHOD_CHOICES,
     )
 
     payment_status = models.CharField(
         max_length=20,
         choices=PAYMENT_STATUS_CHOICES,
-        default="Pending"
-    )
-
-    APPROVAL_STATUS_CHOICES = [
-        ("Pending", "Pending Approval"),
-        ("Approved", "Approved"),
-        ("Rejected", "Rejected"),
-    ]
-
-    approval_status = models.CharField(
-        max_length=20,
-        choices=APPROVAL_STATUS_CHOICES,
         default="Pending",
-    )
-
-    approved_by = models.ForeignKey(
-        "auth.User",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="approved_payments",
-    )
-
-    approved_at = models.DateTimeField(
-        null=True,
-        blank=True,
     )
 
     transaction_id = models.CharField(
         max_length=100,
         blank=True,
-        null=True
+        null=True,
     )
 
     payment_date = models.DateField()
 
     remarks = models.TextField(
         blank=True,
-        null=True
+        null=True,
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
-
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["booking"],
+                condition=models.Q(payment_status="Paid"),
+                name="unique_paid_payment_per_booking",
+            ),
+        ]
 
     def __str__(self):
         return f"Payment #{self.id} - {self.booking}"

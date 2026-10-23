@@ -1,93 +1,566 @@
 {% extends "crud/base_form.html" %}
 
 {% block form_title %}
-{{ title }}
+{{ title|default:"Create Bus Charter Booking" }}
 {% endblock %}
 
 {% block form_content %}
 
-<form method="POST">
+<style>
+    .booking-page {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        color: #172b4d;
+        padding: 8px 0 32px;
+    }
 
-    {% csrf_token %}
+    .booking-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+    }
 
-    <div class="row">
+    .booking-header h2 {
+        font-size: clamp(24px, 2.5vw, 32px);
+        font-weight: 800;
+        letter-spacing: -.7px;
+        margin: 0 0 7px;
+    }
 
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Customer</label>
-            {{ form.customer }}
+    .booking-header p {
+        color: #64748b;
+        margin: 0;
+        font-size: 14px;
+    }
+
+    .booking-tag {
+        background: #eff6ff;
+        color: #1d4ed8;
+        border: 1px solid #dbeafe;
+        padding: 10px 16px;
+        border-radius: 30px;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .booking-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 5px 22px rgba(15, 23, 42, .045);
+        margin-bottom: 22px;
+        width: 100%;
+    }
+
+    .booking-section {
+        padding: 28px 32px;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+    .booking-section:last-child {
+        border-bottom: 0;
+    }
+
+    .section-heading {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        margin-bottom: 24px;
+    }
+
+    .section-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 13px;
+        background: #eff6ff;
+        color: #2563eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    .section-heading h5 {
+        margin: 0 0 5px;
+        font-size: 16px;
+        font-weight: 750;
+    }
+
+    .section-heading p {
+        color: #64748b;
+        font-size: 13px;
+        margin: 0;
+    }
+
+    .booking-page .form-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 650;
+        color: #334155;
+        margin-bottom: 8px;
+    }
+
+    .booking-page input:not([type="checkbox"]):not([type="radio"]),
+    .booking-page select,
+    .booking-page textarea {
+        display: block;
+        width: 100%;
+        min-height: 48px;
+        border: 1px solid #dbe2ea;
+        border-radius: 11px;
+        padding: 11px 14px;
+        background: #fff;
+        color: #0f172a;
+        font-size: 14px;
+        transition: border-color .2s, box-shadow .2s;
+    }
+
+    .booking-page textarea {
+        min-height: 115px;
+        resize: vertical;
+    }
+
+    .booking-page input:focus,
+    .booking-page select:focus,
+    .booking-page textarea:focus {
+        border-color: #3b82f6;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, .12);
+    }
+
+    .booking-page .errorlist {
+        color: #dc2626;
+        font-size: 12px;
+        margin: 6px 0 0;
+        padding-left: 18px;
+    }
+
+    .field-help {
+        color: #64748b;
+        font-size: 12px;
+        margin-top: 7px;
+    }
+
+    /* Customer profile panel */
+    .customer-panel {
+        display: grid;
+        grid-template-columns: minmax(220px, 1.2fr) repeat(2, minmax(180px, 1fr));
+        gap: 18px;
+        padding: 24px 28px;
+        margin-bottom: 22px;
+        border: 1px solid #dbe7ff;
+        border-radius: 18px;
+        background: linear-gradient(120deg, #f0f6ff 0%, #fff 85%);
+        box-shadow: 0 5px 20px rgba(25, 50, 90, .035);
+    }
+
+    .customer-identity {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 0;
+    }
+
+    .customer-avatar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 54px;
+        height: 54px;
+        border-radius: 16px;
+        background: #2563eb;
+        color: #fff;
+        font-size: 22px;
+    }
+
+    .customer-identity h3 {
+        font-size: 17px;
+        font-weight: 750;
+        margin: 0 0 5px;
+        overflow-wrap: anywhere;
+    }
+
+    .customer-identity p {
+        color: #64748b;
+        font-size: 12px;
+        margin: 0;
+    }
+
+    .customer-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding-left: 18px;
+        border-left: 1px solid #dbe7ff;
+        min-width: 0;
+    }
+
+    .customer-info-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        background: #fff;
+        color: #2563eb;
+        border: 1px solid #e5edfc;
+    }
+
+    .customer-info-label {
+        display: block;
+        color: #64748b;
+        font-size: 11px;
+        margin-bottom: 5px;
+    }
+
+    .customer-info-value {
+        color: #172b4d;
+        font-size: 13px;
+        font-weight: 650;
+        overflow-wrap: anywhere;
+    }
+
+    .booking-notice {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px 18px;
+        margin-bottom: 24px;
+        border: 1px solid #dbeafe;
+        border-radius: 13px;
+        background: #eff6ff;
+        color: #1e40af;
+        font-size: 13px;
+    }
+
+    .booking-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        padding: 22px 32px;
+        background: #f8fafc;
+        border-top: 1px solid #edf0f4;
+        flex-wrap: wrap;
+    }
+
+    .booking-footer-note {
+        color: #64748b;
+        font-size: 12px;
+    }
+
+    .booking-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .booking-actions .btn {
+        border-radius: 999px;
+        min-height: 45px;
+        padding: 11px 22px;
+        font-size: 13px;
+        font-weight: 650;
+    }
+
+    .booking-actions .btn-primary {
+        background: #2563eb;
+        border-color: #2563eb;
+    }
+
+    .booking-actions .btn-primary:hover {
+        background: #1d4ed8;
+        border-color: #1d4ed8;
+    }
+
+    @media (max-width: 900px) {
+        .customer-panel {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .customer-identity {
+            grid-column: 1 / -1;
+        }
+
+        .customer-info:first-of-type {
+            border-left: 0;
+            padding-left: 0;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .booking-section {
+            padding: 22px 18px;
+        }
+
+        .booking-header {
+            align-items: flex-start;
+        }
+
+        .customer-panel {
+            grid-template-columns: 1fr;
+            padding: 20px;
+        }
+
+        .customer-identity {
+            grid-column: auto;
+        }
+
+        .customer-info {
+            border-left: 0;
+            border-top: 1px solid #dbe7ff;
+            padding: 14px 0 0;
+        }
+
+        .booking-footer {
+            padding: 20px 18px;
+            align-items: stretch;
+        }
+
+        .booking-actions {
+            width: 100%;
+        }
+
+        .booking-actions .btn {
+            flex: 1;
+        }
+    }
+</style>
+
+<div class="booking-page">
+
+    <div class="booking-header">
+        <div>
+            <h2>
+                <i class="fa-solid fa-calendar-plus text-primary me-2"></i>
+                {{ title|default:"Create Bus Charter Booking" }}
+            </h2>
+            <p>Plan your journey and submit your charter request.</p>
         </div>
 
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Vehicle</label>
-            {{ form.vehicle }}
+        <span class="booking-tag">
+            <i class="fa-solid fa-bus me-1"></i> BUS CHARTER
+        </span>
+    </div>
+
+    <!-- Signed-in customer information -->
+    <div class="customer-panel">
+
+        <div class="customer-identity">
+            <div class="customer-avatar">
+                <i class="fa-solid fa-user"></i>
+            </div>
+            <div>
+                <p class="text-primary fw-bold mb-1" style="font-size:11px;">
+                    BOOKING FOR
+                </p>
+                <h3>
+                    {% firstof request.user.get_full_name request.user.username %}
+                </h3>
+                <p>Signed-in customer</p>
+            </div>
         </div>
 
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Driver</label>
-            {{ form.driver }}
+        <div class="customer-info">
+            <div class="customer-info-icon">
+                <i class="fa-solid fa-envelope"></i>
+            </div>
+            <div>
+                <span class="customer-info-label">Email Address</span>
+                <div class="customer-info-value">
+                    {{ request.user.email|default:"No email registered" }}
+                </div>
+            </div>
         </div>
 
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Passenger Count</label>
-            {{ form.passenger_count }}
-        </div>
-
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Pickup Location</label>
-            {{ form.pickup_location }}
-        </div>
-
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Destination</label>
-            {{ form.destination }}
-        </div>
-
-        <div class="col-md-4 mb-3">
-            <label class="form-label">Travel Date</label>
-            {{ form.travel_date }}
-        </div>
-
-        <div class="col-md-4 mb-3">
-            <label class="form-label">Departure Time</label>
-            {{ form.departure_time }}
-        </div>
-
-        <div class="col-md-4 mb-3">
-            <label class="form-label">Return Date</label>
-            {{ form.return_date }}
-        </div>
-
-        <div class="col-md-4 mb-3">
-            <label class="form-label">Total Price</label>
-            {{ form.total_price }}
-        </div>
-
-        <div class="col-md-4 mb-3">
-            <label class="form-label">Booking Status</label>
-            {{ form.booking_status }}
-        </div>
-
-        <div class="col-md-4 mb-3">
-            <label class="form-label">Payment Status</label>
-            {{ form.payment_status }}
-        </div>
-
-        <div class="col-12 mb-3">
-            <label class="form-label">Remarks</label>
-            {{ form.remarks }}
+        <div class="customer-info">
+            <div class="customer-info-icon">
+                <i class="fa-solid fa-phone"></i>
+            </div>
+            <div>
+                <span class="customer-info-label">Contact Number</span>
+                <div class="customer-info-value">
+                    {% firstof customer.phone_number customer.contact_number customer.phone "No contact number registered" %}
+                </div>
+            </div>
         </div>
 
     </div>
 
-    <button class="btn btn-primary">
-        Save Booking
-    </button>
+    <form method="POST">
+        {% csrf_token %}
 
-    <a href="{% url 'bookings:booking_list' %}"
-       class="btn btn-secondary">
-        Cancel
-    </a>
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger rounded-3">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
 
-</form>
+        <div class="booking-notice">
+            <i class="fa-solid fa-circle-info fs-5"></i>
+            <div>
+                <strong>What happens next?</strong>
+                <div class="mt-1">
+                    Submit your request for review. Once the Owner or Admin
+                    confirms your booking and assigns a vehicle and driver,
+                    you can proceed to payment.
+                </div>
+            </div>
+        </div>
+
+        <div class="booking-card">
+
+            <!-- Trip route -->
+            <section class="booking-section">
+                <div class="section-heading">
+                    <div class="section-icon">
+                        <i class="fa-solid fa-route"></i>
+                    </div>
+                    <div>
+                        <h5>Trip Route</h5>
+                        <p>Where will your journey start and end?</p>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <label class="form-label" for="{{ form.pickup_location.id_for_label }}">
+                            <i class="fa-solid fa-location-dot text-success me-1"></i>
+                            Pickup Location <span class="text-danger">*</span>
+                        </label>
+                        {{ form.pickup_location }}
+                        {{ form.pickup_location.errors }}
+                    </div>
+
+                    <div class="col-lg-6">
+                        <label class="form-label" for="{{ form.destination.id_for_label }}">
+                            <i class="fa-solid fa-flag-checkered text-danger me-1"></i>
+                            Destination <span class="text-danger">*</span>
+                        </label>
+                        {{ form.destination }}
+                        {{ form.destination.errors }}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Schedule -->
+            <section class="booking-section">
+                <div class="section-heading">
+                    <div class="section-icon">
+                        <i class="fa-regular fa-calendar-days"></i>
+                    </div>
+                    <div>
+                        <h5>Travel Schedule</h5>
+                        <p>Choose your departure date and time.</p>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-lg-4 col-md-6">
+                        <label class="form-label" for="{{ form.travel_date.id_for_label }}">
+                            Travel Date <span class="text-danger">*</span>
+                        </label>
+                        {{ form.travel_date }}
+                        {{ form.travel_date.errors }}
+                    </div>
+
+                    <div class="col-lg-4 col-md-6">
+                        <label class="form-label" for="{{ form.departure_time.id_for_label }}">
+                            Departure Time <span class="text-danger">*</span>
+                        </label>
+                        {{ form.departure_time }}
+                        {{ form.departure_time.errors }}
+                    </div>
+
+                    <div class="col-lg-4 col-md-12">
+                        <label class="form-label" for="{{ form.return_date.id_for_label }}">
+                            Return Date <span class="text-muted fw-normal">(Optional)</span>
+                        </label>
+                        {{ form.return_date }}
+                        {{ form.return_date.errors }}
+                        <div class="field-help">
+                            Leave blank for a one-way journey.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Passenger details -->
+            <section class="booking-section">
+                <div class="section-heading">
+                    <div class="section-icon">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div>
+                        <h5>Passenger Details</h5>
+                        <p>Tell us how many passengers will be travelling.</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-4 col-md-6">
+                        <label class="form-label" for="{{ form.passenger_count.id_for_label }}">
+                            Number of Passengers <span class="text-danger">*</span>
+                        </label>
+                        {{ form.passenger_count }}
+                        {{ form.passenger_count.errors }}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Customer's booking remarks -->
+            <section class="booking-section">
+                <div class="section-heading">
+                    <div class="section-icon">
+                        <i class="fa-regular fa-note-sticky"></i>
+                    </div>
+                    <div>
+                        <h5>Additional Requirements</h5>
+                        <p>Include special requests for the Owner or Admin.</p>
+                    </div>
+                </div>
+
+                <label class="form-label" for="{{ form.remarks.id_for_label }}">
+                    Booking Notes <span class="text-muted fw-normal">(Optional)</span>
+                </label>
+                {{ form.remarks }}
+                {{ form.remarks.errors }}
+                <div class="field-help">
+                    These notes will be saved with your booking.
+                </div>
+            </section>
+
+            <div class="booking-footer">
+                <div class="booking-footer-note">
+                    <i class="fa-solid fa-shield-halved me-1"></i>
+                    Your booking and payment details are managed separately.
+                </div>
+
+                <div class="booking-actions">
+                    <a href="{% url 'bookings:customer_bookings' %}"
+                       class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-paper-plane me-2"></i>
+                        Submit Booking Request
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </form>
+</div>
 
 {% endblock %}

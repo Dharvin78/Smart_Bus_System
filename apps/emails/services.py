@@ -59,3 +59,41 @@ def send_payment_receipt(payment):
 
     email.attach_alternative(html, "text/html")
     email.send()
+
+
+
+def send_booking_submitted_email(booking):
+    """Email the customer that their booking is awaiting approval."""
+    from django.conf import settings
+    from django.core.mail import EmailMultiAlternatives
+
+    customer = booking.customer
+
+    customer_name = (
+        f"{customer.first_name} {customer.last_name}".strip()
+    )
+
+    if not customer.email:
+        return False
+
+    subject = f"Booking Submitted - {booking.booking_number}"
+
+    body = (
+        f"Dear {customer_name},\n\n"
+        f"Your booking {booking.booking_number} has been submitted "
+        "successfully and is awaiting approval.\n\n"
+        f"Travel date: {booking.travel_date}\n"
+        f"Departure time: {booking.departure_time}\n"
+        f"Pickup: {booking.pickup_location}\n"
+        f"Destination: {booking.destination}\n\n"
+        "We will notify you when your booking has been reviewed."
+    )
+
+    email = EmailMultiAlternatives(
+        subject=subject,
+        body=body,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[customer.email],
+    )
+
+    return email.send(fail_silently=False) == 1

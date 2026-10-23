@@ -6,8 +6,9 @@ from django.db.models import Q
 
 from .models import Customer
 from .forms import CustomerForm
+from apps.accounts.decorators import admin_required
 
-
+@admin_required
 def customer_list(request):
 
     search = request.GET.get("search", "")
@@ -40,7 +41,7 @@ def customer_list(request):
         },
     )
 
-
+@admin_required
 def customer_create(request):
 
     if request.method == "POST":
@@ -74,7 +75,7 @@ def customer_create(request):
         },
     )
 
-
+@admin_required
 def customer_update(request, pk):
 
     customer = get_object_or_404(
@@ -116,7 +117,7 @@ def customer_update(request, pk):
         },
     )
 
-
+@admin_required
 def customer_delete(request, pk):
 
     customer = get_object_or_404(

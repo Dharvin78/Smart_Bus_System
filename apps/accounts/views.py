@@ -16,6 +16,8 @@ from django.utils.crypto import get_random_string
 from .models import UserProfile
 from .forms import (SignupForm, ProfileForm, CustomPasswordChangeForm, ManageUserForm,)
 from .decorators import role_required
+from django.db import transaction
+from apps.customers.models import Customer
 
 def login_view(request):
 
@@ -70,11 +72,21 @@ def signup_view(request):
 
         if form.is_valid():
 
-            user = User.objects.create_user(
-                username=form.cleaned_data["username"],
-                email=form.cleaned_data["email"],
-                password=form.cleaned_data["password"]
-            )
+            with transaction.atomic():
+
+                user = User.objects.create_user(
+                    username=form.cleaned_data["username"],
+                    email=form.cleaned_data["email"],
+                    password=form.cleaned_data["password"]
+                )
+
+                Customer.objects.create(
+                    user=user,
+                    first_name=user.first_name or user.username,
+                    last_name=user.last_name or "",
+                    email=user.email,
+                    phone=None,
+                )
 
             # UserProfile is automatically created by signals.py
 
