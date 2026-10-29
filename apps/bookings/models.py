@@ -160,23 +160,23 @@ class Booking(models.Model):
             })
 
     def save(self, *args, **kwargs):
-
+    
         if not self.booking_number:
-
+    
             today = timezone.now().strftime("%Y%m%d")
-
+    
             latest = Booking.objects.filter(
                 booking_number__startswith=f"SB{today}"
             ).order_by("-booking_number").first()
-
+    
             if latest:
-
+    
                 last_number = int(latest.booking_number[-4:]) + 1
-
+    
             else:
-
+    
                 last_number = 1
-
+    
             self.booking_number = f"SB{today}{last_number:04d}"
-
+    
         super().save(*args, **kwargs)

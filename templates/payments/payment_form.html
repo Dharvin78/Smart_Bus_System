@@ -425,6 +425,7 @@
 
                         <div class="row g-3 mb-4">
                             {% for value, label in form.fields.payment_method.choices %}
+                                {% if value %}
                                 <div class="col-sm-6">
                                     <label class="payment-method">
                                         <input
@@ -446,8 +447,7 @@
                                                     <i class="bi bi-wallet2"></i>
                                                 {% elif value == "Bank Transfer" %}
                                                     <i class="bi bi-arrow-left-right"></i>
-                                                {% else %}
-                                                    <i class="bi bi-cash-coin"></i>
+
                                                 {% endif %}
                                             </span>
                                             <span>
@@ -461,8 +461,6 @@
                                                         Simulated digital wallet
                                                     {% elif value == "Bank Transfer" %}
                                                         Record a simulated transfer
-                                                    {% else %}
-                                                        Cash payment record
                                                     {% endif %}
                                                 </span>
                                             </span>
@@ -473,6 +471,7 @@
                                         <div class="text-danger small mt-1">{{ form.payment_method.errors }}</div>
                                     {% endif %}
                                 </div>
+                                {% endif %}
                             {% endfor %}
                         </div>
 

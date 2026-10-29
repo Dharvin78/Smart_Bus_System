@@ -24,8 +24,7 @@ def driver_list(request):
     if search:
         drivers = drivers.filter(
             Q(full_name__icontains=search) |
-            Q(phone__icontains=search) |
-            Q(driving_license__icontains=search)
+            Q(phone__icontains=search)
         )
 
     drivers = drivers.order_by("full_name")

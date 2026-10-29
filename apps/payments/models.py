@@ -7,7 +7,6 @@ from django.db.models import Q
 class Payment(models.Model):
 
     PAYMENT_METHOD_CHOICES = [
-        ("Cash", "Cash"),
         ("Credit Card", "Credit Card"),
         ("Debit Card", "Debit Card"),
         ("Online Banking", "Online Banking"),

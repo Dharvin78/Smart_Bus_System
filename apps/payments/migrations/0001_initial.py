@@ -18,7 +18,6 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('amount', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('payment_method', models.CharField(choices=[('Cash', 'Cash'), ('Credit Card', 'Credit Card'), ('Debit Card', 'Debit Card'), ('Online Banking', 'Online Banking'), ('E-Wallet', 'E-Wallet'), ('Bank Transfer', 'Bank Transfer')], max_length=30)),
                 ('payment_status', models.CharField(choices=[('Pending', 'Pending'), ('Paid', 'Paid'), ('Partially Paid', 'Partially Paid'), ('Refunded', 'Refunded'), ('Cancelled', 'Cancelled')], default='Pending', max_length=20)),
                 ('transaction_id', models.CharField(blank=True, max_length=100, null=True)),
                 ('payment_date', models.DateField()),

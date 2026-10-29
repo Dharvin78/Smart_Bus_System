@@ -23,8 +23,7 @@ def fuel_list(request):
         fuels = fuels.filter(
 
             Q(vehicle__registration_number__icontains=search) |
-            Q(fuel_station__icontains=search) |
-            Q(fuel_type__icontains=search)
+            Q(fuel_station__icontains=search)
 
         )
 

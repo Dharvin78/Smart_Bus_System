@@ -126,6 +126,7 @@ def profile(request):
         "accounts/profile.html",
     )
 
+@login_required(login_url="accounts:login")
 def edit_profile(request):
 
     profile = request.user.profile
