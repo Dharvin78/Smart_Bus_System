@@ -134,6 +134,67 @@ class Booking(models.Model):
         auto_now=True,
     )
 
+    
+# Cancellation and refund information
+    cancelled_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+
+    cancellation_charge_percentage = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0
+    )
+
+    cancellation_charge = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
+    refund_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
+    refund_status = models.CharField(
+        max_length=20,
+        choices=[
+            ("Not Required", "Not Required"),
+            ("Pending", "Pending"),
+            ("Partially Refunded", "Partially Refunded"),
+            ("Refunded", "Refunded"),
+            ("Failed", "Failed"),
+        ],
+        default="Not Required"
+    )
+
+
+# Loyalty discount information
+    original_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True
+    )
+
+    loyalty_discount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
+    loyalty_reward = models.ForeignKey(
+        "loyalty.LoyaltyReward",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="bookings"
+    )
+
+
     class Meta:
         ordering = ["-travel_date", "-created_at"]
 

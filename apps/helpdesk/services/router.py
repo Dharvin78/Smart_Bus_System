@@ -1,4 +1,6 @@
+
 from .permissions import user_has_permission
+
 from .data_access import (
     get_customer_bookings,
     get_customer_payments,
@@ -14,32 +16,54 @@ from .data_access import (
     get_revenue_information,
 )
 
-from .context import (
-    is_follow_up_question,
-    get_previous_context,
-)
+from .context import get_previous_context
 
 
-def detect_intent(message):
-    """
-    Detect the general intent of a Help Assistant question.
-    """
+def contains_any(text, phrases):
+    return any(phrase in text for phrase in phrases)
 
-    text = message.lower()
 
-    # Customer booking questions
-    if any(keyword in text for keyword in [
-        "my booking",
-        "my bookings",
-        "my trip",
-        "my trips",
-        "my reservation",
-        "my reservations",
+def detect_intent(message, role="Customer"):
+    text = " ".join(message.lower().split())
+
+    # Emotional support
+    if contains_any(text, [
+        "feeling down",
+        "feel sad",
+        "feeling sad",
+        "i'm sad",
+        "i am sad",
+        "feeling lonely",
+        "feel lonely",
+        "feeling stressed",
+        "feel stressed",
+        "feeling anxious",
+        "i'm upset",
     ]):
-        return "own_bookings"
+        return "general_help"
 
-    # Customer payment questions
-    if any(keyword in text for keyword in [
+    # Personal trip schedule takes priority over generic trips
+    if contains_any(text, [
+        "next trip",
+        "upcoming trip",
+        "next booking",
+        "upcoming booking",
+        "next assigned trip",
+        "upcoming assigned trip",
+    ]):
+        return "upcoming_trip"
+
+    # Driver's own vehicle
+    if contains_any(text, [
+        "my vehicle",
+        "my bus",
+        "assigned vehicle",
+        "assigned bus",
+    ]):
+        return "assigned_vehicle"
+
+    # Personal payments
+    if contains_any(text, [
         "my payment",
         "my payments",
         "payment for my booking",
@@ -49,98 +73,98 @@ def detect_intent(message):
     ]):
         return "own_payments"
 
-    # Upcoming trip questions
-    if any(keyword in text for keyword in [
-        "next trip",
-        "upcoming trip",
-        "next booking",
-        "upcoming booking",
+    # Personal bookings or assigned trips
+    if contains_any(text, [
+        "my booking",
+        "my bookings",
+        "my trip",
+        "my trips",
+        "my reservation",
+        "my reservations",
+        "assigned trips",
+        "assigned bookings",
     ]):
-        return "upcoming_trip"
+        return "own_bookings"
 
-    # Assigned vehicle
-    if any(keyword in text for keyword in [
-        "my vehicle",
-        "my bus",
-        "assigned vehicle",
-        "assigned bus",
+    # Personal driver information is not an all-driver query
+    if contains_any(text, [
+        "my driver",
+        "driver for my",
+        "who is driving my",
     ]):
-        return "assigned_vehicle"
-
-    # Vehicle information
-    if any(keyword in text for keyword in [
-        "vehicle",
-        "vehicles",
-        "bus",
-        "buses",
-    ]):
-        return "vehicle_information"
-
-    # Driver information
-    if any(keyword in text for keyword in [
-        "driver",
-        "drivers",
-    ]):
-        return "driver_information"
-
-    # Booking information
-    if any(keyword in text for keyword in [
-        "booking",
-        "bookings",
-        "reservation",
-        "reservations",
-    ]):
-        return "booking_information"
+        if role == "Customer":
+            return "own_bookings"
+        if role == "Driver":
+            return "own_bookings"
 
     # Maintenance
-    if any(keyword in text for keyword in [
+    if contains_any(text, [
         "maintenance",
-        "service",
         "servicing",
         "repair",
+        "workshop",
     ]):
         return "maintenance_information"
 
     # Fuel
-    if any(keyword in text for keyword in [
+    if contains_any(text, [
         "fuel",
         "diesel",
         "petrol",
         "refuel",
-        "refilling",
     ]):
         return "fuel_information"
 
     # Revenue
-    if any(keyword in text for keyword in [
+    if contains_any(text, [
         "revenue",
         "income",
-        "sales",
         "earnings",
+        "sales report",
     ]):
         return "revenue_information"
 
+    # All-driver information
+    if contains_any(text, [
+        "all drivers",
+        "driver list",
+        "driver information",
+        "drivers",
+    ]):
+        return "driver_information"
+
+    # Vehicle information
+    if contains_any(text, [
+        "all vehicles",
+        "vehicle list",
+        "vehicle information",
+        "fleet",
+        "buses",
+        "vehicles",
+    ]):
+        return "vehicle_information"
+
+    # General booking administration
+    if contains_any(text, [
+        "all bookings",
+        "booking list",
+        "booking information",
+        "reservations",
+        "bookings",
+    ]):
+        return "booking_information"
+
     return "general_help"
 
+
 def is_follow_up_question(message):
-    """
-    Detect questions that commonly depend on previous
-    conversation context.
-    """
+    text = " ".join(message.lower().split())
 
-    text = message.lower().strip()
-
-    follow_up_phrases = [
+    phrases = [
         "what about",
         "how about",
-        "which one",
-        "which is",
-        "what is the second",
-        "what is the first",
-        "what about the second",
-        "what about the first",
-        "the second one",
         "the first one",
+        "the second one",
         "the next one",
         "the previous one",
         "that one",
@@ -148,73 +172,68 @@ def is_follow_up_question(message):
         "that payment",
         "that bus",
         "that vehicle",
-        "that driver",
         "is it paid",
         "when is it",
         "where is it",
-        "who is the driver",
         "who is driving",
+        "who is the driver",
     ]
 
-    return any(
-        phrase in text
-        for phrase in follow_up_phrases
-    )
+    return contains_any(text, phrases)
 
-def get_follow_up_intent(conversation):
-    """
-    Determine the previous meaningful intent from the
-    conversation history.
-    """
-
-    if not conversation:
-        return None
-
-    analyses = conversation.question_analysis.order_by(
-        "-created_at"
-    )
-
-    for analysis in analyses:
-        if analysis.category:
-            return analysis.category
-
-    return None
 
 def get_data_for_question(user, message, conversation=None):
-    intent = detect_intent(message)
+    role = getattr(
+        getattr(user, "profile", None),
+        "role",
+        "Customer",
+    )
 
-    # Resolve follow-up questions using previous context
-        # Resolve follow-up questions using conversation context
+    intent = detect_intent(message, role)
+
+    # Follow-ups may reuse a previous database intent.
+    # Never inherit a general conversation intent.
     if (
         conversation
+        and intent == "general_help"
         and is_follow_up_question(message)
     ):
-        previous_context = get_previous_context(conversation)
+        previous = get_previous_context(conversation) or {}
+        previous_intent = previous.get("category")
 
-        previous_category = previous_context["category"]
+        database_intents = {
+            "own_bookings",
+            "own_payments",
+            "upcoming_trip",
+            "assigned_vehicle",
+            "vehicle_information",
+            "driver_information",
+            "booking_information",
+            "maintenance_information",
+            "fuel_information",
+            "revenue_information",
+        }
 
-        if previous_category:
-            intent = previous_category
+        if previous_intent in database_intents:
+            intent = previous_intent
 
-    role = getattr(getattr(user, "profile", None), "role", "Customer")
-
-    # Role-aware permission mapping
     if intent == "own_bookings":
-        if role == "Driver":
-            required_permission = "assigned_trips"
-        else:
-            required_permission = "own_bookings"
+        permission = (
+            "assigned_trips"
+            if role == "Driver"
+            else "own_bookings"
+        )
 
     elif intent == "upcoming_trip":
         if role == "Driver":
-            required_permission = "assigned_trips"
+            permission = "assigned_trips"
         elif role == "Customer":
-            required_permission = "own_bookings"
+            permission = "own_bookings"
         else:
-            required_permission = "booking_information"
+            permission = "booking_information"
 
     else:
-        required_permission = {
+        permission = {
             "own_payments": "own_payments",
             "assigned_vehicle": "assigned_vehicle",
             "vehicle_information": "vehicle_information",
@@ -226,16 +245,17 @@ def get_data_for_question(user, message, conversation=None):
             "general_help": "general_help",
         }.get(intent, "general_help")
 
-    # Check permission
-    if not user_has_permission(user, required_permission):
+    if not user_has_permission(user, permission):
         return {
             "allowed": False,
             "intent": intent,
             "data": None,
-            "message": "You do not have permission to access this information.",
+            "message": (
+                "You do not have permission to access "
+                "this information."
+            ),
         }
 
-    # Retrieve the appropriate data
     if intent == "own_bookings":
         if role == "Driver":
             data = get_driver_bookings(user)
@@ -257,22 +277,22 @@ def get_data_for_question(user, message, conversation=None):
         data = get_driver_vehicle(user)
 
     elif intent == "vehicle_information":
-        data = get_vehicle_information()
+        data = get_vehicle_information(user)
 
     elif intent == "driver_information":
-        data = get_driver_information()
+        data = get_driver_information(user)
 
     elif intent == "booking_information":
-        data = get_booking_information()
+        data = get_booking_information(user)
 
     elif intent == "maintenance_information":
-        data = get_maintenance_information()
+        data = get_maintenance_information(user)
 
     elif intent == "fuel_information":
-        data = get_fuel_information()
+        data = get_fuel_information(user)
 
     elif intent == "revenue_information":
-        data = get_revenue_information()
+        data = get_revenue_information(user)
 
     else:
         data = None

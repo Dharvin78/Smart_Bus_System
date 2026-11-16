@@ -59,6 +59,13 @@
                 <span>My Assigned Trips</span>
             </a>
         </li>
+
+        <li class="{% if request.resolver_match.url_name == 'driver_calendar' %}active{% endif %}">
+            <a href="{% url 'drivers:driver_calendar' %}">
+                <i class="fa-solid fa-calendar-days"></i>
+                <span>My Calendar</span>
+            </a>
+        </li>
         {% endif %}
 
     </ul>
@@ -74,14 +81,7 @@
                 <span>Vehicles</span>
             </a>
         </li>
-
-        <!-- <li class="{% if request.resolver_match.app_name == 'drivers' %}active{% endif %}">
-            <a href="{% url 'drivers:driver_list' %}">
-                <i class="fa-solid fa-id-card"></i>
-                <span>Drivers</span>
-            </a>
-        </li> -->
-
+        
         <li class="{% if request.resolver_match.app_name == 'fuel' %}active{% endif %}">
             <a href="{% url 'fuel:fuel_list' %}">
                 <i class="fa-solid fa-gas-pump"></i>
@@ -115,12 +115,14 @@
             </a>
         </li>
 
+        {% if request.user.profile.role == "Owner" %}
         <li class="{% if request.resolver_match.app_name == 'analytics' %}active{% endif %}">
             <a href="{% url 'analytics:dashboard' %}">
                 <i class="fa-solid fa-chart-line"></i>
                 <span>Business Analytics</span>
             </a>
         </li>
+        {% endif %}
 
         <li class="{% if request.resolver_match.app_name == 'reports' %}active{% endif %}">
             <a href="{% url 'reports:dashboard' %}">
@@ -150,7 +152,7 @@
             </a>
         </li>
 
-        {% if role == "Owner" or role == "Admin" %}
+        {% if request.user.profile.role == "Owner" %}
         <li class="{% if request.resolver_match.app_name == 'audit' %}active{% endif %}">
             <a href="{% url 'audit:list' %}">
                 <i class="fa-solid fa-clock-rotate-left"></i>
@@ -159,14 +161,14 @@
         </li>
         {% endif %}
 
-        {% if role == "Owner" or role == "Admin" %}
+        <!--{% if request.user.profile.role == "Owner" %}
         <li class="{% if request.resolver_match.app_name == 'settings' %}active{% endif %}">
             <a href="{% url 'settings:settings' %}">
                 <i class="fa-solid fa-gear"></i>
                 <span>Settings</span>
             </a>
         </li>
-        {% endif %}
+        {% endif %} -->
 
         <li class="{% if request.resolver_match.app_name == 'helpdesk' %}active{% endif %}">
             <a href="{% url 'helpdesk:home' %}">

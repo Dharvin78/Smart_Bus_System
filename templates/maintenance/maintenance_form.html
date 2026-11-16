@@ -1,80 +1,189 @@
+
 {% extends "crud/base_form.html" %}
 
 {% block form_title %}
-{{ title }}
+    {{ title }}
 {% endblock %}
 
 {% block form_content %}
 
-<form method="POST">
-
+<form method="POST" novalidate>
     {% csrf_token %}
 
-    <div class="row">
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger">
+        {{ form.non_field_errors }}
+    </div>
+    {% endif %}
 
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Vehicle</label>
-            {{ form.vehicle }}
+    <!-- Maintenance Information -->
+    <div class="mb-4">
+        <h5 class="fw-bold mb-2">
+            <i class="fa-solid fa-screwdriver-wrench text-primary me-2"></i>
+            Maintenance Information
+        </h5>
+        <p class="text-muted small mb-3">
+            Enter the vehicle maintenance information and assign a driver.
+        </p>
+
+        <div class="row g-3">
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">
+                    Vehicle <span class="text-danger">*</span>
+                </label>
+                {{ form.vehicle }}
+                <div class="text-danger small">{{ form.vehicle.errors }}</div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">
+                    Maintenance Type <span class="text-danger">*</span>
+                </label>
+                {{ form.maintenance_type }}
+                <div class="text-danger small">{{ form.maintenance_type.errors }}</div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">
+                    Assigned Driver
+                </label>
+                {{ form.assigned_driver }}
+                <div class="form-text">
+                    Select the driver responsible for this maintenance assignment.
+                </div>
+                <div class="text-danger small">{{ form.assigned_driver.errors }}</div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">
+                    Workshop <span class="text-danger">*</span>
+                </label>
+                {{ form.workshop }}
+                <div class="text-danger small">{{ form.workshop.errors }}</div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">
+                    Status <span class="text-danger">*</span>
+                </label>
+                {{ form.status }}
+                <div class="text-danger small">{{ form.status.errors }}</div>
+            </div>
+
         </div>
-
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Maintenance Type</label>
-            {{ form.maintenance_type }}
-        </div>
-
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Workshop</label>
-            {{ form.workshop }}
-        </div>
-
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Status</label>
-            {{ form.status }}
-        </div>
-
-        <div class="col-md-4 mb-3">
-            <label class="form-label">Service Date</label>
-            {{ form.service_date }}
-        </div>
-
-        <div class="col-md-4 mb-3">
-            <label class="form-label">Next Service Date</label>
-            {{ form.next_service_date }}
-        </div>
-
-        <div class="col-md-4 mb-3">
-            <label class="form-label">Mileage (km)</label>
-            {{ form.mileage }}
-        </div>
-
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Cost (RM)</label>
-            {{ form.cost }}
-        </div>
-
-        <div class="col-md-6">
-            <label class="form-label">
-                Needs Maintenance (AI Training)
-            </label>
-
-            {{ form.needs_maintenance }}
-        </div>
-
-        <div class="col-12 mb-3">
-            <label class="form-label">Remarks</label>
-            {{ form.remarks }}
-        </div>
-
     </div>
 
-    <button type="submit" class="btn btn-primary">
-        Save Maintenance
-    </button>
+    <hr class="my-4">
 
-    <a href="{% url 'maintenance:maintenance_list' %}"
-       class="btn btn-secondary">
-        Cancel
-    </a>
+    <!-- Service Details -->
+    <div class="mb-4">
+        <h5 class="fw-bold mb-2">
+            <i class="fa-solid fa-calendar-check text-primary me-2"></i>
+            Service Details
+        </h5>
+        <p class="text-muted small mb-3">
+            Specify the service schedule and maintenance cost.
+        </p>
+
+        <div class="row g-3">
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">
+                    Service Date <span class="text-danger">*</span>
+                </label>
+                {{ form.service_date }}
+                <div class="text-danger small">{{ form.service_date.errors }}</div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">
+                    Start Time <span class="text-muted">(Optional)</span>
+                </label>
+
+                {{ form.start_time }}
+
+                <div class="form-text">
+                    Leave blank if the maintenance start time is unknown.
+                </div>
+
+                <div class="text-danger small">
+                    {{ form.start_time.errors }}
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">
+                    Next Service Date
+                </label>
+                {{ form.next_service_date }}
+                <div class="text-danger small">{{ form.next_service_date.errors }}</div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">
+                    Mileage (km) <span class="text-danger">*</span>
+                </label>
+                {{ form.mileage }}
+                <div class="text-danger small">{{ form.mileage.errors }}</div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">
+                    Cost (RM) <span class="text-danger">*</span>
+                </label>
+                {{ form.cost }}
+                <div class="text-danger small">{{ form.cost.errors }}</div>
+            </div>
+
+        </div>
+    </div>
+
+    <hr class="my-4">
+
+    <!-- Additional Information -->
+    <div class="mb-4">
+        <h5 class="fw-bold mb-2">
+            <i class="fa-solid fa-circle-info text-primary me-2"></i>
+            Additional Information
+        </h5>
+
+        <div class="row g-3">
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">
+                    Needs Maintenance (AI Training)
+                </label>
+                {{ form.needs_maintenance }}
+                <div class="text-danger small">{{ form.needs_maintenance.errors }}</div>
+            </div>
+
+            <div class="col-12">
+                <label class="form-label fw-semibold">
+                    Remarks
+                </label>
+                {{ form.remarks }}
+                <div class="text-danger small">{{ form.remarks.errors }}</div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="d-flex justify-content-end gap-2 border-top pt-4">
+
+        <a href="{% url 'maintenance:maintenance_list' %}"
+           class="btn btn-outline-secondary px-4">
+            <i class="fa-solid fa-xmark me-1"></i>
+            Cancel
+        </a>
+
+        <button type="submit" class="btn btn-primary px-4">
+            <i class="fa-solid fa-floppy-disk me-1"></i>
+            Save Maintenance
+        </button>
+
+    </div>
 
 </form>
 

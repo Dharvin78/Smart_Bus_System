@@ -148,9 +148,7 @@ class CustomerBookingTests(TestCase):
 
         driver = Driver.objects.create(
             full_name="Test Approval Driver",
-            ic_passport="TCB03IC001",
             phone="0123456789",
-            driving_license="TCB03LIC001",
             license_expiry=expiry_date,
             status="Available",
         )

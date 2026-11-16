@@ -59,11 +59,9 @@ class VehicleListBookingStatusTests(TestCase):
 
         driver = Driver.objects.create(
             full_name="Rahim",
-            ic_passport="A1234567",
             phone="0111111111",
             email="rahim@example.com",
             address="Driver address",
-            driving_license="DL12345",
             license_expiry="2030-01-01",
             status="Available",
         )

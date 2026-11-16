@@ -7,7 +7,9 @@ from apps.payments.models import Payment
 
 from apps.analytics.services.business_data import get_business_data
 from apps.analytics.services.ai_analysis import generate_business_analysis
+from apps.accounts.decorators import owner_required
 
+@owner_required
 def dashboard(request):
 
     # Monthly Revenue
@@ -187,40 +189,6 @@ def dashboard(request):
         "payment_totals": payment_totals,
         "status_labels": status_labels,
         "status_totals": status_totals,
-        "ai_insights": ai_insights,
-    }
-
-    return render(
-        request,
-        "analytics/dashboard.html",
-        context,
-    )
-
-    context = {
-        "labels": labels,
-        "revenue": revenue,
-
-        "booking_labels": booking_labels,
-        "booking_totals": booking_totals,
-
-        "vehicle_labels": vehicle_labels,
-        "vehicle_totals": vehicle_totals,
-
-        "driver_labels": driver_labels,
-        "driver_totals": driver_totals,
-
-        "customer_labels": customer_labels,
-        "customer_totals": customer_totals,
-
-        "route_labels": route_labels,
-        "route_totals": route_totals,
-
-        "payment_labels": payment_labels,
-        "payment_totals": payment_totals,
-
-        "status_labels": status_labels,
-        "status_totals": status_totals,
-
         "ai_insights": ai_insights,
     }
 

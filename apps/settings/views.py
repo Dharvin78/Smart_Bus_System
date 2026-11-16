@@ -3,8 +3,9 @@ from django.shortcuts import render
 from .models import SystemSetting
 from .forms import SystemSettingForm
 from django.contrib import messages
+from apps.accounts.decorators import owner_required
 
-
+@owner_required
 def settings_page(request):
 
     setting, created = SystemSetting.objects.get_or_create(pk=1)

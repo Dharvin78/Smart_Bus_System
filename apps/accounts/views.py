@@ -18,6 +18,7 @@ from .forms import (SignupForm, ProfileForm, CustomPasswordChangeForm, ManageUse
 from .decorators import role_required
 from django.db import transaction
 from apps.customers.models import Customer
+from apps.drivers.models import Driver
 
 def login_view(request):
 
@@ -349,11 +350,31 @@ def user_list(request):
         }
     )
 
+def sync_driver_record(user, cleaned_data):
+    if cleaned_data["role"] != UserProfile.DRIVER:
+        return
+
+    full_name = (
+        f"{user.first_name} {user.last_name}".strip()
+        or user.username
+    )
+
+    Driver.objects.update_or_create(
+        user=user,
+        defaults={
+            "full_name": full_name,
+            "phone": cleaned_data.get("phone") or "",
+            "email": user.email,
+            "license_expiry": cleaned_data["driver_license_expiry"],
+            "status": cleaned_data["driver_status"],
+        }
+    )
+
+
 @login_required
 def user_create(request):
     current_role = request.user.profile.role
 
-    # Only Owner and Admin can create users
     if current_role not in [UserProfile.OWNER, UserProfile.ADMIN]:
         messages.error(
             request,
@@ -368,38 +389,35 @@ def user_create(request):
         )
 
         if form.is_valid():
+            temporary_password = get_random_string(length=12)
 
-            # Generate temporary password
-            temporary_password = get_random_string(
-                length=12
-            )
-
-            user = form.save(commit=False)
-
-            # Set secure hashed password
-            user.set_password(temporary_password)
-
-            user.save()
-
-            # Create/update profile
-            UserProfile.objects.update_or_create(
-                user=user,
-                defaults={
-                    "role": form.cleaned_data["role"],
-                    "phone": form.cleaned_data["phone"],
-                    "must_change_password": True,
-                }
-            )
-
-            # Login URL
             login_url = request.build_absolute_uri(
                 reverse("accounts:login")
             )
 
-            # Email content
-            subject = "Smart Bus Management System - Account Created"
+            try:
+                with transaction.atomic():
+                    user = form.save(commit=False)
+                    user.set_password(temporary_password)
+                    user.save()
 
-            message = f"""
+                    UserProfile.objects.update_or_create(
+                        user=user,
+                        defaults={
+                            "role": form.cleaned_data["role"],
+                            "phone": form.cleaned_data["phone"],
+                            "must_change_password": True,
+                        }
+                    )
+
+                    # Create linked Driver record when applicable.
+                    sync_driver_record(user, form.cleaned_data)
+
+                    subject = (
+                        "Smart Bus Management System - Account Created"
+                    )
+
+                    message = f"""
 Hello {user.first_name or user.username},
 
 Your account has been created for the Smart Bus Management System.
@@ -424,35 +442,28 @@ Regards,
 Smart Bus Management System
 """
 
-            try:
-                send_mail(
-                    subject,
-                    message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [user.email],
-                    fail_silently=False,
-                )
+                    send_mail(
+                        subject,
+                        message,
+                        settings.DEFAULT_FROM_EMAIL,
+                        [user.email],
+                        fail_silently=False,
+                    )
 
+            except Exception:
+                messages.error(
+                    request,
+                    "The account could not be created. "
+                    "Please check the email configuration "
+                    "or contact the administrator."
+                )
+            else:
                 messages.success(
                     request,
                     f"User '{user.username}' created successfully. "
                     "Login credentials have been sent to their email."
                 )
-
-            except Exception:
-                # Remove account if email could not be sent
-                user.delete()
-
-                messages.error(
-                    request,
-                    "The account could not be created because "
-                    "the email could not be sent. Please check "
-                    "your email configuration."
-                )
-
-                return redirect("accounts:user_create")
-
-            return redirect("accounts:user_list")
+                return redirect("accounts:user_list")
 
     else:
         form = ManageUserForm(user=request.user)
@@ -506,7 +517,9 @@ def user_update(request, pk):
         )
 
         if form.is_valid():
-            form.save()
+            with transaction.atomic():
+                updated_user = form.save()
+                sync_driver_record(updated_user, form.cleaned_data)
 
             messages.success(
                 request,

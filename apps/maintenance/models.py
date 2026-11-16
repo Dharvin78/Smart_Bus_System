@@ -36,6 +36,15 @@ class Maintenance(models.Model):
         related_name="maintenance_records",
     )
 
+    assigned_driver = models.ForeignKey(
+        "drivers.Driver",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="maintenance_assignments",
+        help_text="Driver assigned to this maintenance task"
+    )
+
     maintenance_type = models.CharField(
         max_length=50,
         choices=MAINTENANCE_TYPE_CHOICES,
@@ -46,6 +55,18 @@ class Maintenance(models.Model):
     )
 
     service_date = models.DateField()
+
+    start_time = models.TimeField(
+        null=True,
+        blank=True,
+        help_text="Scheduled maintenance start time"
+    )
+
+    end_time = models.TimeField(
+        null=True,
+        blank=True,
+        help_text="Scheduled maintenance end time"
+    )
 
     next_service_date = models.DateField(
         blank=True,
@@ -84,6 +105,18 @@ class Maintenance(models.Model):
 
     updated_at = models.DateTimeField(
         auto_now=True,
+    )
+
+    start_time = models.TimeField(
+        null=True,
+        blank=True,
+        help_text="Scheduled maintenance start time"
+    )
+
+    end_time = models.TimeField(
+        null=True,
+        blank=True,
+        help_text="Scheduled maintenance end time"
     )
 
     class Meta:

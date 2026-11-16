@@ -3,6 +3,7 @@ from functools import wraps
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.contrib.auth.decorators import user_passes_test
 
 
 def role_required(allowed_roles):
@@ -51,3 +52,12 @@ def customer_required(view_func):
 
 def driver_required(view_func):
     return role_required(["Driver"])(view_func)
+
+def owner_required(view_func):
+    return user_passes_test(
+        lambda user: (
+            user.is_authenticated
+            and hasattr(user, "profile")
+            and user.profile.role == "Owner"
+        )
+    )(view_func)

@@ -1,10 +1,10 @@
 # Create your models here.
 from django.db import models
-from apps.vehicles.models import Vehicle
 from django.conf import settings
-
-from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import (
+    MinValueValidator,
+    MaxValueValidator,
+)
 
 from apps.vehicles.models import Vehicle
 
@@ -14,16 +14,12 @@ class Driver(models.Model):
         ("Available", "Available"),
         ("Reserved", "Reserved"),
         ("On Trip", "On Trip"),
+        ("On Duty", "On Duty"),
         ("Leave", "Leave"),
         ("Inactive", "Inactive"),
     ]
 
     full_name = models.CharField(max_length=100)
-
-    ic_passport = models.CharField(
-        max_length=20,
-        unique=True
-    )
 
     phone = models.CharField(max_length=20)
 
@@ -33,11 +29,6 @@ class Driver(models.Model):
     )
 
     address = models.TextField(blank=True)
-
-    driving_license = models.CharField(
-        max_length=50,
-        unique=True
-    )
 
     license_expiry = models.DateField()
 

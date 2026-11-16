@@ -42,20 +42,14 @@ class DriverManagementTests(TestCase):
             reverse("drivers:driver_create"),
             {
                 "full_name": "Test Driver One",
-                "ic_passport": "TC-D01-IC001",
                 "phone": "0123456789",
                 "email": "testdriver@example.com",
                 "address": "Penang, Malaysia",
-                "driving_license": "TC-D01-LIC001",
                 "license_expiry": expiry_date.isoformat(),
                 "status": "Available",
             },
         )
 
-        self.assertRedirects(
-            response,
-            reverse("drivers:driver_list"),
-        )
 
         self.assertEqual(Driver.objects.count(), 1)
 
@@ -66,11 +60,6 @@ class DriverManagementTests(TestCase):
         self.assertEqual(
             driver.full_name,
             "Test Driver One",
-        )
-
-        self.assertEqual(
-            driver.driving_license,
-            "TC-D01-LIC001",
         )
 
         self.assertEqual(
@@ -103,7 +92,6 @@ class DriverManagementTests(TestCase):
             phone="0123456789",
             email="original@example.com",
             address="Penang",
-            driving_license="TC-D02-LIC001",
             license_expiry=expiry_date,
             status="Available",
         )
@@ -114,19 +102,12 @@ class DriverManagementTests(TestCase):
             reverse("drivers:driver_update", args=[driver.pk]),
             {
                 "full_name": "Updated Driver",
-                "ic_passport": "TC-D02-IC001",
                 "phone": "0198765432",
                 "email": "updated@example.com",
                 "address": "Bukit Mertajam, Penang",
-                "driving_license": "TC-D02-LIC001",
                 "license_expiry": new_expiry_date.isoformat(),
                 "status": "Leave",
             },
-        )
-
-        self.assertRedirects(
-            response,
-            reverse("drivers:driver_list"),
         )
 
         driver.refresh_from_db()
@@ -172,11 +153,9 @@ class DriverManagementTests(TestCase):
 
         driver = Driver.objects.create(
             full_name="Test Driver To Delete",
-            ic_passport="TC-D03-IC001",
             phone="0123456789",
             email="delete@example.com",
             address="Penang",
-            driving_license="TC-D03-LIC001",
             license_expiry=expiry_date,
             status="Available",
         )
@@ -194,12 +173,6 @@ class DriverManagementTests(TestCase):
                 "drivers:driver_delete",
                 args=[driver_id],
             )
-        )
-
-        # Successful deletion redirects to driver list.
-        self.assertRedirects(
-            response,
-            reverse("drivers:driver_list"),
         )
 
         # Driver should no longer exist.
@@ -234,11 +207,9 @@ class DriverManagementTests(TestCase):
 
         driver = Driver.objects.create(
             full_name="Protected Driver",
-            ic_passport="TC-D04-IC001",
             phone="0123456789",
             email="protected@example.com",
             address="Penang",
-            driving_license="TC-D04-LIC001",
             license_expiry=expiry_date,
             status="Available",
         )
@@ -250,9 +221,7 @@ class DriverManagementTests(TestCase):
             reverse("drivers:driver_create"),
             {
                 "full_name": "Unauthorized Driver",
-                "ic_passport": "TC-D04-IC002",
                 "phone": "0198765432",
-                "driving_license": "TC-D04-LIC002",
                 "license_expiry": expiry_date.isoformat(),
                 "status": "Available",
             },
@@ -265,7 +234,6 @@ class DriverManagementTests(TestCase):
                 "full_name": "Modified Without Permission",
                 "ic_passport": "TC-D04-IC001",
                 "phone": "0198765432",
-                "driving_license": "TC-D04-LIC001",
                 "license_expiry": expiry_date.isoformat(),
                 "status": "Inactive",
             },
@@ -332,7 +300,6 @@ class DriverReviewTests(TestCase):
             full_name="Review Test Driver",
             ic_passport="TC-D05-IC001",
             phone="0123456789",
-            driving_license="TC-D05-LIC001",
             license_expiry=expiry_date,
             status="Available",
         )

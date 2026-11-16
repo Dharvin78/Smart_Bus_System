@@ -75,22 +75,14 @@ def chat_message(request):
     # Generate response
     if not result["allowed"]:
         response_text = result["message"]
-
-    elif result["intent"] == "general_help":
-        response_text = (
-            "I can help you with bookings, payments, vehicles, "
-            "drivers, maintenance, fuel and other Smart Bus "
-            "Management System information."
-        )
-
     else:
-        # Temporary response until an AI provider is connected
         response_text = generate_response(
-                request.user,
-                message,
-                result["intent"],
-                result["data"],
-            )
+            user=request.user,
+            question=message,
+            intent=result["intent"],
+            data=result["data"],
+            conversation=conversation,
+        )
 
     # Save assistant response
     assistant_message = ConversationMessage.objects.create(

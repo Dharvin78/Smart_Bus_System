@@ -1,3 +1,4 @@
+
 from django.urls import path
 from . import views
 
@@ -5,14 +6,25 @@ app_name = "drivers"
 
 urlpatterns = [
 
-    path("", views.driver_list, name="driver_list"),
+    # Customer Driver Reviews
+    path(
+        "review/<int:booking_id>/",
+        views.driver_review,
+        name="driver_review",
+    ),
 
-    path("add/", views.driver_create, name="driver_create"),
+    # Driver Calendar
+    path(
+        "calendar/",
+        views.driver_calendar,
+        name="driver_calendar",
+    ),
 
-    path("edit/<int:pk>/", views.driver_update, name="driver_update"),
-
-    path("delete/<int:pk>/", views.driver_delete, name="driver_delete"),
-
-     path("review/<int:booking_id>/", views.driver_review, name="driver_review",),
+    # Driver Calendar Events
+    path(
+        "calendar/events/",
+        views.driver_calendar_events,
+        name="driver_calendar_events",
+    ),
 
 ]

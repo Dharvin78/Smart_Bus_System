@@ -7,6 +7,9 @@ from django.db.models import Q
 from .models import Maintenance
 from .forms import MaintenanceForm
 from apps.accounts.decorators import admin_required
+from apps.drivers.models import Driver
+from django.db import transaction, OperationalError
+from django.db.models import F
 
 @admin_required
 def maintenance_list(request):
@@ -46,26 +49,45 @@ def maintenance_list(request):
     )
 
 
+
 @admin_required
 def maintenance_create(request):
 
     if request.method == "POST":
-
         form = MaintenanceForm(request.POST)
 
-        if form.is_valid():
+        try:
+            with transaction.atomic():
 
-            form.save()
+                # Acquire a SQLite write lock before
+                # validating booking and maintenance conflicts.
+                from apps.vehicles.models import Vehicle
 
-            messages.success(
+                Vehicle.objects.filter(
+                    pk=request.POST.get("vehicle")
+                ).update(
+                    status=F("status")
+                )
+
+                if form.is_valid():
+                    form.save()
+
+                    messages.success(
+                        request,
+                        "Maintenance record added successfully."
+                    )
+
+                    return redirect(
+                        "maintenance:maintenance_list"
+                    )
+
+        except OperationalError:
+            messages.error(
                 request,
-                "Maintenance record added successfully."
+                "The database is busy. Please try again."
             )
 
-            return redirect("maintenance:maintenance_list")
-
     else:
-
         form = MaintenanceForm()
 
     return render(
@@ -76,6 +98,7 @@ def maintenance_create(request):
             "title": "Add Maintenance",
         },
     )
+
 
 @admin_required
 def maintenance_update(request, pk):
@@ -92,16 +115,36 @@ def maintenance_update(request, pk):
             instance=maintenance,
         )
 
-        if form.is_valid():
+        try:
+            with transaction.atomic():
 
-            form.save()
+                # Acquire SQLite write lock before
+                # validating scheduling conflicts.
+                Maintenance.objects.filter(
+                    pk=pk
+                ).update(
+                    status=F("status")
+                )
 
-            messages.success(
+                # Validate booking and maintenance conflicts.
+                if form.is_valid():
+
+                    form.save()
+
+                    messages.success(
+                        request,
+                        "Maintenance record updated successfully."
+                    )
+
+                    return redirect(
+                        "maintenance:maintenance_list"
+                    )
+
+        except OperationalError:
+            messages.error(
                 request,
-                "Maintenance record updated successfully."
+                "The database is busy. Please try again."
             )
-
-            return redirect("maintenance:maintenance_list")
 
     else:
 

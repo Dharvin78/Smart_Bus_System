@@ -9,7 +9,6 @@ class DriverAdmin(admin.ModelAdmin):
     list_display = (
         "full_name",
         "phone",
-        "driving_license",
         "assigned_vehicle",
         "status",
     )
@@ -17,7 +16,6 @@ class DriverAdmin(admin.ModelAdmin):
     search_fields = (
         "full_name",
         "phone",
-        "driving_license",
     )
 
     list_filter = (

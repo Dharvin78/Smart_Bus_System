@@ -1,108 +1,20 @@
 # Create your views here.
+
+from datetime import timedelta
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.core.paginator import Paginator
 from django.db.models import Q
-from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.utils.dateparse import parse_date
 
-from .models import Driver
-from .forms import DriverForm
-
+from .models import Driver, DriverReview
 from .forms import DriverReviewForm
-from .models import DriverReview
+
 from apps.bookings.models import Booking
+from apps.maintenance.models import Maintenance
 from apps.helpdesk.services.data_access import get_customer_for_user
-from apps.accounts.decorators import admin_required, customer_required
-
-@admin_required
-def driver_list(request):
-
-    search = request.GET.get("search", "").strip()
-
-    drivers = Driver.objects.all()
-
-    if search:
-        drivers = drivers.filter(
-            Q(full_name__icontains=search) |
-            Q(phone__icontains=search)
-        )
-
-    drivers = drivers.order_by("full_name")
-
-    paginator = Paginator(drivers, 10)
-
-    page_number = request.GET.get("page")
-
-    page_obj = paginator.get_page(page_number)
-
-    return render(
-        request,
-        "drivers/driver_list.html",
-        {
-            "page_obj": page_obj,
-            "search": search,
-        }
-    )
-
-@admin_required
-def driver_create(request):
-
-    if request.method == "POST":
-
-        form = DriverForm(request.POST, request.FILES)
-
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Driver added successfully.")
-            return redirect("drivers:driver_list")
-
-    else:
-        form = DriverForm()
-
-    return render(request, "drivers/driver_form.html", {
-        "form": form,
-        "title": "Add Driver"
-    })
-
-@admin_required
-def driver_update(request, pk):
-
-    driver = get_object_or_404(Driver, pk=pk)
-
-    if request.method == "POST":
-
-        form = DriverForm(
-            request.POST,
-            request.FILES,
-            instance=driver
-        )
-
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Driver updated successfully.")
-            return redirect("drivers:driver_list")
-
-    else:
-        form = DriverForm(instance=driver)
-
-    return render(request, "drivers/driver_form.html", {
-        "form": form,
-        "title": "Edit Driver"
-    })
-
-@admin_required
-def driver_delete(request, pk):
-
-    driver = get_object_or_404(Driver, pk=pk)
-
-    if request.method == "POST":
-        driver.delete()
-        messages.success(request, "Driver deleted successfully.")
-        return redirect("drivers:driver_list")
-
-    return render(request, "drivers/driver_delete.html", {
-        "driver": driver
-    })
+from apps.accounts.decorators import customer_required, driver_required
 
 @customer_required
 def driver_review(request, booking_id):
@@ -159,3 +71,108 @@ def driver_review(request, booking_id):
             "booking": booking,
         }
     )
+
+
+@driver_required
+def driver_calendar(request):
+    """
+    Display the logged-in driver's trip and maintenance calendar.
+    """
+    driver = Driver.objects.filter(user=request.user).first()
+
+    return render(
+        request,
+        "drivers/driver_calendar.html",
+        {"driver": driver},
+    )
+
+
+@driver_required
+def driver_calendar_events(request):
+    """
+    Return the logged-in driver's assigned trips and
+    maintenance duties as FullCalendar JSON events.
+    """
+    driver = Driver.objects.filter(user=request.user).first()
+
+    if driver is None:
+        return JsonResponse([], safe=False)
+
+    start = parse_date(request.GET.get("start", "")[:10])
+    end = parse_date(request.GET.get("end", "")[:10])
+
+    if not start or not end:
+        return JsonResponse(
+            {"error": "Invalid calendar date range."},
+            status=400,
+        )
+
+    events = []
+
+    # FullCalendar's end date is exclusive.
+    trips = Booking.objects.filter(
+        driver=driver,
+        booking_status__in=["Confirmed", "Completed"],
+        travel_date__lt=end,
+    ).filter(
+        Q(return_date__gte=start) |
+        Q(return_date__isnull=True, travel_date__gte=start)
+    ).select_related("vehicle")
+
+    for booking in trips:
+        last_day = booking.return_date or booking.travel_date
+
+        if last_day < booking.travel_date:
+            last_day = booking.travel_date
+
+        events.append({
+            "id": f"trip-{booking.pk}",
+            "title": f"Trip: {booking.pickup_location} → {booking.destination}",
+            "start": booking.travel_date.isoformat(),
+            "end": (last_day + timedelta(days=1)).isoformat(),
+            "allDay": True,
+            "backgroundColor": "#2563eb",
+            "borderColor": "#2563eb",
+            "extendedProps": {
+                "type": "Trip",
+                "status": booking.booking_status,
+                "booking_number": booking.booking_number,
+                "departure_time": (
+                    booking.departure_time.strftime("%H:%M")
+                    if booking.departure_time else ""
+                ),
+                "vehicle": (
+                    str(booking.vehicle)
+                    if booking.vehicle else "Not assigned"
+                ),
+            },
+        })
+
+    # Assigned maintenance duties
+    maintenance_records = Maintenance.objects.filter(
+        assigned_driver=driver,
+        service_date__gte=start,
+        service_date__lt=end,
+    ).exclude(
+        status="Cancelled"
+    ).select_related("vehicle")
+
+    for maintenance in maintenance_records:
+        events.append({
+            "id": f"maintenance-{maintenance.pk}",
+            "title": f"Maintenance: {maintenance.vehicle}",
+            "start": maintenance.service_date.isoformat(),
+            "allDay": True,
+            "backgroundColor": "#f59e0b",
+            "borderColor": "#f59e0b",
+            "textColor": "#111827",
+            "extendedProps": {
+                "type": "Maintenance",
+                "status": maintenance.status,
+                "maintenance_type": maintenance.get_maintenance_type_display(),
+                "workshop": maintenance.workshop,
+                "remarks": maintenance.remarks or "",
+            },
+        })
+
+    return JsonResponse(events, safe=False)

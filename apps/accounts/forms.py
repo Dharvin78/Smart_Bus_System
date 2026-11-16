@@ -15,6 +15,12 @@ from django.contrib.auth.hashers import make_password
 from django.utils.crypto import get_random_string
 from .decorators import role_required
 from .models import UserProfile
+from apps.drivers.models import Driver
+from django.utils import timezone
+
+from django import forms
+from django.contrib.auth.models import User
+
 
 class SignupForm(forms.ModelForm):
 
@@ -29,23 +35,50 @@ class SignupForm(forms.ModelForm):
     class Meta:
         model = User
         fields = [
-            'username',
-            'email',
-            'password'
+            "username",
+            "email",
+            "password",
         ]
 
-    def clean(self):
+    def clean_username(self):
+        username = self.cleaned_data.get("username")
 
+        if username and User.objects.filter(
+            username__iexact=username
+        ).exists():
+            raise forms.ValidationError(
+                "This username already exists. Please choose another username."
+            )
+
+        return username
+
+    def clean(self):
         cleaned_data = super().clean()
 
         password = cleaned_data.get("password")
-        confirm = cleaned_data.get("confirm_password")
+        confirm_password = cleaned_data.get("confirm_password")
 
-        if password != confirm:
-            raise forms.ValidationError("Passwords do not match.")
+        if password and confirm_password:
+            if password != confirm_password:
+                self.add_error(
+                    "confirm_password",
+                    "Passwords do not match."
+                )
 
         return cleaned_data
 
+    def save(self, commit=True):
+        user = super().save(commit=False)
+
+        user.set_password(
+            self.cleaned_data["password"]
+        )
+
+        if commit:
+            user.save()
+
+        return user
+    
 class ProfileForm(forms.ModelForm):
 
     first_name = forms.CharField(
@@ -130,6 +163,11 @@ class ProfileForm(forms.ModelForm):
         self.user = kwargs.pop("user", None)
 
         super().__init__(*args, **kwargs)
+
+        if self.user:
+            self.fields["first_name"].initial = self.user.first_name
+            self.fields["last_name"].initial = self.user.last_name
+            self.fields["email"].initial = self.user.email
 
         if self.profile:
             self.fields["role"].initial = self.profile.role
@@ -225,6 +263,28 @@ class ManageUserForm(forms.ModelForm):
         })
     )
 
+    driver_license_expiry = forms.DateField(
+        required=False,
+        label="Licence Expiry Date",
+        widget=forms.DateInput(
+            format="%Y-%m-%d",
+            attrs={
+                "class": "form-control",
+                "type": "date",
+            }
+        ),
+    )
+
+    driver_status = forms.ChoiceField(
+        required=False,
+        choices=Driver.STATUS_CHOICES,
+        initial="Available",
+        label="Driver Status",
+        widget=forms.Select(attrs={
+            "class": "form-select",
+        }),
+    )
+
     class Meta:
         model = User
         fields = ["username", "email", "first_name", "last_name"]
@@ -257,6 +317,13 @@ class ManageUserForm(forms.ModelForm):
                 (UserProfile.CUSTOMER, "Customer"),
             ]
 
+        if self.instance and self.instance.pk:
+            driver = Driver.objects.filter(user=self.instance).first()
+
+            if driver:
+                self.fields["driver_license_expiry"].initial = driver.license_expiry
+                self.fields["driver_status"].initial = driver.status
+
     def clean_role(self):
         role = self.cleaned_data["role"]
 
@@ -270,7 +337,39 @@ class ManageUserForm(forms.ModelForm):
                     "Admins can only manage Drivers and Customers."
                 )
 
+        if self.instance.pk and self.profile:
+            old_role = self.profile.role
+
+            if old_role != role and (
+                old_role == UserProfile.DRIVER
+                or role == UserProfile.DRIVER
+            ):
+                # Allow an existing Driver-role user to be repaired
+                # without changing their role.
+                raise forms.ValidationError(
+                    "Changing an existing account to or from the Driver "
+                    "role is not supported. Create a new account instead."
+                )
+
         return role
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if cleaned_data.get("role") == UserProfile.DRIVER:
+            if not cleaned_data.get("driver_license_expiry"):
+                self.add_error(
+                    "driver_license_expiry",
+                    "Licence expiry date is required for Driver accounts."
+                )
+
+            if not cleaned_data.get("driver_status"):
+                self.add_error(
+                    "driver_status",
+                    "Driver status is required."
+                )
+
+        return cleaned_data
 
     def save(self, commit=True):
         user = super().save(commit=False)

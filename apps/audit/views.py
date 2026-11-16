@@ -2,11 +2,11 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
+from apps.accounts.decorators import owner_required
 
 from .models import AuditLog
 
-
-@login_required
+@owner_required
 def audit_list(request):
 
     logs = AuditLog.objects.select_related("user").all()

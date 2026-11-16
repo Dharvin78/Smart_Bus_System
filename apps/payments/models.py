@@ -21,6 +21,7 @@ class Payment(models.Model):
         ("Partially Paid", "Partially Paid"),
         ("Refunded", "Refunded"),
         ("Cancelled", "Cancelled"),
+        ("Partially Refunded", "Partially Refunded"),
     ]
 
     booking = models.ForeignKey(
@@ -37,12 +38,32 @@ class Payment(models.Model):
     payment_method = models.CharField(
         max_length=30,
         choices=PAYMENT_METHOD_CHOICES,
+        blank=True,
+        null=True,
     )
 
     payment_status = models.CharField(
         max_length=20,
         choices=PAYMENT_STATUS_CHOICES,
         default="Pending",
+    )
+    
+# Refund information
+    refund_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+    )
+
+    refund_date = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+
+    refund_transaction_id = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
     )
 
     transaction_id = models.CharField(

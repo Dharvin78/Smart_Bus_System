@@ -14,7 +14,12 @@ from django.utils import timezone
 from decimal import Decimal, InvalidOperation
 from django.db import transaction
 from django.views.decorators.http import require_POST
+from apps.bookings.availability_services import (
+    has_booking_date_conflict,
+    has_maintenance_date_conflict,
+)
 from django.core.exceptions import PermissionDenied
+from django.db.models import F
 from datetime import timedelta
 from .forms import (
     BookingForm,
@@ -206,12 +211,15 @@ def booking_review(request, pk):
         messages.error(request, "Only pending bookings can be reviewed.")
         return redirect("bookings:booking_list")
 
-    available_vehicles = Vehicle.objects.filter(
-        status="Available"
+    # Include vehicles that are not manually inactive.
+    # Booking and maintenance conflicts will be checked separately.
+    available_vehicles = Vehicle.objects.exclude(
+        status="Inactive"
     ).order_by("vehicle_name")
 
-    available_drivers = Driver.objects.filter(
-        status="Available"
+    # Exclude drivers who are manually unavailable.
+    available_drivers = Driver.objects.exclude(
+        status__in=["Leave", "Inactive"]
     ).order_by("full_name")
 
     action = request.POST.get("action") if request.method == "POST" else None
@@ -240,11 +248,17 @@ def booking_review(request, pk):
 
         else:
             try:
+                
                 with transaction.atomic():
-                    # Recheck booking state inside the transaction.
-                    locked_booking = Booking.objects.select_for_update().get(
-                        pk=pk
+
+                    # Acquire a SQLite write lock before checking availability.
+                    # This serializes competing booking approvals.
+                    Booking.objects.filter(pk=pk).update(
+                        updated_at=F("updated_at")
                     )
+
+                    # Reload the booking after acquiring the write lock.
+                    locked_booking = Booking.objects.get(pk=pk)
 
                     if locked_booking.booking_status != "Pending":
                         raise ValueError(
@@ -304,16 +318,67 @@ def booking_review(request, pk):
                         driver = Driver.objects.select_for_update().get(
                             pk=driver_id
                         )
-
-                        if vehicle.status != "Available":
+                        
+                        # Check manually restricted vehicles.
+                        if vehicle.status == "Inactive":
                             raise ValueError(
-                                "The selected vehicle is no longer available."
+                                "The selected vehicle is inactive."
                             )
 
-                        if driver.status != "Available":
+                        # Check manually restricted drivers.
+                        if driver.status in ("Leave", "Inactive"):
                             raise ValueError(
-                                "The selected driver is no longer available."
+                                "The selected driver is unavailable."
                             )
+
+                        # Check overlapping vehicle bookings.
+                        if has_booking_date_conflict(
+                            travel_date=locked_booking.travel_date,
+                            return_date=locked_booking.return_date,
+                            vehicle=vehicle,
+                            exclude_booking_id=locked_booking.pk,
+                        ):
+                            raise ValueError(
+                                "The selected vehicle already has a confirmed "
+                                "booking during the requested travel dates."
+                            )
+
+                        # Check overlapping driver bookings.
+                        if has_booking_date_conflict(
+                            travel_date=locked_booking.travel_date,
+                            return_date=locked_booking.return_date,
+                            driver=driver,
+                            exclude_booking_id=locked_booking.pk,
+                        ):
+                            raise ValueError(
+                                "The selected driver already has a confirmed "
+                                "booking during the requested travel dates."
+                            )
+
+                        
+                        # Check vehicle maintenance conflicts.
+                        if has_maintenance_date_conflict(
+                            travel_date=locked_booking.travel_date,
+                            return_date=locked_booking.return_date,
+                            vehicle=vehicle,
+                        ):
+                            raise ValueError(
+                                "The selected vehicle has scheduled or ongoing "
+                                "maintenance during the requested travel dates."
+                            )
+
+                        # Check driver maintenance assignments.
+                        if has_maintenance_date_conflict(
+                            travel_date=locked_booking.travel_date,
+                            return_date=locked_booking.return_date,
+                            driver=driver,
+                        ):
+                            raise ValueError(
+                                "The selected driver has a maintenance assignment "
+                                "during the requested travel dates."
+                            )
+
+
 
                         # Enforce actual bus capacity too.
                         if locked_booking.passenger_count > min(
@@ -345,12 +410,6 @@ def booking_review(request, pk):
                         ).strip() if notes else locked_booking.remarks
 
                         locked_booking.save()
-
-                        vehicle.status = "Booked"
-                        vehicle.save(update_fields=["status"])
-
-                        driver.status = "Reserved"
-                        driver.save(update_fields=["status"])
 
                         # Reuse an existing Pending record, if any.
                         payment = (

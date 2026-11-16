@@ -1,0 +1,136 @@
+
+{% extends "layouts/base.html" %}
+
+{% block title %}My Calendar{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="d-flex flex-wrap justify-content-between
+                align-items-center mb-4 gap-2">
+        <div>
+            <h2 class="fw-bold mb-1">My Calendar</h2>
+            <p class="text-muted mb-0">
+                View your assigned trips and maintenance duties.
+            </p>
+        </div>
+    </div>
+
+    {% if driver %}
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+
+            <div class="d-flex gap-3 mb-4 flex-wrap">
+                <span>
+                    <i class="fa-solid fa-circle text-primary me-1"></i>
+                    Trips
+                </span>
+                <span>
+                    <i class="fa-solid fa-circle text-warning me-1"></i>
+                    Maintenance
+                </span>
+            </div>
+
+            <div id="driver-calendar"></div>
+
+        </div>
+    </div>
+
+    {% else %}
+
+    <div class="alert alert-warning">
+        Your account is not linked to a driver record.
+        Please contact the administrator.
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.css"
+>
+<style>
+    #driver-calendar {
+        min-height: 550px;
+    }
+
+    .fc .fc-toolbar-title {
+        font-size: 1.35rem;
+        font-weight: 700;
+    }
+
+    .fc .fc-button-primary {
+        background-color: #2563eb;
+        border-color: #2563eb;
+    }
+
+    .fc .fc-day-today {
+        background-color: #eff6ff !important;
+    }
+
+    .fc-event {
+        cursor: pointer;
+        border-radius: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const calendarElement = document.getElementById("driver-calendar");
+
+    if (!calendarElement) return;
+
+    const calendar = new FullCalendar.Calendar(calendarElement, {
+        initialView: "dayGridMonth",
+        height: "auto",
+        firstDay: 1,
+
+        headerToolbar: {
+            left: "prev,next today",
+            center: "title",
+            right: "dayGridMonth,timeGridWeek,timeGridDay"
+        },
+
+        events: "{% url 'drivers:driver_calendar_events' %}",
+
+        eventClick: function (info) {
+            const event = info.event;
+            const props = event.extendedProps;
+
+            let details = event.title;
+
+            details += "\nType: " + (props.type || "");
+            details += "\nStatus: " + (props.status || "");
+
+            if (props.type === "Trip") {
+                details += "\nBooking: " + (props.booking_number || "");
+                details += "\nDeparture: " + (props.departure_time || "");
+                details += "\nVehicle: " + (props.vehicle || "");
+            }
+
+            if (props.type === "Maintenance") {
+                details += "\nMaintenance Type: " +
+                           (props.maintenance_type || "");
+                details += "\nWorkshop: " + (props.workshop || "");
+                details += "\nRemarks: " + (props.remarks || "");
+            }
+
+            alert(details);
+        }
+    });
+
+    calendar.render();
+});
+</script>
+{% endblock %}

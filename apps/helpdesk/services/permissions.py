@@ -4,10 +4,13 @@ from apps.helpdesk.models import Conversation
 # ROLE PERMISSIONS
 # ============================================================
 
-ROLE_PERMISSIONS = {
 
+ROLE_PERMISSIONS = {
     "Owner": {
         "general_help",
+        "casual_conversation",
+        "emotional_support",
+        "system_guidance",
         "own_account",
         "own_bookings",
         "own_payments",
@@ -25,6 +28,9 @@ ROLE_PERMISSIONS = {
 
     "Admin": {
         "general_help",
+        "casual_conversation",
+        "emotional_support",
+        "system_guidance",
         "own_account",
         "booking_information",
         "customer_information",
@@ -39,23 +45,26 @@ ROLE_PERMISSIONS = {
 
     "Driver": {
         "general_help",
+        "casual_conversation",
+        "emotional_support",
+        "system_guidance",
         "own_account",
-        "own_bookings",
         "assigned_trips",
         "assigned_vehicle",
-        "driver_information",
         "system_information",
     },
 
     "Customer": {
         "general_help",
+        "casual_conversation",
+        "emotional_support",
+        "system_guidance",
         "own_account",
         "own_bookings",
         "own_payments",
         "system_information",
     },
 }
-
 
 def get_user_role(user):
     """

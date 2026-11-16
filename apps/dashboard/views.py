@@ -112,28 +112,6 @@ def dashboard(request):
     )
 
     # ==========================
-    # CUSTOMER COUNT
-    # ==========================
-
-    customer_count = (
-        Booking.objects
-        .values("customer")
-        .distinct()
-        .count()
-    )
-
-    # ==========================
-    # AVERAGE PAYMENT
-    # ==========================
-
-    average_booking = (
-        Payment.objects
-        .filter(payment_status="Paid")
-        .aggregate(avg=Avg("amount"))["avg"]
-        or 0
-    )
-
-    # ==========================
     # MONTHLY REVENUE
     # ==========================
 
@@ -199,9 +177,6 @@ def dashboard(request):
 
         "today_revenue": today_revenue,
         "month_revenue": month_revenue,
-
-        "customer_count": customer_count,
-        "average_booking": average_booking,
 
         # Revenue analysis
         "revenue_labels": revenue_labels,

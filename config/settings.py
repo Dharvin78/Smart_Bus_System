@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "apps.analytics",
     "apps.reports",
     "apps.helpdesk",
+    "apps.loyalty.apps.LoyaltyConfig",
 ]
 
 MIDDLEWARE = [
@@ -98,12 +99,14 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+        "OPTIONS": {
+            "timeout": 20,
+        },
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -183,3 +186,11 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 #OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 AIMLAPI_KEY = os.getenv("AIMLAPI_KEY", "")
+
+# ============= AUTHENTICATION SETTINGS ================
+
+LOGIN_URL = "accounts:login"
+
+LOGIN_REDIRECT_URL = "/dashboard/dashboard/"
+
+LOGOUT_REDIRECT_URL = "accounts:login"

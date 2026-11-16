@@ -9,16 +9,23 @@ from .forms import VehicleForm
 
 from apps.accounts.decorators import admin_required
 from apps.audit.utils import create_audit_log
+from apps.bookings.availability_services import (
+    get_vehicle_current_status,
+)
+
 
 @admin_required
 def vehicle_list(request):
     """
-    Display all vehicles with search and pagination.
+    Display vehicles with their effective current status.
+    Preserve existing search and pagination.
     """
 
     search = request.GET.get("search", "")
 
-    vehicles = Vehicle.objects.all().order_by("registration_number")
+    vehicles = Vehicle.objects.all().order_by(
+        "registration_number"
+    )
 
     if search:
         vehicles = vehicles.filter(
@@ -30,13 +37,22 @@ def vehicle_list(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
+    # Calculate status only for vehicles on this page.
+    for vehicle in page_obj:
+        vehicle.current_status = get_vehicle_current_status(
+            vehicle
+        )
+
     context = {
         "page_obj": page_obj,
         "search": search,
     }
 
-    return render(request, "vehicles/vehicle_list.html", context)
-
+    return render(
+        request,
+        "vehicles/vehicle_list.html",
+        context,
+    )
 
 @admin_required
 def vehicle_create(request):

@@ -9,7 +9,8 @@ from apps.maintenance.models import Maintenance
 from apps.fuel.models import Fuel
 
 from apps.customers.models import Customer
-
+from django.db.models import Q
+from django.utils import timezone
 
 def get_customer_for_user(user):
     """
@@ -187,13 +188,21 @@ def get_driver_upcoming_trips(user):
     if not driver:
         return []
 
-    today = timezone.localdate()
+    now = timezone.localtime()
+    today = now.date()
+    current_time = now.time()
 
     bookings = Booking.objects.filter(
         driver=driver,
-        travel_date__gte=today,
+        booking_status="Confirmed",
     ).exclude(
         booking_status="Cancelled"
+    ).filter(
+        Q(travel_date__gt=today) |
+        Q(
+            travel_date=today,
+            departure_time__gt=current_time,
+        )
     ).order_by(
         "travel_date",
         "departure_time",
@@ -242,14 +251,11 @@ def get_driver_vehicle(user):
 # ADMIN / OWNER DATA
 # ============================================================
 
-def get_vehicle_information():
-    """
-    Return general vehicle information for authorized
-    administrative users.
-    """
+def get_vehicle_information(user):
+    require_helpdesk_permission(user, "vehicle_information")
 
     return list(
-        Vehicle.objects.all().values(
+        Vehicle.objects.values(
             "registration_number",
             "vehicle_name",
             "bus_type",
@@ -258,28 +264,39 @@ def get_vehicle_information():
             "insurance_expiry",
             "road_tax_expiry",
             "status",
-        )
+        )[:100]
     )
 
 
-def get_driver_information():
-    """
-    Return operational driver information.
-    """
+
+from django.core.exceptions import PermissionDenied
+
+from .permissions import user_has_permission
+
+
+def get_driver_information(user):
+    if not user.is_authenticated:
+        raise PermissionDenied(
+            "Authentication is required."
+        )
+
+    if not user_has_permission(
+        user,
+        "driver_information"
+    ):
+        raise PermissionDenied(
+            "You cannot access driver information."
+        )
 
     return list(
-        Driver.objects.all().values(
+        Driver.objects.values(
             "full_name",
-            "phone",
-            "email",
-            "driving_license",
             "license_expiry",
             "status",
             "assigned_vehicle__vehicle_name",
             "assigned_vehicle__registration_number",
-        )
+        )[:100]
     )
-
 
 def get_booking_information():
     """
