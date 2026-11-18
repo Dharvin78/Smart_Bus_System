@@ -1,6 +1,7 @@
 
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.urls import reverse
 
 from .models import Notification, NotificationRecipient
 
@@ -70,7 +71,7 @@ def notify_customer(
         message=message,
         category="booking",
         notification_type=notification_type,
-        link="/bookings/my-bookings/",
+        link=reverse("bookings:customer_bookings"),
     )
 
 

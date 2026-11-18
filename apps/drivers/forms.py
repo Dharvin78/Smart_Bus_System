@@ -1,63 +1,7 @@
+
 from django import forms
-from .models import Driver, DriverReview
+from .models import DriverReview
 
-
-class DriverForm(forms.ModelForm):
-
-    class Meta:
-        model = Driver
-
-        fields = [
-            "full_name",
-            "phone",
-            "email",
-            "address",
-            "license_expiry",
-            "assigned_vehicle",
-            "status",
-            "photo",
-        ]
-
-        widgets = {
-
-            "full_name": forms.TextInput(attrs={
-                "class": "form-control",
-                "placeholder": "Driver Full Name"
-            }),
-
-            "phone": forms.TextInput(attrs={
-                "class": "form-control",
-                "placeholder": "Phone Number"
-            }),
-
-            "email": forms.EmailInput(attrs={
-                "class": "form-control",
-                "placeholder": "Email Address"
-            }),
-
-            "address": forms.Textarea(attrs={
-                "class": "form-control",
-                "rows": 3,
-                "placeholder": "Home Address"
-            }),
-
-            "license_expiry": forms.DateInput(attrs={
-                "class": "form-control",
-                "type": "date"
-            }),
-
-            "assigned_vehicle": forms.Select(attrs={
-                "class": "form-select"
-            }),
-
-            "status": forms.Select(attrs={
-                "class": "form-select"
-            }),
-
-            "photo": forms.ClearableFileInput(attrs={
-                "class": "form-control"
-            }),
-        }
 
 class DriverReviewForm(forms.ModelForm):
 
@@ -70,7 +14,6 @@ class DriverReviewForm(forms.ModelForm):
         ]
 
         widgets = {
-
             "rating": forms.RadioSelect(
                 choices=[
                     (1, "1"),

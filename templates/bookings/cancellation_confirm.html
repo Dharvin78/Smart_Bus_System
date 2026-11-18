@@ -1,0 +1,33 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Cancel booking {{ booking.booking_number }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card border-0 shadow-sm rounded-4 mx-auto" style="max-width:640px;">
+        <div class="card-body p-4">
+            <h1 class="h3 fw-bold">Cancel booking {{ booking.booking_number }}</h1>
+            <p class="text-muted">{{ booking.pickup_location }} to {{ booking.destination }} · {{ booking.travel_date|date:"j M Y" }}</p>
+            <dl class="row mb-3">
+                <dt class="col-7">Amount paid</dt><dd class="col-5 text-end">RM {{ quote.paid_amount|floatformat:2 }}</dd>
+                <dt class="col-7">Cancellation charge</dt><dd class="col-5 text-end">RM {{ quote.cancellation_charge|floatformat:2 }}</dd>
+                <dt class="col-7">Amount to be refunded</dt><dd class="col-5 text-end fw-bold">RM {{ quote.refund_amount|floatformat:2 }}</dd>
+                <dt class="col-7">Loyalty points used</dt><dd class="col-5 text-end">{{ quote.points_used }}</dd>
+                <dt class="col-7">Loyalty points to be returned</dt><dd class="col-5 text-end">{{ quote.points_returned }}</dd>
+            </dl>
+            {% if quote.refund_amount %}
+                <p>Your refund will be issued within 7 working days.</p>
+            {% endif %}
+            {% if quote.points_used and not quote.points_returned %}
+                <p class="text-muted">Points used on bookings cancelled less than 48 hours before departure are not returned.</p>
+            {% endif %}
+            <form method="post" class="d-flex flex-wrap gap-2">
+                {% csrf_token %}
+                <input type="hidden" name="quote" value="{{ quote_key }}">
+                <button type="submit" class="btn btn-danger">Confirm cancellation</button>
+                <a href="{% url 'bookings:customer_bookings' %}" class="btn btn-outline-secondary">Keep booking</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

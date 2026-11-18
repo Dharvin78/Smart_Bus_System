@@ -29,6 +29,7 @@ urlpatterns = [
     path("drivers/", include("apps.drivers.urls")),
     path("customers/", include("apps.customers.urls")),
     path("payments/", include("apps.payments.urls")),
+    path("loyalty/", include("apps.loyalty.urls")),
     path("maintenance/", include("apps.maintenance.urls")),
     path("fuel/", include("apps.fuel.urls")),
     path("notifications/", include("apps.notifications.urls")),
@@ -42,4 +43,3 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    

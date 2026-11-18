@@ -1,26 +1,24 @@
 import logging
 
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Prefetch, Q
 from django.utils import timezone
 
-from apps.audit.models import AuditLog
 from .models import Booking
 from apps.helpdesk.services.data_access import get_customer_for_user
-from apps.payments.models import Payment
-from django.utils import timezone
+from apps.loyalty.models import LoyaltyTransaction
 from decimal import Decimal, InvalidOperation
-from django.db import transaction
-from django.views.decorators.http import require_POST
+from django.db import OperationalError, transaction
+from django.views.decorators.http import require_http_methods
 from apps.bookings.availability_services import (
     has_booking_date_conflict,
     has_maintenance_date_conflict,
     expire_pending_bookings,
 )
 from django.core.exceptions import PermissionDenied
-from django.db.models import F
 from datetime import timedelta
 from .forms import (
     BookingForm,
@@ -29,10 +27,12 @@ from .forms import (
     CustomerBookingForm,
 )
 
-from apps.emails.services import send_booking_submitted_email
-from apps.notifications.services import (
-    notify_customer,
-    notify_booking_staff,
+from apps.notifications.services import notify_booking_staff
+from .customer_updates import send_customer_booking_update
+from .cancellation_services import (
+    cancel_customer_booking,
+    cancellation_quote,
+    cancellation_quote_key,
 )
 from apps.accounts.decorators import (
     admin_required,
@@ -127,23 +127,10 @@ def booking_create(request):
             booking.total_price = 0
             booking.save()
 
-            # Notify the customer inside the system.
-            try:
-                notify_customer(
-                    booking=booking,
-                    title="Booking Submitted",
-                    message=(
-                        f"Your booking {booking.booking_number} "
-                        "has been submitted and is awaiting approval."
-                    ),
-                    notification_type="success",
-                )
-            except Exception:
-                logger.exception(
-                    "Failed to create customer notification "
-                    "for booking %s",
-                    booking.booking_number,
-                )
+            bookings_url = request.build_absolute_uri(reverse("bookings:customer_bookings"))
+            transaction.on_commit(
+                lambda: send_customer_booking_update(booking, "submitted", bookings_url)
+            )
 
             # Notify Owners and Admins inside the system.
             try:
@@ -160,22 +147,6 @@ def booking_create(request):
             except Exception:
                 logger.exception(
                     "Failed to notify staff about booking %s",
-                    booking.booking_number,
-                )
-
-            # Email the customer without preventing the booking
-            # from being saved if the email service fails.
-            try:
-                email_sent = send_booking_submitted_email(booking)
-
-                if not email_sent:
-                    logger.warning(
-                        "No customer email available for booking %s",
-                        booking.booking_number,
-                    )
-            except Exception:
-                logger.exception(
-                    "Failed to send submission email for booking %s",
                     booking.booking_number,
                 )
 
@@ -256,11 +227,32 @@ def customer_bookings(request):
         "vehicle",
         "driver",
     ).prefetch_related(
-        "driver_review"
+        "driver_review", "payments",
+        Prefetch(
+            "loyaltytransaction_set",
+            queryset=LoyaltyTransaction.objects.filter(transaction_type__in=["Redeemed", "Reversal"]),
+            to_attr="cancellation_points",
+        ),
     ).order_by(
         "-travel_date",
         "-departure_time",
     )
+
+    now = timezone.now()
+    for booking in bookings:
+        booking.cancel_allowed = (
+            booking.booking_status == "Confirmed"
+            and booking.departure_datetime - now >= timedelta(hours=4)
+        )
+        booking.points_used = -sum(
+            entry.points for entry in booking.cancellation_points if entry.transaction_type == "Redeemed"
+        )
+        booking.points_returned = sum(
+            entry.points for entry in booking.cancellation_points if entry.transaction_type == "Reversal"
+        )
+        booking.show_cancellation_details = (
+            booking.booking_status == "Cancelled" and (booking.refund_amount or booking.points_used)
+        )
 
     return render(
         request,
@@ -271,7 +263,7 @@ def customer_bookings(request):
     )
 
 @customer_required
-@require_POST
+@require_http_methods(["GET", "POST"])
 def customer_cancel_booking(request, pk):
     customer = get_customer_for_user(request.user)
 
@@ -280,35 +272,37 @@ def customer_cancel_booking(request, pk):
             "No customer profile is associated with your account."
         )
 
-    with transaction.atomic():
-        booking = get_object_or_404(
-            Booking.objects.select_for_update(),
-            pk=pk,
-            customer=customer,
-        )
-
-        if booking.booking_status != "Pending":
-            messages.error(
-                request,
-                "Only pending booking requests can be cancelled."
-            )
+    if request.method == "GET":
+        booking = get_object_or_404(Booking, pk=pk, customer=customer)
+        try:
+            quote = cancellation_quote(booking)
+        except ValueError as exc:
+            messages.error(request, str(exc))
             return redirect("bookings:customer_bookings")
+        return render(request, "bookings/cancellation_confirm.html", {
+            "booking": booking,
+            "quote": quote,
+            "quote_key": cancellation_quote_key(quote),
+        })
 
-        booking.booking_status = "Cancelled"
-        booking.save(update_fields=["booking_status", "updated_at"])
-
-        AuditLog.objects.create(
-            user=request.user,
-            module="Booking",
-            action="CANCEL",
-            booking=booking,
-            customer=customer,
-            description=(
-                f"Customer {request.user.username} cancelled "
-                f"booking {booking.booking_number} before approval."
-            ),
-            ip_address=request.META.get("REMOTE_ADDR"),
+    try:
+        booking, quote = cancel_customer_booking(
+            pk, customer, request.user, request.META.get("REMOTE_ADDR"),
+            expected_quote=request.POST.get("quote"),
         )
+    except ValueError as exc:
+        messages.error(request, str(exc))
+        return redirect("bookings:customer_bookings")
+    except OperationalError:
+        messages.error(request, "Cancellation is temporarily unavailable. Please try again.")
+        return redirect("bookings:customer_bookings")
+
+    bookings_url = request.build_absolute_uri(reverse("bookings:customer_bookings"))
+    transaction.on_commit(
+        lambda: send_customer_booking_update(
+            booking, "cancelled", bookings_url, cancellation=quote,
+        )
+    )
 
     messages.success(
         request,

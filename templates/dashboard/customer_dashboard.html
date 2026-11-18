@@ -1,4 +1,5 @@
 {% extends "layouts/base.html" %}
+{% load static %}
 
 {% block title %}Customer Dashboard{% endblock %}
 
@@ -40,6 +41,32 @@
         </div>
     </div>
 
+    {% if awaiting_payment %}
+        <section class="card shadow-sm border-0 mb-4" data-payment-countdowns data-server-time="{{ payment_countdown_started_at|date:'U' }}">
+            <div class="card-header bg-white">
+                <h5 class="fw-bold mb-0">Booking payments</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for booking in awaiting_payment %}
+                    <li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-3 p-3"
+                        data-payment-deadline="{{ booking.payment_due_at|date:'U' }}">
+                        <div>
+                            <p class="fw-semibold mb-1">{{ booking.booking_number }} · {{ booking.destination }}</p>
+                            <p class="text-muted small mb-0">Due {{ booking.payment_due_at|date:"j M Y, g:i A T" }}</p>
+                        </div>
+                        <div class="d-flex flex-wrap align-items-center gap-3">
+                            <span class="fw-semibold" data-payment-time-left>{{ booking.payment_expired|yesno:"Payment deadline passed," }}</span>
+                            <a class="btn btn-success{% if booking.payment_expired %} d-none{% endif %}" data-pay-now
+                               href="{% url 'payments:payment_create' %}?booking={{ booking.pk }}">
+                                Pay Now
+                            </a>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+    {% endif %}
+
     <div class="card shadow-sm border-0">
         <div class="card-header bg-white">
             <h5 class="fw-bold mb-0">My Recent Bookings</h5>
@@ -76,4 +103,10 @@
     </div>
 
 </div>
+{% endblock %}
+
+{% block extra_js %}
+    {% if awaiting_payment %}
+        <script src="{% static 'js/payment_countdown.js' %}" defer></script>
+    {% endif %}
 {% endblock %}

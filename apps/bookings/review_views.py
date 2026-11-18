@@ -2,6 +2,7 @@
 from datetime import datetime, timedelta
 
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib import messages
 from django.db import transaction
 from django.db.models import F
@@ -14,6 +15,7 @@ from apps.drivers.models import Driver
 from apps.payments.models import Payment
 
 from .models import Booking
+from .customer_updates import send_customer_booking_update
 from .forms import BookingReviewForm, BookingRejectForm
 from .availability_services import (
     has_booking_date_conflict,
@@ -298,6 +300,12 @@ def booking_review(request, pk):
                             ),
                             ip_address=request.META.get("REMOTE_ADDR"),
                         )
+
+                    event = "approved" if action == "approve" else "rejected"
+                    bookings_url = request.build_absolute_uri(reverse("bookings:customer_bookings"))
+                    transaction.on_commit(
+                        lambda: send_customer_booking_update(locked_booking, event, bookings_url)
+                    )
 
             except ValueError as exc:
                 messages.error(request, str(exc))

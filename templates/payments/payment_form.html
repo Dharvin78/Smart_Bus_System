@@ -386,6 +386,11 @@
         {% endfor %}
     {% endif %}
 
+    {% if available_rewards %}
+        <form method="post" id="loyalty-form" action="{% url 'loyalty:redeem' booking.pk %}">
+            {% csrf_token %}
+        </form>
+    {% endif %}
     <form method="post" id="payment-form">
         {% csrf_token %}
 
@@ -526,12 +531,40 @@
                             <span class="summary-label">Payment status</span>
                             <span class="summary-value">{{ booking.payment_status }}</span>
                         </div>
+                        {% if booking.loyalty_discount %}
+                            <div class="summary-row">
+                                <span class="summary-label">Original fare</span>
+                                <span class="summary-value">RM {{ booking.original_price|floatformat:2 }}</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Loyalty discount</span>
+                                <span class="summary-value text-success">−RM {{ booking.loyalty_discount|floatformat:2 }}</span>
+                            </div>
+                        {% endif %}
                         <div class="summary-row total-row">
                             <span class="summary-label">Total due</span>
                             <span class="total-amount">
                                 RM {{ booking.total_price|floatformat:2 }}
                             </span>
                         </div>
+
+                        {% if reward_window_open %}
+                            <div class="border-top pt-3 mt-3">
+                                <label class="fw-semibold" {% if available_rewards %}for="reward-id"{% endif %}>Loyalty rewards</label>
+                                <p class="small text-muted mb-2">{{ points_balance }} points available. <a href="{% url 'loyalty:dashboard' %}">View rewards</a></p>
+                                {% if available_rewards %}
+                                    <select class="form-select mb-2" id="reward-id" name="reward_id" form="loyalty-form" required>
+                                        <option value="">Choose a reward</option>
+                                        {% for reward in available_rewards %}
+                                            <option value="{{ reward.pk }}">{{ reward.name }} · {{ reward.discount_percentage }}% off (up to RM {{ reward.max_discount|floatformat:2 }}) · {{ reward.points_required }} pts</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button class="btn btn-outline-success" type="submit" form="loyalty-form">Apply reward</button>
+                                {% else %}
+                                    <p class="small text-muted mb-0">You have no redeemable rewards.</p>
+                                {% endif %}
+                            </div>
+                        {% endif %}
 
                         <div class="secure-note">
                             <i class="bi bi-shield-lock-fill fs-5"></i>

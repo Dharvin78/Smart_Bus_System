@@ -64,8 +64,17 @@ View customer payment transactions and payment status.
                 <!-- Payment Status -->
                 <td class="text-center">
 
-                    {% if payment.payment_status == "Refunded" %}
+                    {% if payment.refund_amount and not payment.refund_date %}
+                        <span class="badge bg-warning text-dark">Refund pending</span>
+                        <div class="small">RM {{ payment.refund_amount|floatformat:2 }}</div>
+
+                    {% elif payment.payment_status == "Refunded" %}
                         <span class="badge bg-secondary">Refunded</span>
+                        <div class="small">RM {{ payment.refund_amount|floatformat:2 }}</div>
+
+                    {% elif payment.payment_status == "Partially Refunded" %}
+                        <span class="badge bg-secondary">Partially refunded</span>
+                        <div class="small">RM {{ payment.refund_amount|floatformat:2 }}</div>
 
                     {% elif payment.payment_status == "Paid" %}
                         <span class="badge bg-success">Paid</span>
@@ -98,7 +107,7 @@ View customer payment transactions and payment status.
 
                 <td class="text-center">
                     {% if role == "Customer" %}
-                        {% if payment.payment_status == "Paid" %}
+                        {% if payment.payment_status == "Paid" or payment.payment_status == "Refunded" or payment.payment_status == "Partially Refunded" %}
                             <a
                                 href="{% url 'payments:payment_receipt' payment.pk %}"
                                 class="btn btn-info btn-sm"
@@ -116,7 +125,7 @@ View customer payment transactions and payment status.
                             <span class="text-muted">No action available</span>
                         {% endif %}
                     {% else %}
-                        {% if payment.payment_status == "Paid" %}
+                        {% if payment.payment_status == "Paid" or payment.payment_status == "Refunded" or payment.payment_status == "Partially Refunded" %}
                             <a
                                 href="{% url 'payments:payment_receipt' payment.pk %}"
                                 class="btn btn-outline-secondary btn-sm"

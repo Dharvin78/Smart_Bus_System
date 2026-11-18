@@ -45,6 +45,13 @@
             </a>
         </li>
 
+        <li class="{% if request.resolver_match.app_name == 'loyalty' %}active{% endif %}">
+            <a href="{% url 'loyalty:dashboard' %}">
+                <i class="fa-solid fa-gift"></i>
+                <span>Loyalty Rewards</span>
+            </a>
+        </li>
+
         {% elif role == "Driver" %}
         <li class="{% if request.resolver_match.url_name == 'driver_dashboard' %}active{% endif %}">
             <a href="{% url 'driver_dashboard' %}">

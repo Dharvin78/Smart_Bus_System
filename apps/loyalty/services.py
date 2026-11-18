@@ -1,5 +1,9 @@
 
+from decimal import Decimal, ROUND_HALF_UP
+
+from dateutil.relativedelta import relativedelta
 from django.db import transaction
+from django.db.models import F
 from django.utils import timezone
 
 from apps.bookings.models import Booking
@@ -9,13 +13,12 @@ from apps.loyalty.models import (
     LoyaltyReward,
     LoyaltyTransaction,
 )
-from django.db.models import Sum
-from decimal import Decimal, ROUND_HALF_UP
 
-POINTS_PER_RM = 10
+RM_PER_POINT = 10
+SPENDABLE_TRANSACTION_TYPES = ("Earned", "Reversal")
 
 @transaction.atomic
-def award_loyalty_points(booking):
+def award_loyalty_points(booking, *, earned_at=None):
     """
     Award 1 point for every RM10 spent.
 
@@ -31,12 +34,15 @@ def award_loyalty_points(booking):
     if booking.payment_status != "Paid":
         return False
 
-    points = int(booking.total_price // POINTS_PER_RM)
+    if booking.total_price is None:
+        return False
+
+    points = int(booking.total_price // RM_PER_POINT)
 
     if points <= 0:
         return False
 
-    account, created = LoyaltyAccount.objects.get_or_create(
+    account, _ = LoyaltyAccount.objects.get_or_create(
         customer=booking.customer
     )
 
@@ -57,6 +63,7 @@ def award_loyalty_points(booking):
         booking=booking,
         transaction_type="Earned",
         points=points,
+        earned_at=earned_at,
         description=f"Points earned from {booking.booking_number}"
     )
 
@@ -74,14 +81,13 @@ def expire_loyalty_points(account):
     """
     Expire unused loyalty points after 6 months.
 
-    - Only earned points can expire.
+    - Earned and restored points can expire.
     - Redeemed points cannot expire again.
     - Membership tier remains unchanged.
     """
 
-    account = LoyaltyAccount.objects.select_for_update().get(
-        pk=account.pk
-    )
+    LoyaltyAccount.objects.filter(pk=account.pk).update(updated_at=F("updated_at"))
+    account = LoyaltyAccount.objects.get(pk=account.pk)
 
     now = timezone.now()
 
@@ -89,7 +95,7 @@ def expire_loyalty_points(account):
         LoyaltyTransaction.objects.select_for_update()
         .filter(
             account=account,
-            transaction_type="Earned",
+            transaction_type__in=SPENDABLE_TRANSACTION_TYPES,
             expires_at__lte=now,
             remaining_points__gt=0
         )
@@ -107,7 +113,7 @@ def expire_loyalty_points(account):
             transaction_type="Expired",
             points=-expired_points,
             description=(
-                f"Points expired from earning #{earning.id}"
+                f"Points expired from transaction #{earning.id}"
             )
         )
 
@@ -122,6 +128,19 @@ def expire_loyalty_points(account):
 
     return total_expired
 
+
+def current_loyalty_account(customer):
+    account = LoyaltyAccount.objects.filter(customer=customer).first()
+    if account and account.transactions.filter(
+        transaction_type__in=SPENDABLE_TRANSACTION_TYPES,
+        expires_at__lte=timezone.now(),
+        remaining_points__gt=0,
+    ).exists():
+        expire_loyalty_points(account)
+        account.refresh_from_db()
+    return account
+
+
 @transaction.atomic
 def redeem_loyalty_reward(booking, reward_id):
     """
@@ -131,10 +150,9 @@ def redeem_loyalty_reward(booking, reward_id):
     are updated within one database transaction.
     """
 
-    # Lock and refresh the booking first.
-    booking = Booking.objects.select_for_update().get(
-        pk=booking.pk
-    )
+    # Serialize redemption with payment, including on SQLite.
+    Booking.objects.filter(pk=booking.pk).update(updated_at=F("updated_at"))
+    booking = Booking.objects.get(pk=booking.pk)
 
     if booking.booking_status != "Confirmed":
         raise ValueError(
@@ -145,6 +163,9 @@ def redeem_loyalty_reward(booking, reward_id):
         raise ValueError(
             "Loyalty rewards must be redeemed before payment."
         )
+
+    if timezone.now() >= (booking.payment_deadline or booking.departure_datetime):
+        raise ValueError("The payment deadline for this booking has passed.")
 
     if Payment.objects.filter(
         booking=booking,
@@ -163,14 +184,18 @@ def redeem_loyalty_reward(booking, reward_id):
             "A loyalty reward has already been redeemed."
         )
 
-    reward = LoyaltyReward.objects.get(
+    reward = LoyaltyReward.objects.filter(
         pk=reward_id,
         is_active=True
-    )
+    ).first()
+    if reward is None:
+        raise ValueError("This loyalty reward is no longer available.")
 
-    account = LoyaltyAccount.objects.select_for_update().get(
+    account = LoyaltyAccount.objects.select_for_update().filter(
         customer=booking.customer
-    )
+    ).first()
+    if account is None:
+        raise ValueError("Insufficient loyalty points.")
 
     # Remove expired points before redemption.
     expire_loyalty_points(account)
@@ -207,7 +232,7 @@ def redeem_loyalty_reward(booking, reward_id):
         LoyaltyTransaction.objects.select_for_update()
         .filter(
             account=account,
-            transaction_type="Earned",
+            transaction_type__in=SPENDABLE_TRANSACTION_TYPES,
             remaining_points__gt=0,
             expires_at__gt=timezone.now()
         )
@@ -284,3 +309,26 @@ def redeem_loyalty_reward(booking, reward_id):
         "final_price": final_price,
         "points_used": reward.points_required,
     }
+
+
+@transaction.atomic
+def restore_redeemed_points(booking, redemption, now):
+    account = LoyaltyAccount.objects.select_for_update().get(
+        pk=redemption.account_id, customer=booking.customer,
+    )
+    if account.transactions.filter(booking=booking, transaction_type="Reversal").exists():
+        return 0
+
+    points = -redemption.points
+    account.transactions.create(
+        booking=booking,
+        reward=redemption.reward,
+        transaction_type="Reversal",
+        points=points,
+        remaining_points=points,
+        expires_at=now + relativedelta(months=6),
+        description=f"Points returned after cancelling {booking.booking_number}",
+    )
+    account.points_balance += points
+    account.save(update_fields=["points_balance", "updated_at"])
+    return points

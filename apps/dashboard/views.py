@@ -3,7 +3,7 @@ from datetime import date, datetime
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.db.models import Count, Q, Sum
+from django.db.models import Count, Exists, OuterRef, Q, Sum
 from django.db.models.functions import TruncMonth
 from django.shortcuts import redirect, render
 from django.utils import timezone
@@ -422,6 +422,16 @@ def customer_dashboard(request):
         .order_by("-travel_date")
     )
 
+    now = timezone.now()
+    paid_payments = Payment.objects.filter(booking_id=OuterRef("pk"), payment_status="Paid")
+    awaiting_payment = list(bookings.filter(
+        booking_status="Confirmed", payment_status="Pending", total_price__gt=0,
+    ).filter(~Exists(paid_payments)))
+    for booking in awaiting_payment:
+        booking.payment_due_at = booking.payment_deadline or booking.departure_datetime
+        booking.payment_expired = booking.payment_due_at <= now
+    awaiting_payment.sort(key=lambda booking: (booking.payment_expired, booking.payment_due_at))
+
     context = {
         "total_bookings": bookings.count(),
 
@@ -438,6 +448,8 @@ def customer_dashboard(request):
         ).count(),
 
         "recent_bookings": bookings[:5],
+        "awaiting_payment": awaiting_payment,
+        "payment_countdown_started_at": now,
     }
 
     return render(

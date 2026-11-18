@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from apps.loyalty.models import LoyaltyReward
+from apps.loyalty.services import current_loyalty_account
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import FileResponse
@@ -179,6 +181,21 @@ def payment_create(request):
         else:
             messages.error(request, "Please select a valid payment method.")
 
+    points_balance = 0
+    available_rewards = []
+    reward_window_open = (
+        booking.payment_status == "Pending"
+        and not booking.loyalty_discount
+        and timezone.now() < (booking.payment_deadline or booking.departure_datetime)
+    )
+    if reward_window_open:
+        account = current_loyalty_account(customer)
+        if account:
+            points_balance = account.points_balance
+            available_rewards = LoyaltyReward.objects.filter(
+                is_active=True, points_required__lte=points_balance,
+            ).order_by("points_required", "pk")
+
     return render(
         request,
         "payments/payment_form.html",
@@ -186,6 +203,9 @@ def payment_create(request):
             "form": form,
             "title": "Complete Your Payment",
             "booking": booking,
+            "points_balance": points_balance,
+            "available_rewards": available_rewards,
+            "reward_window_open": reward_window_open,
         },
     )
 

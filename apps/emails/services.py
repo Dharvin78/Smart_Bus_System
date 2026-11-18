@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
+from django.utils import formats
 
 
 def send_booking_confirmation(booking):
@@ -62,38 +63,39 @@ def send_payment_receipt(payment):
 
 
 
-def send_booking_submitted_email(booking):
-    """Email the customer that their booking is awaiting approval."""
-    from django.conf import settings
-    from django.core.mail import EmailMultiAlternatives
-
+def send_booking_update_email(booking, title, message, details, bookings_url):
     customer = booking.customer
-
-    customer_name = (
-        f"{customer.first_name} {customer.last_name}".strip()
-    )
-
-    if not customer.email:
+    recipient = customer.email or getattr(customer.user, "email", "")
+    if not recipient:
         return False
 
-    subject = f"Booking Submitted - {booking.booking_number}"
-
-    body = (
-        f"Dear {customer_name},\n\n"
-        f"Your booking {booking.booking_number} has been submitted "
-        "successfully and is awaiting approval.\n\n"
-        f"Travel date: {booking.travel_date}\n"
-        f"Departure time: {booking.departure_time}\n"
-        f"Pickup: {booking.pickup_location}\n"
-        f"Destination: {booking.destination}\n\n"
-        "We will notify you when your booking has been reviewed."
-    )
+    customer_name = f"{customer.first_name} {customer.last_name}".strip() or "there"
+    trip_details = [
+        ("Booking reference", booking.booking_number),
+        ("Travel date", formats.date_format(booking.travel_date, "j M Y")),
+        ("Departure time", formats.time_format(booking.departure_time, "g:i A")),
+        ("Pickup", booking.pickup_location),
+        ("Destination", booking.destination),
+        *details,
+    ]
+    html = render_to_string("emails/booking_update.html", {
+        "title": title,
+        "customer_name": customer_name,
+        "message": message,
+        "trip_details": trip_details,
+        "bookings_url": bookings_url,
+    })
+    body = "\n".join([
+        f"Hi {customer_name},", "", message, "",
+        *(f"{label}: {value}" for label, value in trip_details),
+        "", f"My Bookings: {bookings_url}",
+    ])
 
     email = EmailMultiAlternatives(
-        subject=subject,
+        subject=f"{title} - {booking.booking_number}",
         body=body,
         from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[customer.email],
+        to=[recipient],
     )
-
-    return email.send(fail_silently=False) == 1
+    email.attach_alternative(html, "text/html")
+    return email.send() == 1

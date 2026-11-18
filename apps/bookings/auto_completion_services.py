@@ -1,8 +1,10 @@
 from django.db import transaction
-from django.db.models import F, Q
+from django.db.models import Exists, OuterRef, Q
 from django.utils import timezone
 
 from apps.bookings.models import Booking
+from apps.loyalty.models import LoyaltyTransaction
+from apps.loyalty.services import RM_PER_POINT, award_loyalty_points
 
 
 def complete_expired_bookings():
@@ -33,5 +35,16 @@ def complete_expired_bookings():
             booking_status="Completed",
             updated_at=timezone.now()
         )
+
+        # Include eligible trips completed before loyalty was enabled.
+        earnings = LoyaltyTransaction.objects.filter(
+            booking_id=OuterRef("pk"), transaction_type="Earned",
+        )
+        uncredited_bookings = Booking.objects.filter(
+            booking_status="Completed", payment_status="Paid",
+            total_price__gte=RM_PER_POINT,
+        ).filter(~Exists(earnings)).order_by("customer_id", "pk")
+        for booking in uncredited_bookings:
+            award_loyalty_points(booking, earned_at=booking.updated_at)
 
     return completed_count

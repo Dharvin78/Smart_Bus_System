@@ -2,9 +2,8 @@
 
 from datetime import timedelta
 from decimal import Decimal
-from unittest.mock import patch
-
 from django.contrib.auth import get_user_model
+from django.core import mail
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -48,21 +47,30 @@ class CustomerBookingTests(TestCase):
 
         self.client.force_login(self.customer_user)
 
-    @patch("apps.bookings.views.send_booking_submitted_email")
-    @patch("apps.bookings.views.notify_booking_staff")
-    @patch("apps.bookings.views.notify_customer")
-    
-    def test_customer_can_submit_booking(
-        self,
-        mock_notify_customer,
-        mock_notify_staff,
-        mock_send_email,
-    ):
-        mock_send_email.return_value = True
+    def post_and_send_updates(self, url, data):
+        with self.captureOnCommitCallbacks(execute=True):
+            return self.client.post(url, data)
 
+    def assert_customer_update(self, booking, title, detail):
+        recipient = self.customer_user.notification_recipients.get()
+        notification = recipient.notification
+        self.assertEqual(notification.title, title)
+        self.assertEqual(notification.link, reverse("bookings:customer_bookings"))
+        self.assertIn(booking.booking_number, notification.message)
+        self.assertIn(detail, notification.message)
+        self.assertEqual(len(mail.outbox), 1)
+        email = mail.outbox[0]
+        self.assertEqual(email.to, [self.customer.email])
+        self.assertEqual(email.subject, f"{title} - {booking.booking_number}")
+        self.assertIn(detail, email.body)
+        self.assertEqual(email.alternatives[0].mimetype, "text/html")
+        self.assertIn(detail, email.alternatives[0].content)
+        self.assertIn("Open My Bookings", email.alternatives[0].content)
+
+    def test_customer_can_submit_booking(self):
         travel_date = timezone.localdate() + timedelta(days=7)
 
-        response = self.client.post(
+        response = self.post_and_send_updates(
             reverse("bookings:booking_create"),
             {
                 "pickup_location": "Penang Airport",
@@ -92,6 +100,7 @@ class CustomerBookingTests(TestCase):
         self.assertEqual(booking.total_price, Decimal("0.00"))
         self.assertEqual(booking.passenger_count, 20)
         self.assertTrue(booking.booking_number)
+        self.assert_customer_update(booking, "Booking Request Received", "awaiting staff review")
 
         print("TC-B01: Customer booking submitted successfully")
 
@@ -119,7 +128,7 @@ class CustomerBookingTests(TestCase):
         print("TC-B02: Booking with 43 passengers rejected successfully")
 
     
-    def test_owner_can_approve_pending_booking(self):
+    def approve_pending_booking(self):
         User = get_user_model()
 
         owner = User.objects.create_user(
@@ -173,7 +182,7 @@ class CustomerBookingTests(TestCase):
 
         self.client.force_login(owner)
 
-        response = self.client.post(
+        response = self.post_and_send_updates(
             reverse("bookings:booking_review", args=[booking.pk]),
             {
                 "action": "approve",
@@ -194,6 +203,17 @@ class CustomerBookingTests(TestCase):
             reverse("bookings:booking_list"),
         )
 
+        return booking, vehicle, driver
+
+    def test_approval_sends_customer_update_with_price_and_deadline(self):
+        booking, _, _ = self.approve_pending_booking()
+        booking.refresh_from_db()
+        self.assert_customer_update(booking, "Booking Approved", "RM 1,000.00")
+        deadline = timezone.localtime(booking.payment_deadline)
+        self.assertIn(f"{deadline:%d %b %Y, %I:%M %p %Z}", mail.outbox[0].body)
+
+    def test_owner_can_approve_pending_booking(self):
+        booking, vehicle, driver = self.approve_pending_booking()
         booking.refresh_from_db()
         vehicle.refresh_from_db()
         driver.refresh_from_db()
@@ -248,12 +268,13 @@ class CustomerBookingTests(TestCase):
         owner.profile.refresh_from_db()
         self.client.force_login(owner)
 
-        response = self.client.post(
-            reverse("bookings:booking_review", args=[booking.pk]),
-            {
-                "action": "reject",
-                "reason": "Vehicle unavailable for requested date",
-            },
+        review_url = reverse("bookings:booking_review", args=[booking.pk])
+        review_data = {
+            "action": "reject",
+            "reason": "Vehicle unavailable for requested date",
+        }
+        response = self.post_and_send_updates(
+            review_url, review_data,
         )
 
         self.assertRedirects(
@@ -271,5 +292,7 @@ class CustomerBookingTests(TestCase):
         self.assertIsNotNone(booking.cancelled_at)
         self.assertIsNone(booking.vehicle)
         self.assertIsNone(booking.driver)
+        self.post_and_send_updates(review_url, review_data)
+        self.assert_customer_update(booking, "Booking Rejected", booking.rejection_reason)
 
         print("TC-B04: Owner rejected pending booking successfully")

@@ -1,10 +1,15 @@
 # Register your models here.
 from django.contrib import admin
+from apps.loyalty.services import award_loyalty_points
 from .models import Booking
 
 
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        award_loyalty_points(obj)
 
     list_display = (
         "booking_number",
