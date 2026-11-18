@@ -1,153 +1,968 @@
-<div class="chart-grid">
 
-    <!-- Revenue Trend -->
-    <div class="chart-card">
+{% load static %}
 
-        <!-- Add chart here later -->
+<style>
+/* =========================================
+   MODERN OWNER / ADMIN DASHBOARD
+========================================= */
+
+.modern-dashboard {
+    --dash-blue: #2563eb;
+    --dash-border: #e5eaf2;
+    --dash-muted: #64748b;
+    --dash-text: #172b4d;
+
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    color: var(--dash-text);
+}
+
+.modern-dashboard *,
+.modern-dashboard *::before,
+.modern-dashboard *::after {
+    box-sizing: border-box;
+}
+
+/* =========================================
+   PANELS
+========================================= */
+
+.modern-dashboard .panel {
+    background: #ffffff;
+    border: 1px solid var(--dash-border);
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 3px 14px rgba(15, 23, 42, 0.035);
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.modern-dashboard .panel-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.modern-dashboard .panel-heading h3 {
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0;
+    color: var(--dash-text);
+}
+
+/* =========================================
+   GRID LAYOUT
+========================================= */
+
+.modern-dashboard .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.modern-dashboard .section-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: 18px;
+    margin-top: 18px;
+    align-items: stretch;
+}
+
+.modern-dashboard .section-grid > * {
+    min-width: 0;
+    max-width: 100%;
+}
+
+/* =========================================
+   METRIC CARDS
+========================================= */
+
+.modern-dashboard .metric {
+    background: #f8fafc;
+    border: 1px solid #edf1f6;
+    border-radius: 12px;
+    padding: 16px;
+    min-width: 0;
+}
+
+.modern-dashboard .metric-label {
+    color: var(--dash-muted);
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.modern-dashboard .metric-value {
+    font-size: 26px;
+    font-weight: 750;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+    font-variant-numeric: tabular-nums;
+}
+
+.modern-dashboard .metric-icon {
+    margin-bottom: 12px;
+    font-size: 20px;
+}
+
+/* =========================================
+   COLORS
+========================================= */
+
+.modern-dashboard .text-blue {
+    color: #2563eb;
+}
+
+.modern-dashboard .text-green {
+    color: #16a34a;
+}
+
+.modern-dashboard .text-orange {
+    color: #d97706;
+}
+
+.modern-dashboard .text-red {
+    color: #dc2626;
+}
+
+.modern-dashboard .text-purple {
+    color: #7c3aed;
+}
+
+/* =========================================
+   BOOKING PERIOD FILTER
+========================================= */
+
+.modern-dashboard .period-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modern-dashboard .period-filter label {
+    color: var(--dash-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.modern-dashboard .period-filter select {
+    appearance: auto;
+    background: #ffffff;
+    border: 1px solid #dbe3ee;
+    border-radius: 9px;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 12px;
+    cursor: pointer;
+    outline: none;
+}
+
+.modern-dashboard .period-filter select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.modern-dashboard .period-summary {
+    font-size: 12px;
+    color: var(--dash-muted);
+    margin-top: 15px;
+}
+
+/* =========================================
+   TABLES
+========================================= */
+
+.modern-dashboard .table-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.modern-dashboard .dashboard-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.modern-dashboard .dashboard-table th {
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 650;
+    text-align: left;
+    padding: 13px 12px;
+    white-space: nowrap;
+}
+
+.modern-dashboard .dashboard-table td {
+    border-top: 1px solid #edf1f6;
+    padding: 14px 12px;
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+.modern-dashboard .dashboard-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+/* =========================================
+   BOOKING STATUS BADGES
+========================================= */
+
+.modern-dashboard .status-pill {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.modern-dashboard .status-confirmed {
+    color: #1d4ed8;
+    background: #dbeafe;
+}
+
+.modern-dashboard .status-pending {
+    color: #92400e;
+    background: #fef3c7;
+}
+
+.modern-dashboard .status-completed {
+    color: #166534;
+    background: #dcfce7;
+}
+
+.modern-dashboard .status-cancelled {
+    color: #991b1b;
+    background: #fee2e2;
+}
+
+.modern-dashboard .status-default {
+    color: #475569;
+    background: #f1f5f9;
+}
+
+/* =========================================
+   FLEET STATUS
+========================================= */
+
+.modern-dashboard .status-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.modern-dashboard .status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #edf1f6;
+    font-size: 13px;
+}
+
+.modern-dashboard .status-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.modern-dashboard .status-name i {
+    margin-right: 9px;
+}
+
+.modern-dashboard .status-number {
+    font-weight: 750;
+    font-size: 16px;
+}
+
+/* =========================================
+   REVENUE ANALYTICS
+========================================= */
+
+.modern-dashboard .revenue-panel {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.modern-dashboard .revenue-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    width: 100%;
+    margin-bottom: 22px;
+}
+
+.modern-dashboard .revenue-summary-grid .metric {
+    min-width: 0;
+}
+
+.modern-dashboard .revenue-summary-grid .metric-value {
+    font-size: clamp(18px, 2vw, 26px);
+}
+
+.modern-dashboard .revenue-chart {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    height: 300px;
+    min-height: 300px;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.modern-dashboard .revenue-chart canvas {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* =========================================
+   EMPTY STATES
+========================================= */
+
+.modern-dashboard .empty-state {
+    text-align: center;
+    padding: 30px 12px;
+    color: #94a3b8;
+}
+
+.modern-dashboard .empty-state i {
+    font-size: 26px;
+    margin-bottom: 10px;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1100px) {
+    .modern-dashboard .section-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .modern-dashboard .overview-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .modern-dashboard .revenue-chart {
+        height: 280px;
+        min-height: 280px;
+    }
+}
+
+@media (max-width: 600px) {
+    .modern-dashboard .panel {
+        padding: 15px;
+    }
+
+    .modern-dashboard .overview-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .modern-dashboard .metric {
+        padding: 12px;
+    }
+
+    .modern-dashboard .metric-value {
+        font-size: 21px;
+    }
+
+    .modern-dashboard .period-filter {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .modern-dashboard .revenue-summary-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .modern-dashboard .revenue-chart {
+        height: 250px;
+        min-height: 250px;
+    }
+}
+</style>
+
+
+<div class="modern-dashboard">
+
+    <!-- =====================================
+         BOOKING OVERVIEW
+    ====================================== -->
+
+    <section class="panel mt-4">
+
+        <div class="panel-heading">
+            <h3>
+                <i class="fa-solid fa-chart-simple text-blue me-2"></i>
+                Booking Overview
+            </h3>
+
+            <form method="get" class="period-filter">
+                <label for="booking-period">Period</label>
+
+                <select
+                    name="booking_period"
+                    id="booking-period"
+                    onchange="this.form.submit()"
+                >
+                    <option value="month"
+                        {% if booking_period == "month" %}selected{% endif %}>
+                        This Month
+                    </option>
+
+                    <option value="year"
+                        {% if booking_period == "year" %}selected{% endif %}>
+                        This Year
+                    </option>
+
+                    <option value="all"
+                        {% if booking_period == "all" %}selected{% endif %}>
+                        All Time
+                    </option>
+                </select>
+
+                <noscript>
+                    <button type="submit">Apply</button>
+                </noscript>
+            </form>
+        </div>
+
+        <div class="overview-grid">
+
+            <div class="metric">
+                <div class="metric-icon text-orange">
+                    <i class="fa-regular fa-clock"></i>
+                </div>
+                <div class="metric-label">Pending Approval</div>
+                <div class="metric-value">{{ pending_bookings }}</div>
+            </div>
+
+            <div class="metric">
+                <div class="metric-icon text-blue">
+                    <i class="fa-solid fa-calendar-check"></i>
+                </div>
+                <div class="metric-label">Confirmed</div>
+                <div class="metric-value">{{ confirmed_bookings }}</div>
+            </div>
+
+            <div class="metric">
+                <div class="metric-icon text-green">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div class="metric-label">Completed</div>
+                <div class="metric-value">{{ completed_bookings }}</div>
+            </div>
+
+            <div class="metric">
+                <div class="metric-icon text-red">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </div>
+                <div class="metric-label">Cancelled</div>
+                <div class="metric-value">{{ cancelled_bookings }}</div>
+            </div>
+
+        </div>
+
+        <div class="period-summary">
+            {{ booking_period_label }}:
+            <strong>{{ period_total_bookings }}</strong>
+            bookings submitted.
+            Counts reflect their current booking status.
+        </div>
+
+    </section>
+    
+    <!-- =====================================
+        UPCOMING TRIPS - FULL WIDTH
+    ====================================== -->
+
+    <section class="panel mt-4">
+
+        <div class="panel-heading">
+            <h3>
+                <i class="fa-solid fa-route text-blue me-2"></i>
+                Upcoming Trips
+            </h3>
+        </div>
+
+        <div class="table-wrap">
+            <table class="dashboard-table">
+
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Driver</th>
+                        <th>Vehicle</th>
+                        <th>Pickup Location</th>
+                        <th>Travel Date</th>
+                        <th>Pickup Time</th>
+                        <th>Destination</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for booking in upcoming_bookings %}
+
+                    <tr>
+                        <!-- CUSTOMER -->
+                        <td>
+                            {% if booking.customer %}
+                                {{ booking.customer.first_name }}
+                                {{ booking.customer.last_name }}
+                            {% else %}
+                                <span class="text-muted">Not Available</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- DRIVER -->
+                        <td>
+                            {% if booking.driver %}
+                                {{ booking.driver.full_name }}
+                            {% else %}
+                                <span class="text-muted">Not Assigned</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- VEHICLE -->
+                        <td>
+                            {% if booking.vehicle %}
+                                {{ booking.vehicle }}
+                            {% else %}
+                                <span class="text-muted">Not Assigned</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- PICKUP LOCATION -->
+                        <td>
+                            {{ booking.pickup_location|default:"-" }}
+                        </td>
+
+                        <!-- TRAVEL DATE -->
+                        <td>
+                            {{ booking.travel_date|date:"d M Y" }}
+                        </td>
+
+                        <!-- PICKUP TIME -->
+                        <td>
+                            {{ booking.departure_time|time:"h:i A"|default:"-" }}
+                        </td>
+
+                        <!-- DESTINATION -->
+                        <td>
+                            {{ booking.destination|default:"-" }}
+                        </td>
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <i class="fa-regular fa-calendar"></i>
+                                <div>No upcoming confirmed trips.</div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </section>
+
+    <!-- =====================================
+         REVENUE ANALYTICS AND FLEET STATUS
+    ====================================== -->
+
+    <div class="section-grid">
+
+        <!-- REVENUE ANALYTICS -->
+        <section class="panel revenue-panel">
+
+            <div class="panel-heading">
+                <h3>
+                    <i class="fa-solid fa-chart-line text-blue me-2"></i>
+                    Revenue Analytics
+                </h3>
+
+                <span class="text-muted small">
+                    Last 6 months
+                </span>
+            </div>
+
+            <div class="revenue-summary-grid">
+
+                <div class="metric">
+                    <div class="metric-label">Today's Revenue</div>
+                    <div class="metric-value">
+                        RM {{ today_revenue|floatformat:2 }}
+                    </div>
+                </div>
+
+                <div class="metric">
+                    <div class="metric-label">This Month</div>
+                    <div class="metric-value">
+                        RM {{ month_revenue|floatformat:2 }}
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="revenue-chart">
+                <canvas id="modernRevenueChart"></canvas>
+            </div>
+
+        </section>
+
+
+        <!-- FLEET STATUS -->
+        <section class="panel">
+
+            <div class="panel-heading">
+                <h3>
+                    <i class="fa-solid fa-bus text-blue me-2"></i>
+                    Fleet Status
+                </h3>
+            </div>
+
+            <div class="status-list">
+
+                <div class="status-row">
+                    <span class="status-name">
+                        <i class="fa-solid fa-circle-check text-green"></i>
+                        Available
+                    </span>
+                    <span class="status-number">
+                        {{ available_vehicles }}
+                    </span>
+                </div>
+
+                <div class="status-row">
+                    <span class="status-name">
+                        <i class="fa-solid fa-calendar-check text-blue"></i>
+                        Booked
+                    </span>
+                    <span class="status-number">
+                        {{ booked_vehicles }}
+                    </span>
+                </div>
+
+                <div class="status-row">
+                    <span class="status-name">
+                        <i class="fa-solid fa-road text-purple"></i>
+                        On Trip
+                    </span>
+                    <span class="status-number">
+                        {{ on_trip_vehicles }}
+                    </span>
+                </div>
+
+                <div class="status-row">
+                    <span class="status-name">
+                        <i class="fa-solid fa-screwdriver-wrench text-orange"></i>
+                        Maintenance
+                    </span>
+                    <span class="status-number">
+                        {{ maintenance_vehicles }}
+                    </span>
+                </div>
+
+                {% if other_vehicles %}
+                <div class="status-row">
+                    <span class="status-name">
+                        <i class="fa-solid fa-circle-question"></i>
+                        Other
+                    </span>
+                    <span class="status-number">
+                        {{ other_vehicles }}
+                    </span>
+                </div>
+                {% endif %}
+
+            </div>
+
+        </section>
 
     </div>
+
+
+    <!-- =====================================
+         RECENT BOOKINGS
+    ====================================== -->
+
+    <section class="panel mt-4">
+
+        <div class="panel-heading">
+            <h3>
+                <i class="fa-solid fa-clock-rotate-left text-blue me-2"></i>
+                Recent Bookings
+            </h3>
+        </div>
+
+        <div class="table-wrap">
+            <table class="dashboard-table">
+
+                <thead>
+                    <tr>
+                        <th>Booking No.</th>
+                        <th>Destination</th>
+                        <th>Travel Date</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for booking in recent_bookings %}
+
+                    <tr>
+                        <td>
+                            <strong>{{ booking.booking_number }}</strong>
+                        </td>
+
+                        <td>{{ booking.destination }}</td>
+
+                        <td>{{ booking.travel_date|date:"d M Y" }}</td>
+
+                        <td>
+                            RM {{ booking.total_price|floatformat:2 }}
+                        </td>
+
+                        <td>
+                            {% if booking.booking_status == "Pending" %}
+                                <span class="status-pill status-pending">
+                                    Pending
+                                </span>
+
+                            {% elif booking.booking_status == "Confirmed" %}
+                                <span class="status-pill status-confirmed">
+                                    Confirmed
+                                </span>
+
+                            {% elif booking.booking_status == "Completed" %}
+                                <span class="status-pill status-completed">
+                                    Completed
+                                </span>
+
+                            {% elif booking.booking_status == "Cancelled" %}
+                                <span class="status-pill status-cancelled">
+                                    Cancelled
+                                </span>
+
+                            {% else %}
+                                <span class="status-pill status-default">
+                                    {{ booking.booking_status }}
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="5">
+                            <div class="empty-state">
+                                No recent bookings available.
+                            </div>
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </section>
 
 </div>
 
 
-<!-- Upcoming Bookings Card -->
-<div class="dashboard-card mt-4">
+<!-- =====================================
+     REVENUE CHART DATA
+====================================== -->
 
-    <div class="card-header">
-        <h4>Upcoming Bookings</h4>
-    </div>
-
-    <table class="table">
-
-        <thead>
-            <tr>
-                <th>Booking No</th>
-                <th>Destination</th>
-                <th>Date</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-
-        <tbody>
-
-            {% for booking in upcoming_bookings %}
-
-            <tr>
-
-                <td>
-                    {{ booking.booking_number }}
-                </td>
-
-                <td>
-                    {{ booking.destination }}
-                </td>
-
-                <td>
-                    {{ booking.travel_date }}
-                </td>
-
-                <td>
-                    {{ booking.status }}
-                </td>
-
-            </tr>
-
-            {% empty %}
-
-            <tr>
-                <td colspan="4">
-                    No upcoming bookings.
-                </td>
-            </tr>
-
-            {% endfor %}
-
-        </tbody>
-
-    </table>
-
-</div>
+{{ revenue_labels|json_script:"dashboard-revenue-labels" }}
+{{ revenue_values|json_script:"dashboard-revenue-values" }}
 
 
+<!-- =====================================
+     CHART.JS
+====================================== -->
 
-<!-- Fleet Status Card -->
-<div class="dashboard-card mt-4">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
 
-    <div class="card-header">
-        <h4>Fleet Status</h4>
-    </div>
+<script>
+(function () {
+    "use strict";
 
-    <div class="fleet-status">
+    function initializeRevenueChart() {
 
-        <div class="fleet-card available">
+        const canvas = document.getElementById("modernRevenueChart");
+        const labelsElement = document.getElementById("dashboard-revenue-labels");
+        const valuesElement = document.getElementById("dashboard-revenue-values");
 
-            <i class="fa-solid fa-circle-check"></i>
+        if (
+            !canvas ||
+            !labelsElement ||
+            !valuesElement ||
+            typeof Chart === "undefined"
+        ) {
+            return;
+        }
 
-            <h3>{{ available_vehicles }}</h3>
+        let labels;
+        let values;
 
-            <p>Available</p>
+        try {
+            labels = JSON.parse(labelsElement.textContent);
+            values = JSON.parse(valuesElement.textContent);
+        } catch (error) {
+            console.error("Unable to read revenue chart data:", error);
+            return;
+        }
 
-        </div>
+        const existingChart = Chart.getChart(canvas);
 
+        if (existingChart) {
+            existingChart.destroy();
+        }
 
-        <div class="fleet-card trip">
+        const context = canvas.getContext("2d");
 
-            <i class="fa-solid fa-road"></i>
+        if (!context) {
+            return;
+        }
 
-            <h3>{{ on_trip_vehicles }}</h3>
+        new Chart(context, {
+            type: "line",
 
-            <p>On Trip</p>
+            data: {
+                labels: labels,
 
-        </div>
+                datasets: [{
+                    label: "Revenue (RM)",
+                    data: values,
 
+                    borderColor: "#2563eb",
+                    backgroundColor: "rgba(37, 99, 235, 0.08)",
 
-        <div class="fleet-card maintenance">
+                    fill: true,
+                    tension: 0.35,
 
-            <i class="fa-solid fa-screwdriver-wrench"></i>
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
 
-            <h3>{{ maintenance_vehicles }}</h3>
+                    pointBackgroundColor: "#2563eb",
+                    pointBorderColor: "#ffffff",
+                    pointBorderWidth: 2,
 
-            <p>Maintenance</p>
+                    borderWidth: 2
+                }]
+            },
 
-        </div>
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                resizeDelay: 100,
 
-    </div>
+                layout: {
+                    padding: {
+                        top: 10,
+                        right: 12,
+                        bottom: 4,
+                        left: 4
+                    }
+                },
 
-</div>
+                interaction: {
+                    mode: "index",
+                    intersect: false
+                },
 
+                plugins: {
+                    legend: {
+                        display: false
+                    },
 
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const amount = Number(context.parsed.y || 0);
 
-<!-- Analytics Card -->
-<div class="dashboard-card mt-4">
+                                return "Revenue: RM " +
+                                    amount.toLocaleString("en-MY", {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    });
+                            }
+                        }
+                    }
+                },
 
-    <div class="card-header">
-        <h4>Analytics</h4>
-    </div>
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
 
+                        ticks: {
+                            color: "#64748b",
+                            maxRotation: 0,
+                            autoSkip: true
+                        }
+                    },
 
-    <div class="analytics-grid">
+                    y: {
+                        beginAtZero: true,
 
-        <div class="analytics-card">
+                        grid: {
+                            color: "#edf1f6"
+                        },
 
-            <h5>Today's Revenue</h5>
+                        ticks: {
+                            color: "#64748b",
+                            maxTicksLimit: 6,
 
-            <h2>
-                RM {{ today_revenue }}
-            </h2>
+                            callback: function(value) {
+                                return "RM " +
+                                    Number(value).toLocaleString("en-MY");
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
 
-        </div>
-
-
-        <div class="analytics-card">
-
-            <h5>This Month</h5>
-
-            <h2>
-                RM {{ month_revenue }}
-            </h2>
-
-        </div>
-
-    </div>
-
-</div>
+    if (document.readyState === "loading") {
+        document.addEventListener(
+            "DOMContentLoaded",
+            initializeRevenueChart
+        );
+    } else {
+        initializeRevenueChart();
+    }
+})();
+</script>

@@ -104,12 +104,6 @@ class Booking(models.Model):
         help_text="Deadline for completing payment."
     )
 
-    cancelled_at = models.DateTimeField(
-        null=True,
-        blank=True,
-        help_text="Date and time the booking was cancelled.",
-    )
-
     rejection_reason = models.TextField(
         blank=True,
         default="",

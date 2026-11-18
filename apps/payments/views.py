@@ -13,13 +13,27 @@ from apps.bookings.models import Booking
 from apps.helpdesk.services.data_access import get_customer_for_user
 from apps.emails.services import send_payment_receipt
 from django.utils import timezone
-from django.db import transaction
+from django.db import OperationalError
 from apps.accounts.decorators import role_required, customer_required
 from .services import process_simulated_payment, PaymentProcessingError
+from apps.bookings.availability_services import expire_pending_bookings
+
 
 @role_required(["Owner", "Admin", "Customer"])
 def payment_list(request):
     role = request.user.profile.role
+
+    # Expire pending bookings whose departure time has passed.
+    expire_pending_bookings()
+
+    # Synchronize unpaid payment records with cancelled bookings.
+    # Never modify Paid or Refunded transactions here.
+    Payment.objects.filter(
+        booking__booking_status="Cancelled",
+        payment_status="Pending",
+    ).update(
+        payment_status="Cancelled",
+    )
 
     payments = Payment.objects.select_related(
         "booking",
@@ -32,10 +46,15 @@ def payment_list(request):
         if not customer:
             payments = payments.none()
         else:
-            payments = payments.filter(booking__customer=customer)
+            payments = payments.filter(
+                booking__customer=customer
+            )
 
     elif role not in ["Owner", "Admin"]:
-        messages.error(request, "You do not have permission to view payments.")
+        messages.error(
+            request,
+            "You do not have permission to view payments."
+        )
         return redirect("dashboard")
 
     search = request.GET.get("search", "").strip()
@@ -49,7 +68,9 @@ def payment_list(request):
         )
 
     paginator = Paginator(payments, 10)
-    page_obj = paginator.get_page(request.GET.get("page"))
+    page_obj = paginator.get_page(
+        request.GET.get("page")
+    )
 
     return render(
         request,
@@ -62,7 +83,6 @@ def payment_list(request):
             "role": role,
         },
     )
-
 
 @customer_required
 def payment_create(request):

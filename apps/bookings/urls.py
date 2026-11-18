@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import review_views
 
 app_name = "bookings"
 
@@ -13,7 +14,7 @@ urlpatterns = [
 
     path("my-bookings/", views.customer_bookings, name="customer_bookings"),
 
-    path("review/<int:pk>/", views.booking_review, name="booking_review",),
+    path("<int:pk>/review/", review_views.booking_review, name="booking_review"),
 
     path("cancel/<int:pk>/", views.customer_cancel_booking, name="customer_cancel_booking",),
 

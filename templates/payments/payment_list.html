@@ -41,7 +41,7 @@ View customer payment transactions and payment status.
                 <th>Customer</th>
                 <th>Amount (RM)</th>
                 <th>Method</th>
-                <th>Payment Status</th>
+                <th class="text-center">Payment Status</th>
                 <th>Payment Date</th>
                 <th class="text-center">Actions</th>
             </tr>
@@ -60,19 +60,38 @@ View customer payment transactions and payment status.
                 <td>RM {{ payment.amount|floatformat:2 }}</td>
 
                 <td>{{ payment.payment_method }}</td>
+                
+                <!-- Payment Status -->
+                <td class="text-center">
 
-                <td>
-                    {% if payment.payment_status == "Paid" %}
+                    {% if payment.payment_status == "Refunded" %}
+                        <span class="badge bg-secondary">Refunded</span>
+
+                    {% elif payment.payment_status == "Paid" %}
                         <span class="badge bg-success">Paid</span>
-                    {% elif payment.payment_status == "Partially Paid" %}
-                        <span class="badge bg-info text-dark">Partially Paid</span>
+
+                    {% elif payment.booking.booking_status == "Pending" %}
+                        <span class="text-muted">-</span>
+
+                    {% elif payment.booking.booking_status == "Cancelled" %}
+                        <span class="text-muted">-</span>
+
+                    {% elif payment.payment_status == "Cancelled" %}
+                        <span class="text-muted">-</span>
+
                     {% elif payment.payment_status == "Pending" %}
                         <span class="badge bg-warning text-dark">Pending</span>
-                    {% elif payment.payment_status == "Refunded" %}
-                        <span class="badge bg-secondary">Refunded</span>
-                    {% elif payment.payment_status == "Cancelled" %}
-                        <span class="badge bg-danger">Cancelled</span>
+
+                    {% elif payment.payment_status == "Partially Paid" %}
+                        <span class="badge bg-info text-dark">Partially Paid</span>
+
+                    {% elif payment.payment_status == "Failed" %}
+                        <span class="badge bg-danger">Failed</span>
+
+                    {% else %}
+                        <span class="text-muted">-</span>
                     {% endif %}
+
                 </td>
 
                 <td>{{ payment.payment_date|date:"d M Y" }}</td>

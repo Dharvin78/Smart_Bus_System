@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from apps.bookings.models import Booking
 from .models import Payment
-
+from django.db.models import F
 
 class PaymentProcessingError(Exception):
     pass
@@ -14,7 +14,23 @@ class PaymentProcessingError(Exception):
 def process_simulated_payment(booking, customer, payment_method):
     try:
         with transaction.atomic():
-            locked_booking = Booking.objects.select_for_update().get(
+
+            # Acquire a SQLite write lock before reading
+            # and processing the booking payment.
+            updated = Booking.objects.filter(
+                pk=booking.pk,
+                customer=customer,
+            ).update(
+                updated_at=F("updated_at")
+            )
+
+            if updated != 1:
+                raise PaymentProcessingError(
+                    "Booking not found or access denied."
+                )
+
+            # Reload the booking after acquiring the write lock.
+            locked_booking = Booking.objects.get(
                 pk=booking.pk,
                 customer=customer,
             )
@@ -23,6 +39,22 @@ def process_simulated_payment(booking, customer, payment_method):
                 raise PaymentProcessingError(
                     "This booking is not available for payment."
                 )
+
+            # Prevent payment after the payment deadline.
+            now = timezone.now()
+
+            if locked_booking.payment_deadline is not None:
+                if now >= locked_booking.payment_deadline:
+                    raise PaymentProcessingError(
+                        "The payment deadline for this booking has expired."
+                    )
+            else:
+                # Legacy bookings without a payment deadline.
+                if now >= locked_booking.departure_datetime:
+                    raise PaymentProcessingError(
+                        "Payment is unavailable because the scheduled "
+                        "departure time has passed."
+                    )
 
             if (
                 locked_booking.payment_status == "Paid"

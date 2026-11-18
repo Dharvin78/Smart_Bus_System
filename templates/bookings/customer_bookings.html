@@ -1,292 +1,398 @@
+
 {% extends "layouts/base.html" %}
 
 {% block content %}
 
 <div class="container-fluid py-4">
 
-    <!-- Page Header -->
+    <!-- PAGE HEADER -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="fw-bold mb-1">
                 <i class="fa-solid fa-calendar-check me-2"></i>
                 My Bookings
             </h2>
+
             <p class="text-muted mb-0">
-                View your bus bookings, make payments, and rate your driver after a completed trip.
+                View your bus bookings, make payments,
+                download receipts, and rate your driver after a completed trip.
             </p>
         </div>
+
         <a href="{% url 'bookings:booking_create' %}"
-        class="btn btn-primary rounded-pill px-4 py-2">
-            <i class="bi bi-plus-circle me-2"></i>New Booking
+           class="btn btn-primary rounded-pill px-4 py-2">
+            <i class="bi bi-plus-circle me-2"></i>
+            New Booking
         </a>
     </div>
 
     {% if bookings %}
-        <div class="row g-4">
 
-            {% for booking in bookings %}
-                <div class="col-12">
-                    <div class="card border-0 shadow-sm rounded-4">
-                        <div class="card-body p-4">
+    <div class="row g-4">
 
-                            <!-- Booking Header -->
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div>
-                                    <span class="text-muted small">Booking Number</span>
-                                    <h5 class="fw-bold mb-0">
-                                        {{ booking.booking_number }}
-                                    </h5>
-                                </div>
+        {% for booking in bookings %}
 
-                                {% if booking.booking_status == "Completed" %}
-                                    <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">
-                                        <i class="fa-solid fa-circle-check me-1"></i>
-                                        Completed
-                                    </span>
-                                {% elif booking.booking_status == "Confirmed" %}
-                                    <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill">
-                                        <i class="fa-solid fa-circle-check me-1"></i>
-                                        Confirmed
-                                    </span>
-                                {% elif booking.booking_status == "Pending" %}
-                                    <span class="badge bg-warning-subtle text-warning px-3 py-2 rounded-pill">
-                                        <i class="fa-solid fa-clock me-1"></i>
-                                        Pending
-                                    </span>
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+
+                    <!-- BOOKING HEADER -->
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+
+                        <div>
+                            <span class="text-muted small">
+                                Booking Number
+                            </span>
+
+                            <h5 class="fw-bold mb-0">
+                                {{ booking.booking_number }}
+                            </h5>
+                        </div>
+
+                        {% if booking.booking_status == "Completed" %}
+                            <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">
+                                <i class="fa-solid fa-circle-check me-1"></i>
+                                Completed
+                            </span>
+
+                        {% elif booking.booking_status == "Confirmed" %}
+                            <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill">
+                                <i class="fa-solid fa-circle-check me-1"></i>
+                                Confirmed
+                            </span>
+
+                        {% elif booking.booking_status == "Pending" %}
+                            <span class="badge bg-warning-subtle text-warning px-3 py-2 rounded-pill">
+                                <i class="fa-solid fa-clock me-1"></i>
+                                Pending
+                            </span>
+
+                        {% else %}
+                            <span class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill">
+                                <i class="fa-solid fa-circle-xmark me-1"></i>
+                                {{ booking.booking_status }}
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+                    <hr>
+
+                    <!-- BOOKING INFORMATION -->
+                    <div class="row g-4">
+
+                        <div class="col-md-3">
+                            <div class="text-muted small mb-1">
+                                <i class="fa-regular fa-calendar me-1"></i>
+                                Travel Date
+                            </div>
+
+                            <div class="fw-semibold">
+                                {{ booking.travel_date|date:"d M Y" }}
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="text-muted small mb-1">
+                                <i class="fa-regular fa-clock me-1"></i>
+                                Departure
+                            </div>
+
+                            <div class="fw-semibold">
+                                {{ booking.departure_time|time:"h:i A" }}
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="text-muted small mb-1">
+                                <i class="fa-solid fa-user-tie me-1"></i>
+                                Driver
+                            </div>
+
+                            <div class="fw-semibold">
+                                {% if booking.driver %}
+                                    {{ booking.driver.full_name }}
                                 {% else %}
-                                    <span class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill">
-                                        <i class="fa-solid fa-circle-xmark me-1"></i>
-                                        {{ booking.booking_status }}
+                                    <span class="text-muted">
+                                        Not assigned
                                     </span>
                                 {% endif %}
                             </div>
+                        </div>
 
-                            <hr>
-
-                            <!-- Booking Information -->
-                            <div class="row g-4">
-
-                                <div class="col-md-3">
-                                    <div class="text-muted small mb-1">
-                                        <i class="fa-regular fa-calendar me-1"></i>
-                                        Travel Date
-                                    </div>
-                                    <div class="fw-semibold">
-                                        {{ booking.travel_date|date:"d M Y" }}
-                                    </div>
-                                </div>
-
-                                <div class="col-md-3">
-                                    <div class="text-muted small mb-1">
-                                        <i class="fa-regular fa-clock me-1"></i>
-                                        Departure
-                                    </div>
-                                    <div class="fw-semibold">
-                                        {{ booking.departure_time|time:"h:i A" }}
-                                    </div>
-                                </div>
-
-                                <div class="col-md-3">
-                                    <div class="text-muted small mb-1">
-                                        <i class="fa-solid fa-user-tie me-1"></i>
-                                        Driver
-                                    </div>
-                                    <div class="fw-semibold">
-                                        {% if booking.driver %}
-                                            {{ booking.driver.full_name }}
-                                        {% else %}
-                                            <span class="text-muted">Not assigned</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-
-                                <div class="col-md-3">
-                                    <div class="text-muted small mb-1">
-                                        <i class="fa-solid fa-bus me-1"></i>
-                                        Vehicle
-                                    </div>
-                                    <div class="fw-semibold">
-                                        {% if booking.vehicle %}
-                                            {{ booking.vehicle.vehicle_name }}
-                                        {% else %}
-                                            <span class="text-muted">Not assigned</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="text-muted small mb-1">
-                                        <i class="fa-solid fa-route me-1"></i>
-                                        Route
-                                    </div>
-                                    <div class="fw-semibold">
-                                        {{ booking.pickup_location }}
-                                        <span class="text-muted mx-2">→</span>
-                                        {{ booking.destination }}
-                                    </div>
-                                </div>
-
-                                <div class="col-md-3">
-                                    <div class="text-muted small mb-1">
-                                        <i class="fa-solid fa-users me-1"></i>
-                                        Passengers
-                                    </div>
-                                    <div class="fw-semibold">
-                                        {{ booking.passenger_count }}
-                                    </div>
-                                </div>
-
-                                <div class="col-md-3">
-                                    <div class="text-muted small mb-1">
-                                        <i class="fa-solid fa-money-bill-wave me-1"></i>
-                                        Total Price
-                                    </div>
-                                    <div class="fw-bold">
-                                        RM {{ booking.total_price|floatformat:2 }}
-                                    </div>
-                                </div>
-
+                        <div class="col-md-3">
+                            <div class="text-muted small mb-1">
+                                <i class="fa-solid fa-bus me-1"></i>
+                                Vehicle
                             </div>
 
-                            <!-- Payment Section -->
-                            {% if booking.booking_status == "Confirmed" %}
-                                <hr class="my-4">
+                            <div class="fw-semibold">
+                                {% if booking.vehicle %}
+                                    {{ booking.vehicle.vehicle_name }}
+                                {% else %}
+                                    <span class="text-muted">
+                                        Not assigned
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
 
-                                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-                                    <div>
-                                        <h6 class="fw-bold mb-1">
-                                            <i class="fa-solid fa-credit-card me-2"></i>
-                                            Payment
-                                        </h6>
+                        <div class="col-md-6">
+                            <div class="text-muted small mb-1">
+                                <i class="fa-solid fa-route me-1"></i>
+                                Route
+                            </div>
 
-                                        {% if booking.payment_status == "Paid" %}
-                                            <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">
-                                                <i class="fa-solid fa-circle-check me-1"></i>
-                                                Payment Completed
-                                            </span>
-                                        {% elif booking.total_price <= 0 %}
-                                            <p class="text-danger small mb-0">
-                                                The booking price has not been set. Please contact the administrator.
-                                            </p>
-                                        {% else %}
-                                            <p class="text-muted small mb-0">
-                                                Your booking is confirmed. You can proceed with payment.
-                                            </p>
-                                        {% endif %}
-                                    </div>
+                            <div class="fw-semibold">
+                                {{ booking.pickup_location }}
+                                <span class="text-muted mx-2">→</span>
+                                {{ booking.destination }}
+                            </div>
+                        </div>
 
-                                    {% if booking.payment_status == "Paid" %}
-                                        <a href="{% url 'payments:payment_list' %}"
-                                           class="btn btn-outline-success rounded-pill px-4">
+                        <div class="col-md-3">
+                            <div class="text-muted small mb-1">
+                                <i class="fa-solid fa-users me-1"></i>
+                                Passengers
+                            </div>
+
+                            <div class="fw-semibold">
+                                {{ booking.passenger_count }}
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="text-muted small mb-1">
+                                <i class="fa-solid fa-money-bill-wave me-1"></i>
+                                Total Price
+                            </div>
+
+                            <div class="fw-bold">
+                                RM {{ booking.total_price|floatformat:2 }}
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <!-- =====================================
+                         PAYMENT SECTION
+                         AVAILABLE AFTER COMPLETION
+                    ====================================== -->
+
+                    {% if booking.booking_status == "Confirmed" or booking.booking_status == "Completed" %}
+
+                    <hr class="my-4">
+
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+
+                        <div>
+                            <h6 class="fw-bold mb-1">
+                                <i class="fa-solid fa-credit-card me-2"></i>
+                                Payment
+                            </h6>
+
+                            {% if booking.payment_status == "Paid" %}
+
+                                <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">
+                                    <i class="fa-solid fa-circle-check me-1"></i>
+                                    Payment Completed
+                                </span>
+
+                            {% elif booking.payment_status == "Refunded" %}
+
+                                <span class="badge bg-secondary-subtle text-secondary px-3 py-2 rounded-pill">
+                                    Payment Refunded
+                                </span>
+
+                            {% elif booking.total_price <= 0 %}
+
+                                <p class="text-danger small mb-0">
+                                    The booking price has not been set.
+                                    Please contact the administrator.
+                                </p>
+
+                            {% elif booking.booking_status == "Completed" %}
+
+                                <p class="text-muted small mb-0">
+                                    This trip has been completed.
+                                    Please contact the administrator regarding
+                                    any outstanding payment.
+                                </p>
+
+                            {% else %}
+
+                                <p class="text-muted small mb-0">
+                                    Your booking is confirmed.
+                                    You can proceed with payment.
+                                </p>
+
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2">
+
+                            {% if booking.payment_status == "Paid" %}
+
+                                {% for payment in booking.payments.all %}
+                                    {% if payment.payment_status == "Paid" %}
+
+                                        <a href="{% url 'payments:payment_receipt' payment.pk %}"
+                                        class="btn btn-outline-success rounded-pill px-4">
+
                                             <i class="fa-solid fa-receipt me-2"></i>
-                                            View Payment
+                                            View Receipt
                                         </a>
-                                    {% elif booking.total_price > 0 %}
-                                        <a href="{% url 'payments:payment_create' %}?booking={{ booking.pk }}"
-                                           class="btn btn-success rounded-pill px-4">
-                                            <i class="fa-solid fa-credit-card me-2"></i>
-                                            Pay Now
-                                        </a>
+
                                     {% endif %}
-                                </div>
-                            {% endif %}
+                                {% endfor %}
 
-                            <!-- Customer Cancellation Section -->
-                            {% if booking.booking_status == "Pending" %}
+                            {% elif booking.booking_status == "Confirmed" and booking.total_price > 0 and booking.payment_status == "Pending" %}
 
-                                <hr class="my-4">
+                                <a href="{% url 'payments:payment_create' %}?booking={{ booking.pk }}"
+                                   class="btn btn-success rounded-pill px-4">
 
-                                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                                    <i class="fa-solid fa-credit-card me-2"></i>
+                                    Pay Now
+                                </a>
 
-                                    <div>
-                                        <h6 class="fw-bold mb-1">
-                                            <i class="fa-solid fa-clock text-warning me-2"></i>
-                                            Awaiting Approval
-                                        </h6>
-
-                                        <p class="text-muted small mb-0">
-                                            Your booking request is awaiting approval from the
-                                            Admin/Owner. You may cancel it before approval.
-                                        </p>
-                                    </div>
-
-                                    <form method="POST"
-                                        action="{% url 'bookings:customer_cancel_booking' booking.pk %}"
-                                        onsubmit="return confirm('Are you sure you want to cancel this booking? This action cannot be undone.');"
-                                        class="m-0">
-
-                                        {% csrf_token %}
-
-                                        <button type="submit"
-                                                class="btn btn-danger rounded-pill px-4">
-
-                                            <i class="fa-solid fa-xmark me-2"></i>
-                                            Cancel
-
-                                        </button>
-                                    </form>
-
-                                </div>
-
-                            {% endif %}
-
-                            <!-- Driver Review Section -->
-                            {% if booking.booking_status == "Completed" %}
-                                <hr class="my-4">
-
-                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                                    <div>
-                                        <h6 class="fw-bold mb-1">
-                                            <i class="fa-solid fa-star text-warning me-2"></i>
-                                            Driver Feedback
-                                        </h6>
-
-                                        {% if booking.driver_review %}
-                                            <p class="text-muted small mb-0">
-                                                You have already reviewed this driver.
-                                            </p>
-                                        {% else %}
-                                            <p class="text-muted small mb-0">
-                                                Share your experience with the driver.
-                                            </p>
-                                        {% endif %}
-                                    </div>
-
-                                    {% if booking.driver_review %}
-                                        <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">
-                                            <i class="fa-solid fa-check me-1"></i>
-                                            Review Submitted
-                                        </span>
-                                    {% else %}
-                                        <a href="{% url 'drivers:driver_review' booking.pk %}"
-                                           class="btn btn-warning px-4 rounded-pill fw-semibold">
-                                            <i class="fa-solid fa-star me-2"></i>
-                                            Rate Driver
-                                        </a>
-                                    {% endif %}
-                                </div>
                             {% endif %}
 
                         </div>
+
                     </div>
-                </div>
-            {% endfor %}
 
-        </div>
+                    {% endif %}
 
-    {% else %}
-        <!-- Empty State -->
-        <div class="card border-0 shadow-sm rounded-4">
-            <div class="card-body text-center py-5">
-                <div class="mb-3">
-                    <i class="fa-solid fa-calendar-xmark fa-3x text-muted"></i>
+
+                    <!-- =====================================
+                         CUSTOMER CANCELLATION
+                    ====================================== -->
+
+                    {% if booking.booking_status == "Pending" %}
+
+                    <hr class="my-4">
+
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+
+                        <div>
+                            <h6 class="fw-bold mb-1">
+                                <i class="fa-solid fa-clock text-warning me-2"></i>
+                                Awaiting Approval
+                            </h6>
+
+                            <p class="text-muted small mb-0">
+                                Your booking request is awaiting approval
+                                from the Admin/Owner.
+                                You may cancel it before approval.
+                            </p>
+                        </div>
+
+                        <form method="POST"
+                              action="{% url 'bookings:customer_cancel_booking' booking.pk %}"
+                              onsubmit="return confirm('Are you sure you want to cancel this booking? This action cannot be undone.');"
+                              class="m-0">
+
+                            {% csrf_token %}
+
+                            <button type="submit"
+                                    class="btn btn-danger rounded-pill px-4">
+
+                                <i class="fa-solid fa-xmark me-2"></i>
+                                Cancel
+                            </button>
+                        </form>
+
+                    </div>
+
+                    {% endif %}
+
+
+                    <!-- =====================================
+                         DRIVER REVIEW
+                    ====================================== -->
+
+                    {% if booking.booking_status == "Completed" and booking.driver %}
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+                        <div>
+                            <h6 class="fw-bold mb-1">
+                                <i class="fa-solid fa-star text-warning me-2"></i>
+                                Driver Feedback
+                            </h6>
+
+                            {% if booking.driver_review %}
+
+                                <p class="text-muted small mb-0">
+                                    You have already reviewed
+                                    {{ booking.driver.full_name }}.
+                                </p>
+
+                            {% else %}
+
+                                <p class="text-muted small mb-0">
+                                    Your trip has been completed.
+                                    Share your experience with
+                                    {{ booking.driver.full_name }}.
+                                </p>
+
+                            {% endif %}
+                        </div>
+
+                        {% if booking.driver_review %}
+
+                            <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">
+                                <i class="fa-solid fa-check me-1"></i>
+                                Review Submitted
+                            </span>
+
+                        {% else %}
+
+                            <a href="{% url 'drivers:driver_review' booking.pk %}"
+                               class="btn btn-warning px-4 rounded-pill fw-semibold">
+
+                                <i class="fa-solid fa-star me-2"></i>
+                                Rate Driver
+                            </a>
+
+                        {% endif %}
+
+                    </div>
+
+                    {% endif %}
+
                 </div>
-                <h5 class="fw-bold">No bookings found</h5>
-                <p class="text-muted mb-0">
-                    You currently do not have any bookings.
-                </p>
             </div>
         </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+    <!-- EMPTY STATE -->
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body text-center py-5">
+
+            <div class="mb-3">
+                <i class="fa-solid fa-calendar-xmark fa-3x text-muted"></i>
+            </div>
+
+            <h5 class="fw-bold">
+                No bookings found
+            </h5>
+
+            <p class="text-muted mb-0">
+                You currently do not have any bookings.
+            </p>
+
+        </div>
+    </div>
+
     {% endif %}
 
 </div>

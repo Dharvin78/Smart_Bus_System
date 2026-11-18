@@ -1,5 +1,4 @@
-
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.db.models import Q
 from django.utils import timezone
@@ -11,6 +10,10 @@ from apps.maintenance.services import (
     vehicle_has_active_maintenance,
     driver_has_active_maintenance,
 )
+from django.db import transaction
+from django.db.models import Exists, OuterRef
+from apps.payments.models import Payment
+from apps.audit.models import AuditLog
 
 
 # ============================================================
@@ -268,3 +271,241 @@ def has_maintenance_date_conflict(
         )
 
     return maintenance_records.exists()
+
+
+# ============================================================
+# 5. DRIVER REST RECOMMENDATION
+# ============================================================
+
+def get_driver_rest_recommendation(
+    driver,
+    travel_date,
+    exclude_booking_id=None,
+):
+    """
+    Recommend one rest day after a driver has been
+    assigned a trip lasting 3 or more calendar days.
+
+    This is a recommendation only.
+    It does not block booking approval.
+    """
+
+    previous_date = travel_date - timedelta(days=1)
+
+    previous_bookings = Booking.objects.filter(
+        driver=driver,
+        booking_status__in=["Confirmed", "Completed"],
+        travel_date__lte=previous_date,
+    ).filter(
+        Q(return_date=previous_date) |
+        Q(
+            return_date__isnull=True,
+            travel_date=previous_date,
+        )
+    )
+
+    if exclude_booking_id is not None:
+        previous_bookings = previous_bookings.exclude(
+            pk=exclude_booking_id
+        )
+
+    for booking in previous_bookings:
+
+        trip_end = booking.return_date or booking.travel_date
+
+        trip_duration = (
+            trip_end - booking.travel_date
+        ).days + 1
+
+        if trip_duration >= 3:
+            return (
+                f"Rest Recommended: {driver.full_name} "
+                f"has a {trip_duration}-day trip ending "
+                f"on {trip_end:%d %B %Y}. "
+                f"Consider allowing one rest day on "
+                f"{travel_date:%d %B %Y} before assigning "
+                f"another trip."
+            )
+
+    return None
+
+# ============================================================
+# 6. AUTOMATIC EXPIRATION OF PENDING BOOKINGS
+# ============================================================
+
+def expire_pending_bookings():
+    """
+    Automatically cancel pending bookings when their
+    scheduled departure date and time have passed.
+
+    Returns the number of expired bookings.
+    """
+
+    now = timezone.localtime()
+    today = now.date()
+    current_time = now.time()
+
+    expired_bookings = Booking.objects.filter(
+        booking_status="Pending"
+    ).filter(
+        Q(travel_date__lt=today) |
+        Q(
+            travel_date=today,
+            departure_time__lte=current_time,
+        )
+    )
+
+    return expired_bookings.update(
+        booking_status="Cancelled",
+        rejection_reason=(
+            "Automatically cancelled because the scheduled "
+            "departure time passed without approval."
+        ),
+        cancelled_at=timezone.now(),
+        updated_at=timezone.now(),
+    )
+
+
+# ============================================================
+# 7. AUTOMATIC EXPIRATION OF UNPAID CONFIRMED BOOKINGS
+# ============================================================
+
+def expire_unpaid_confirmed_bookings(dry_run=True):
+    """
+    Cancel unpaid confirmed bookings when:
+
+    1. Their payment deadline has expired.
+    2. No payment deadline exists and departure has passed.
+
+    Protect bookings with Paid or Partially Paid records.
+
+    dry_run=True:
+        Identify bookings without modifying records.
+
+    dry_run=False:
+        Cancel eligible bookings and pending payments.
+    """
+
+    now = timezone.now()
+    local_now = timezone.localtime(now)
+
+    paid_payments = Payment.objects.filter(
+        booking_id=OuterRef("pk"),
+        payment_status__in=["Paid", "Partially Paid"],
+    )
+
+    candidates = Booking.objects.filter(
+        booking_status="Confirmed",
+        payment_status="Pending",
+    ).annotate(
+        has_successful_payment=Exists(paid_payments)
+    ).filter(
+        has_successful_payment=False
+    ).filter(
+        Q(
+            payment_deadline__isnull=False,
+            payment_deadline__lte=now,
+        )
+        |
+        Q(
+            payment_deadline__isnull=True,
+            travel_date__lt=local_now.date(),
+        )
+        |
+        Q(
+            payment_deadline__isnull=True,
+            travel_date=local_now.date(),
+            departure_time__lte=local_now.time(),
+        )
+    )
+
+    if dry_run:
+        return list(
+            candidates.values_list(
+                "booking_number",
+                flat=True,
+            )
+        )
+
+    cancelled = []
+
+    with transaction.atomic():
+
+        # Acquire a SQLite write lock before checking
+        # and updating booking/payment records.
+        Booking.objects.filter(
+            pk__in=candidates.values("pk")
+        ).update(
+            updated_at=now
+        )
+
+        # Re-evaluate after acquiring the write lock.
+        for booking in candidates:
+
+            if booking.payment_deadline is not None:
+                expired = now >= booking.payment_deadline
+            else:
+                expired = now >= booking.departure_datetime
+
+            if not expired:
+                continue
+
+            # Recheck payment records before cancellation.
+            if Payment.objects.filter(
+                booking=booking,
+                payment_status__in=["Paid", "Partially Paid"],
+            ).exists():
+                continue
+
+            if booking.booking_status != "Confirmed":
+                continue
+
+            booking.booking_status = "Cancelled"
+            booking.cancelled_at = now
+            booking.rejection_reason = (
+                "Automatically cancelled because payment "
+                "was not completed before the deadline."
+                if booking.payment_deadline is not None
+                else
+                "Automatically cancelled because the "
+                "scheduled departure passed without payment."
+            )
+
+            booking.save(
+                update_fields=[
+                    "booking_status",
+                    "cancelled_at",
+                    "rejection_reason",
+                    "updated_at",
+                ]
+            )
+
+            
+            Payment.objects.filter(
+                booking=booking,
+                payment_status="Pending",
+            ).update(
+                payment_status="Cancelled",
+            )
+
+            # Record automatic cancellation in the audit log.
+            
+            AuditLog.objects.create(
+                user=None,
+                module="Bookings",
+                action="PAYMENT_EXPIRED",
+                booking=booking,
+                customer=booking.customer,
+                description=(
+                    f"Booking {booking.booking_number} was automatically "
+                    f"cancelled by the system due to an expired payment "
+                    f"deadline or an unpaid departure. "
+                    f"Reason: {booking.rejection_reason}"
+                ),
+                ip_address=None,
+            )
+
+
+            cancelled.append(booking.booking_number)
+
+    return cancelled

@@ -1,83 +1,91 @@
-<div class="kpi-grid">
 
-    <!-- Revenue -->
-    <div class="kpi-card">
+<div class="kpi-grid modern-kpi-grid">
+
+    <!-- TOTAL REVENUE -->
+    <div class="kpi-card modern-kpi-card">
+
+        <div class="kpi-content">
+            <h5>Total Revenue</h5>
+
+            <h2>
+                RM {{ total_revenue|floatformat:2 }}
+            </h2>
+
+            <span>
+                Paid transaction revenue
+            </span>
+        </div>
 
         <div class="kpi-icon revenue">
             <i class="fa-solid fa-wallet"></i>
         </div>
 
-        <div class="kpi-content">
-            <h5>Total Revenue</h5>
-            <h2>RM {{ total_revenue|default:"0.00" }}</h2>
-            <span class="success-text">
-                <i class="fa-solid fa-arrow-trend-up"></i>
-                Revenue Generated
-            </span>
-        </div>
-
     </div>
 
-    <!-- Bookings -->
 
-    <div class="kpi-card">
+    <!-- TOTAL BOOKINGS -->
+    <div class="kpi-card modern-kpi-card">
+
+        <div class="kpi-content">
+            <h5>Total Bookings</h5>
+
+            <h2>
+                {{ total_bookings|default:"0" }}
+            </h2>
+
+            <span>
+                All-time bookings
+            </span>
+        </div>
 
         <div class="kpi-icon booking">
             <i class="fa-solid fa-calendar-check"></i>
         </div>
 
-        <div class="kpi-content">
-            <h5>Total Bookings</h5>
-            <h2>{{ total_bookings|default:"0" }}</h2>
-            <span>
-                Active Bookings
-            </span>
-        </div>
-
     </div>
 
-    <!-- Vehicles -->
 
-    <div class="kpi-card">
+    <!-- TOTAL VEHICLES -->
+    <div class="kpi-card modern-kpi-card">
+
+        <div class="kpi-content">
+            <h5>Total Vehicles</h5>
+
+            <h2>
+                {{ total_vehicles|default:"0" }}
+            </h2>
+
+            <span>
+                Registered vehicles
+            </span>
+        </div>
 
         <div class="kpi-icon vehicle">
             <i class="fa-solid fa-bus"></i>
         </div>
 
-        <div class="kpi-content">
-
-            <h5>Vehicles</h5>
-
-            <h2>{{ total_vehicles|default:"0" }}</h2>
-
-            <span>
-                Fleet Available
-            </span>
-
-        </div>
-
     </div>
 
-    <!-- Drivers -->
 
-    <div class="kpi-card">
+    <!-- TOTAL DRIVERS -->
+    <div class="kpi-card modern-kpi-card">
+
+        <div class="kpi-content">
+            <h5>Total Drivers</h5>
+
+            <h2>
+                {{ total_drivers|default:"0" }}
+            </h2>
+
+            <span>
+                Registered drivers
+            </span>
+        </div>
 
         <div class="kpi-icon driver">
             <i class="fa-solid fa-user-tie"></i>
         </div>
 
-        <div class="kpi-content">
-
-            <h5>Drivers</h5>
-
-            <h2>{{ total_drivers|default:"0" }}</h2>
-
-            <span>
-                Registered Drivers
-            </span>
-
-        </div>
-        
     </div>
 
 </div>
